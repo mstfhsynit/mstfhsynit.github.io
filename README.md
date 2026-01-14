@@ -1,6 +1,6 @@
 # mstfhsynit.github.io
 
-Bu site GitHub Pages kullanılarak tamamen ücretsiz oluşturulmuştur.
+Bu site MUSTAFA HÜSEYİN E AİTTİR PARA İLE SATILABİLİR 
 
 ## İçerik
 - HTML
