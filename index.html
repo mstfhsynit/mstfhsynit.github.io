@@ -3,9 +3,81 @@
 <head>
   <meta charset="UTF-8">
   <title>Mstfhsynit</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 40px;
+      border-radius: 15px;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 32px;
+      color: #00e5ff;
+    }
+
+    p {
+      font-size: 16px;
+      line-height: 1.6;
+      opacity: 0.9;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 25px;
+      background: #00e5ff;
+      color: #002b36;
+      text-decoration: none;
+      border-radius: 30px;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      background: #1de9b6;
+    }
+
+    footer {
+      margin-top: 25px;
+      font-size: 13px;
+      opacity: 0.7;
+    }
+  </style>
 </head>
 <body>
-  <h1>Merhaba</h1>
-  <p>Bu benim tamamen ücretsiz web sitem.</p>
+
+  <div class="card">
+    <h1>Merhaba 👋</h1>
+    <p>
+      Bu benim GitHub Pages ile oluşturduğum  
+      <strong>tamamen ücretsiz</strong> web sitem.
+    </p>
+
+    <a class="btn" href="https://github.com/mstfhsynit" target="_blank">
+      GitHub Profilim
+    </a>
+
+    <footer>
+      © 2026 • mstfhsynit
+    </footer>
+  </div>
+
 </body>
 </html>
