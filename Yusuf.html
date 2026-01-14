@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Yusuf Oyunu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: white;
+      text-align: center;
+      padding: 50px;
+    }
+    h1 { color: #00e5ff; }
+    input { padding: 8px; border-radius: 5px; border: none; width: 50px; text-align: center; }
+    button { padding: 10px 20px; border-radius: 20px; border: none; background: #00e5ff; color: #002b36; font-weight: bold; cursor: pointer; margin: 10px; }
+    button:hover { background: #1de9b6; }
+    p { font-size: 16px; }
+  </style>
+</head>
+<body>
+
+<h1>Yusuf bu oyunu oyna 🎲</h1>
+<p>Basit matematik işlemlerini çöz ve başarıyı gör!</p>
+
+<div id="game">
+  <p id="question"></p>
+  <input type="number" id="answer" placeholder="Cevap">
+  <button onclick="checkAnswer()">Gönder</button>
+  <p id="result"></p>
+</div>
+
+<script>
+let questions = [
+  {q: "3 + 4 = ?", a: 7},
+  {q: "5 × 2 = ?", a: 10},
+  {q: "6 + 7 = ?", a: 13},
+  {q: "4 × 3 = ?", a: 12}
+];
+
+let index = 0;
+
+function showQuestion() {
+  document.getElementById("question").innerText = questions[index].q;
+  document.getElementById("answer").value = "";
+  document.getElementById("result").innerText = "";
+}
+
+function checkAnswer() {
+  let userAnswer = Number(document.getElementById("answer").value);
+  if(userAnswer === questions[index].a) {
+    document.getElementById("result").innerText = "Tebrikler ✅ Doğru!";
+    index++;
+    if(index < questions.length) {
+      setTimeout(showQuestion, 1000);
+    } else {
+      setTimeout(() => {
+        document.getElementById("game").innerHTML = "<h2>Harika, tüm soruları tamamladın! 🎉</h2>";
+      }, 1000);
+    }
+  } else {
+    document.getElementById("result").innerText = "Yanlış ❌ Tekrar dene!";
+  }
+}
+
+showQuestion();
+</script>
+
+</body>
+</html>
