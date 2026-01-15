@@ -6,17 +6,67 @@
     <style>
         body {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f0f8ff;
-            font-family: Arial, sans-serif;
-            font-size: 2em;
+            margin: 0;
+            background: radial-gradient(circle at top, #f0f8ff, #e6e6fa);
+            font-family: 'Arial', sans-serif;
             color: #4b0082;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin: 0.3em;
+            text-shadow: 2px 2px 5px #aaa;
+        }
+
+        p {
+            font-size: 2em;
+            margin: 0.2em;
+            text-shadow: 1px 1px 3px #ccc;
+        }
+
+        /* Yıldız animasyonu */
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            width: 2px;
+            height: 2px;
+            opacity: 0.8;
+            animation: twinkle 2s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% {opacity: 0.3;}
+            100% {opacity: 1;}
         }
     </style>
 </head>
 <body>
-    Miraç Kandiliniz Mübarek Olsun
+    <h1>Miraç Kandiliniz Mübarek Olsun</h1>
+    <p>Subhanallah</p>
+    <p>Elhamdülillah</p>
+    <p>Allahu Akbar</p>
+    <p>La ilahe illallah</p>
+    <p>Astaghfirullah</p>
+    <p>Allahümme salli ala Muhammed</p>
+
+    <script>
+        // Yıldızları oluştur
+        for(let i=0; i<50; i++){
+            const star = document.createElement("div");
+            star.className = "star";
+            star.style.top = Math.random()*100 + "%";
+            star.style.left = Math.random()*100 + "%";
+            star.style.width = star.style.height = Math.random()*3 + 1 + "px";
+            star.style.animationDuration = (Math.random()*3 + 1) + "s";
+            document.body.appendChild(star);
+        }
+    </script>
 </body>
 </html>
