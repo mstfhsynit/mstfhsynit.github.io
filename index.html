@@ -44,6 +44,7 @@ button{
   border-radius:15px;
   background:#4cc9f0;
   cursor:pointer;
+  margin:5px;
 }
 
 section{ display:none; padding:20px; }
@@ -96,14 +97,17 @@ canvas{
   <div class="card"><h3>🧮 Matematik</h3><button onclick="openSec('math')">Çöz</button></div>
   <div class="card"><h3>🔤 Harf Oyunu</h3><button onclick="openSec('harf')">Başla</button></div>
   <div class="card"><h3>🧠 Hafıza</h3><button onclick="openSec('memory')">Oyna</button></div>
-  <div class="card"><h3>🎵 Müzik</h3><button onclick="playMusic()">Çal</button></div>
+  <div class="card">
+    <h3>🎵 Müzik</h3>
+    <button onclick="toggleMusic()">▶️ / ⏸️</button>
+  </div>
 </div>
 
 <!-- LABİRENT -->
 <section id="lab">
 <h2>Labirent</h2>
 <div id="maze"></div><br>
-<button onclick="move('up')">⬆️</button>
+<button onclick="move('up')">⬆️</button><br>
 <button onclick="move('left')">⬅️</button>
 <button onclick="move('down')">⬇️</button>
 <button onclick="move('right')">➡️</button><br><br>
@@ -122,7 +126,7 @@ canvas{
 <section id="math">
 <h2>Matematik</h2>
 <p id="q"></p>
-<input id="a"><br><br>
+<input id="a" type="number"><br><br>
 <button onclick="checkMath()">Kontrol</button>
 <button onclick="back()">Geri</button>
 </section>
@@ -144,32 +148,45 @@ canvas{
 
 <audio id="music" loop>
  <source src="senay.mp3" type="audio/mpeg">
-
 </audio>
 
 <script>
 function openSec(id){
- document.getElementById("menu").style.display="none";
+ menu.style.display="none";
  document.querySelectorAll("section").forEach(s=>s.style.display="none");
  document.getElementById(id).style.display="block";
 }
 function back(){
- document.getElementById("menu").style.display="grid";
+ menu.style.display="grid";
  document.querySelectorAll("section").forEach(s=>s.style.display="none");
 }
 
 /* MÜZİK */
-function playMusic(){ document.getElementById("music").play(); }
+let playing=false;
+function toggleMusic(){
+ const m=document.getElementById("music");
+ if(!playing){
+   m.play();
+   playing=true;
+ }else{
+   m.pause();
+   playing=false;
+ }
+}
 
 /* BOYAMA */
-let ctx=c.getContext("2d"), draw=false;
+const c=document.getElementById("c");
+const ctx=c.getContext("2d");
+let draw=false;
+
 c.addEventListener("touchstart",()=>draw=true);
 c.addEventListener("touchend",()=>draw=false);
 c.addEventListener("touchmove",e=>{
  e.preventDefault();
  if(draw){
   let t=e.touches[0], r=c.getBoundingClientRect();
-  ctx.fillRect(t.clientX-r.left,t.clientY-r.top,5,5);
+  ctx.fillStyle="#ff006e";
+  ctx.fillRect(t.clientX-r.left,t.clientY-r.top,6,6);
  }
 });
 function clearC(){ ctx.clearRect(0,0,300,300); }
@@ -179,11 +196,11 @@ let x,y;
 function newQ(){
  x=Math.floor(Math.random()*10);
  y=Math.floor(Math.random()*10);
- q.innerText=x+" + "+y+" = ?";
+ q.innerText=`${x} + ${y} = ?`;
 }
 newQ();
 function checkMath(){
- alert(Number(a.value)==x+y ? "Aferin!" : "Tekrar dene");
+ alert(Number(a.value)==x+y ? "🎉 Aferin!" : "❌ Tekrar dene");
  newQ(); a.value="";
 }
 
@@ -217,7 +234,7 @@ function flip(d,e){
      open[1].innerText="❓";
     }
     open=[];
-   },800);
+   },700);
   }
  }
 }
@@ -234,6 +251,7 @@ const mazeData=[
 ["W","W","W","W","W","W","W","G"]
 ];
 let px=0,py=0;
+
 function drawMaze(){
  maze.innerHTML="";
  for(let y=0;y<7;y++){
@@ -249,13 +267,19 @@ function drawMaze(){
 }
 function move(dir){
  let nx=px,ny=py;
- if(dir=="up")ny--; if(dir=="down")ny++;
- if(dir=="left")nx--; if(dir=="right")nx++;
+ if(dir=="up")ny--;
+ if(dir=="down")ny++;
+ if(dir=="left")nx--;
+ if(dir=="right")nx++;
  if(nx>=0&&ny>=0&&nx<8&&ny<7&&mazeData[ny][nx]!="W"){
   px=nx; py=ny;
  }
  drawMaze();
- if(mazeData[py][px]=="G"){ alert("🎉 Başardın!"); px=0;py=0; drawMaze(); }
+ if(mazeData[py][px]=="G"){
+  alert("🎉 Kazandın!");
+  px=0; py=0;
+  drawMaze();
+ }
 }
 drawMaze();
 </script>
