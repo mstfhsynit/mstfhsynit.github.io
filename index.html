@@ -2,169 +2,193 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Akerayticaret | Demo</title>
+<title>Çocuk Etkinlik Merkezi</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-*{box-sizing:border-box}
 body{
   margin:0;
   font-family:Arial, sans-serif;
-  background:#f4f4f4;
+  background:#e3f2fd;
+  text-align:center;
 }
 
 /* HEADER */
 header{
-  background:#000;
-  color:#fff;
+  background:#ff9800;
   padding:15px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-header h1{margin:0;font-size:20px}
-header span{font-size:13px;color:#bbb}
-
-/* PRODUCTS */
-.products{
-  padding:15px;
-  display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px,1fr));
-  gap:15px;
-}
-.product{
-  background:#fff;
-  border-radius:10px;
-  padding:10px;
-  text-align:center;
-  box-shadow:0 2px 6px rgba(0,0,0,.1);
-}
-.product img{
-  width:100%;
-  height:150px;
-  object-fit:cover;
-  border-radius:8px;
-}
-.product h3{
-  font-size:14px;
-  margin:8px 0 4px;
-}
-.product p{
-  color:#e91e63;
+  color:white;
+  font-size:22px;
   font-weight:bold;
-  margin:4px 0;
 }
-.product button{
-  width:100%;
-  padding:8px;
+
+/* MENU */
+.menu{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:15px;
+}
+.menu button{
+  padding:10px 15px;
   border:none;
-  border-radius:6px;
-  background:#000;
-  color:#fff;
+  border-radius:10px;
+  background:#4caf50;
+  color:white;
+  font-size:16px;
   cursor:pointer;
 }
-.product button:hover{background:#333}
+.menu button:hover{background:#388e3c}
 
-/* CART */
-.cart{
-  position:fixed;
-  bottom:0; left:0; right:0;
-  background:#fff;
-  border-top:2px solid #ddd;
-  padding:10px;
+/* SECTIONS */
+.section{
+  display:none;
+  padding:15px;
 }
-.cart h2{
-  margin:0 0 5px;
-  font-size:16px;
+.active{display:block}
+
+/* BOYAMA */
+canvas{
+  border:3px solid #333;
+  border-radius:10px;
+  background:white;
 }
-.cart ul{
-  list-style:none;
-  padding:0; margin:0;
-  max-height:90px;
-  overflow:auto;
+
+/* LABİRENT */
+.maze{
+  width:240px;
+  height:240px;
+  margin:20px auto;
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
 }
-.cart li{
-  display:flex;
-  justify-content:space-between;
-  font-size:14px;
+.cell{
+  width:40px;
+  height:40px;
 }
-.total{font-weight:bold;margin-top:5px}
+.wall{background:#000}
+.path{background:#fff}
+.player{background:red}
+.finish{background:green}
 </style>
 </head>
 
 <body>
 
-<header>
-  <h1>Akerayticaret</h1>
-  <span>Uygun fiyat • Hızlı teslimat</span>
-</header>
+<header>🎨 Çocuk Etkinlik Merkezi</header>
 
-<section class="products">
+<div class="menu">
+  <button onclick="showSection('boyama')">🎨 Boyama</button>
+  <button onclick="showSection('matematik')">➕ Matematik</button>
+  <button onclick="showSection('labirent')">🧩 Labirent</button>
+</div>
 
-  <div class="product">
-    <img src="https://images.unsplash.com/photo-1585386959984-a4155228f6f1">
-    <h3>Kablosuz Bluetooth Kulaklık</h3>
-    <p>299 ₺</p>
-    <button onclick="addToCart('Kablosuz Bluetooth Kulaklık',299)">Sepete Ekle</button>
-  </div>
+<!-- BOYAMA -->
+<div id="boyama" class="section active">
+  <h2>Boyama Yap</h2>
+  <p>Fare ile çiz 🎨</p>
+  <canvas id="paint" width="250" height="250"></canvas><br><br>
+  <button onclick="clearCanvas()">Temizle</button>
+</div>
 
-  <div class="product">
-    <img src="https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6">
-    <h3>Type-C Hızlı Şarj Kablosu</h3>
-    <p>79 ₺</p>
-    <button onclick="addToCart('Type-C Hızlı Şarj Kablosu',79)">Sepete Ekle</button>
-  </div>
+<!-- MATEMATİK -->
+<div id="matematik" class="section">
+  <h2>Matematik Oyunu</h2>
+  <p id="question"></p>
+  <input type="number" id="answer">
+  <button onclick="checkAnswer()">Kontrol Et</button>
+  <p id="result"></p>
+</div>
 
-  <div class="product">
-    <img src="https://images.unsplash.com/photo-1598970434795-0c54fe7c0648">
-    <h3>Powerbank 20.000 mAh</h3>
-    <p>449 ₺</p>
-    <button onclick="addToCart('Powerbank 20.000 mAh',449)">Sepete Ekle</button>
-  </div>
-
-  <div class="product">
-    <img src="https://images.unsplash.com/photo-1606813902917-9d35f08fd7b4">
-    <h3>Araç İçi Telefon Tutucu</h3>
-    <p>129 ₺</p>
-    <button onclick="addToCart('Araç İçi Telefon Tutucu',129)">Sepete Ekle</button>
-  </div>
-
-  <div class="product">
-    <img src="https://images.unsplash.com/photo-1589003077984-894e133dabab">
-    <h3>Bluetooth Hoparlör</h3>
-    <p>349 ₺</p>
-    <button onclick="addToCart('Bluetooth Hoparlör',349)">Sepete Ekle</button>
-  </div>
-
-</section>
-
-<div class="cart">
-  <h2>🧺 Sepet</h2>
-  <ul id="cartList"></ul>
-  <div class="total">Toplam: <span id="total">0</span> ₺</div>
+<!-- LABİRENT -->
+<div id="labirent" class="section">
+  <h2>Labirent Oyunu</h2>
+  <p>Kırmızıdan yeşile git ⬆⬇⬅➡</p>
+  <div class="maze" id="maze"></div>
 </div>
 
 <script>
-let cart=[];
-let total=0;
-
-function addToCart(name,price){
-  cart.push({name,price});
-  total+=price;
-  renderCart();
+/* SAYFA GEÇİŞ */
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
 }
 
-function renderCart(){
-  const list=document.getElementById("cartList");
-  const totalEl=document.getElementById("total");
-  list.innerHTML="";
-  cart.forEach(item=>{
-    const li=document.createElement("li");
-    li.innerHTML=`<span>${item.name}</span><span>${item.price} ₺</span>`;
-    list.appendChild(li);
+/* BOYAMA */
+const canvas=document.getElementById("paint");
+const ctx=canvas.getContext("2d");
+let drawing=false;
+
+canvas.onmousedown=()=>drawing=true;
+canvas.onmouseup=()=>drawing=false;
+canvas.onmousemove=e=>{
+  if(!drawing) return;
+  ctx.fillStyle="blue";
+  ctx.beginPath();
+  ctx.arc(e.offsetX,e.offsetY,4,0,Math.PI*2);
+  ctx.fill();
+};
+function clearCanvas(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
+/* MATEMATİK */
+let a=Math.floor(Math.random()*10);
+let b=Math.floor(Math.random()*10);
+document.getElementById("question").textContent=`${a} + ${b} = ?`;
+
+function checkAnswer(){
+  const ans=document.getElementById("answer").value;
+  if(Number(ans)===a+b){
+    document.getElementById("result").textContent="🎉 Doğru!";
+  }else{
+    document.getElementById("result").textContent="❌ Tekrar dene";
+  }
+}
+
+/* LABİRENT */
+const mazeMap=[
+  "WWWWWW",
+  "WSP  W",
+  "W WW W",
+  "W    W",
+  "W WWFW",
+  "WWWWWW"
+];
+
+const maze=document.getElementById("maze");
+let px=1,py=1;
+
+function drawMaze(){
+  maze.innerHTML="";
+  mazeMap.forEach((row,y)=>{
+    [...row].forEach((c,x)=>{
+      const d=document.createElement("div");
+      d.className="cell "+
+        (c==="W"?"wall":
+         c==="F"?"finish":"path");
+      if(x===px && y===py) d.className="cell player";
+      maze.appendChild(d);
+    });
   });
-  totalEl.textContent=total;
 }
+drawMaze();
+
+document.addEventListener("keydown",e=>{
+  let nx=px,ny=py;
+  if(e.key==="ArrowUp")ny--;
+  if(e.key==="ArrowDown")ny++;
+  if(e.key==="ArrowLeft")nx--;
+  if(e.key==="ArrowRight")nx++;
+  if(mazeMap[ny][nx]!=="W"){
+    px=nx;py=ny;
+    drawMaze();
+    if(mazeMap[ny][nx]==="F"){
+      alert("🎉 Tebrikler, kazandın!");
+    }
+  }
+});
 </script>
 
 </body>
