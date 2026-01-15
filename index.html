@@ -5,15 +5,15 @@
     <title>Miraç Kandili</title>
     <style>
         body {
+            margin: 0;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            background: radial-gradient(circle at top, #f0f8ff, #e6e6fa);
+            background: radial-gradient(circle at top, #001f3f, #003366); /* gece mavisi arka plan */
             font-family: 'Arial', sans-serif;
-            color: #4b0082;
+            color: #fff;
             text-align: center;
             overflow: hidden;
         }
@@ -21,16 +21,16 @@
         h1 {
             font-size: 3em;
             margin: 0.3em;
-            text-shadow: 2px 2px 5px #aaa;
+            text-shadow: 2px 2px 8px #000;
         }
 
         p {
             font-size: 2em;
             margin: 0.2em;
-            text-shadow: 1px 1px 3px #ccc;
+            text-shadow: 1px 1px 5px #000;
         }
 
-        /* Yıldız animasyonu */
+        /* Yıldızlar */
         .star {
             position: absolute;
             background: white;
@@ -58,13 +58,13 @@
 
     <script>
         // Yıldızları oluştur
-        for(let i=0; i<50; i++){
+        for(let i=0; i<100; i++){
             const star = document.createElement("div");
             star.className = "star";
-            star.style.top = Math.random()*100 + "%";
-            star.style.left = Math.random()*100 + "%";
-            star.style.width = star.style.height = Math.random()*3 + 1 + "px";
-            star.style.animationDuration = (Math.random()*3 + 1) + "s";
+            star.style.top = Math.random() * 100 + "%";
+            star.style.left = Math.random() * 100 + "%";
+            star.style.width = star.style.height = Math.random() * 3 + 1 + "px";
+            star.style.animationDuration = (Math.random() * 3 + 2) + "s";
             document.body.appendChild(star);
         }
     </script>
