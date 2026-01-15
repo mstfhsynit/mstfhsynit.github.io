@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>Tek Dosya Türkçe Düzeltici</title>
 <style>
-body { font-family: Arial; background:#f0f8ff; padding:50px; display:flex; flex-direction:column; align-items:center;}
+body { font-family: Arial, sans-serif; background:#f0f8ff; padding:50px; display:flex; flex-direction:column; align-items:center;}
 h1 { font-size:2em; margin-bottom:20px; text-align:center; }
 textarea { width:90%; max-width:600px; height:150px; margin-bottom:10px; padding:10px; font-size:1em; }
 button { padding:10px 20px; font-size:1em; cursor:pointer; }
@@ -19,7 +19,7 @@ button { padding:10px 20px; font-size:1em; cursor:pointer; }
 <div id="output"></div>
 
 <script>
-// Gelişmiş simülasyon sözlük
+// Basit kelime ve birleşik kelime sözlüğü
 const sozluk = {
     "msj":"mesaj","larim":"larım","dusuyormu":"düşüyor mu","gondereyim":"göndereyim",
     "tesekkurler":"Teşekkürler","merhaba":"Merhaba","mubarek":"Mübarek",
@@ -27,17 +27,15 @@ const sozluk = {
     "nasilsiniz":"Nasılsınız","gunaydin":"Günaydın","iyigunler":"İyi günler",
     "allh":"Allah","sagol":"Sağol","iyiaksamlar":"İyi akşamlar",
     "iyigeceler":"İyi geceler","nasil":"nasıl","cok":"çok","harika":"harika",
-    "sanami":"sana mı","nasilsin":"Nasılsın"
+    "sanami":"sana mı","nasilsin":"Nasılsın","yapiyin":"yapıyın","sorayimmi":"sorayım mı"
 };
 
-const isimler = ["Mustafa","Ahmet","Ali","Mehmet","Ayşe","Fatma","Emre","Hüseyin"];
-const sehirler = ["İstanbul","Ankara","İzmir","Bursa","Antalya","Trabzon","Kahramanmaraş"];
 const baglaclar = ["ve","ile","ama","fakat","çünkü","ancak","lakin"];
 const soruEkleri = ["mi","mı","mu","mü"];
 
 function duzelt() {
     let text = document.getElementById("inputText").value.trim();
-    if(text==="") { document.getElementById("output").textContent="Lütfen metin girin!"; return; }
+    if(!text) { document.getElementById("output").textContent="Lütfen metin girin!"; return; }
 
     text = text.replace(/\s+/g,' ');
 
@@ -51,7 +49,7 @@ function duzelt() {
 
         if(sentence.length===0) continue;
 
-        // Kelime bazlı düzeltme
+        // Kelime düzeltme
         sentence = sentence.split(' ').map(word=>{
             let clean = word.toLowerCase().replace(/[.,!?;:]/g,'');
             return sozluk[clean] || word;
@@ -60,7 +58,7 @@ function duzelt() {
         // Virgül sonrası boşluk
         sentence = sentence.replace(/,([^\s])/g,', $1');
 
-        // Bağlaç mantığı
+        // Bağlaç düzeltme
         baglaclar.forEach(b=>{
             let regex = new RegExp(",\\s*"+b,"gi");
             sentence = sentence.replace(regex,b);
@@ -82,17 +80,6 @@ function duzelt() {
     }
 
     corrected = corrected.replace(/\s+/g,' ').trim();
-
-    // Özel isim ve şehirler
-    isimler.forEach(name=>{
-        let regex = new RegExp("\\b"+name.toLowerCase()+"\\b","g");
-        corrected = corrected.replace(regex,name);
-    });
-    sehirler.forEach(city=>{
-        let regex = new RegExp("\\b"+city.toLowerCase()+"\\b","g");
-        corrected = corrected.replace(regex,city);
-    });
-
     document.getElementById("output").textContent = corrected;
 }
 </script>
