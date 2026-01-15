@@ -1,65 +1,99 @@
-# backend.py
-from flask import Flask, request, jsonify
-import openai
-
-openai.api_key = "BURAYA_OPENAI_API_KEY"
-
-app = Flask(__name__)
-
-@app.route("/duzelt", methods=["POST"])
-def duzelt():
-    data = request.json
-    text = data.get("text", "")
-    
-    if not text:
-        return jsonify({"corrected": "Lütfen bir metin girin!"})
-    
-    # AI modeline metni gönder
-    prompt = f"Türkçe metni tamamen doğru yazım, noktalama ve cümle mantığı ile düzelt: {text}"
-    
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[{"role":"user","content":prompt}],
-        temperature=0
-    )
-    
-    corrected_text = response.choices[0].message.content
-    return jsonify({"corrected": corrected_text})
-
-if __name__ == "__main__":
-    app.run(port=5000)
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>AI %100 Hatasız Türkçe Düzeltici</title>
+<title>Tek Dosya Türkçe Düzeltici</title>
 <style>
 body { font-family: Arial; background:#f0f8ff; padding:50px; display:flex; flex-direction:column; align-items:center;}
-textarea { width:90%; max-width:600px; height:150px; margin-bottom:10px; padding:10px;}
+h1 { font-size:2em; margin-bottom:20px; text-align:center; }
+textarea { width:90%; max-width:600px; height:150px; margin-bottom:10px; padding:10px; font-size:1em; }
 button { padding:10px 20px; font-size:1em; cursor:pointer; }
 #output { margin-top:20px; font-size:1.2em; color:#4b0082; white-space:pre-wrap; text-align:center;}
 </style>
 </head>
 <body>
 
-<h1>AI %100 Hatasız Türkçe Düzeltici</h1>
+<h1>Tek Dosya Türkçe Düzeltici</h1>
 <textarea id="inputText" placeholder="Metni buraya yazın..."></textarea>
 <button onclick="duzelt()">Düzelt</button>
 <div id="output"></div>
 
 <script>
-async function duzelt() {
-    let text = document.getElementById("inputText").value;
-    if(!text) { document.getElementById("output").textContent="Lütfen metin girin!"; return; }
+// Gelişmiş simülasyon sözlük
+const sozluk = {
+    "msj":"mesaj","larim":"larım","dusuyormu":"düşüyor mu","gondereyim":"göndereyim",
+    "tesekkurler":"Teşekkürler","merhaba":"Merhaba","mubarek":"Mübarek",
+    "subhanallh":"Subhanallah","elhamdulliah":"Elhamdülillah",
+    "nasilsiniz":"Nasılsınız","gunaydin":"Günaydın","iyigunler":"İyi günler",
+    "allh":"Allah","sagol":"Sağol","iyiaksamlar":"İyi akşamlar",
+    "iyigeceler":"İyi geceler","nasil":"nasıl","cok":"çok","harika":"harika",
+    "sanami":"sana mı","nasilsin":"Nasılsın"
+};
 
-    const response = await fetch("http://localhost:5000/duzelt", {
-        method:"POST",
-        headers: { "Content-Type":"application/json" },
-        body: JSON.stringify({ text })
+const isimler = ["Mustafa","Ahmet","Ali","Mehmet","Ayşe","Fatma","Emre","Hüseyin"];
+const sehirler = ["İstanbul","Ankara","İzmir","Bursa","Antalya","Trabzon","Kahramanmaraş"];
+const baglaclar = ["ve","ile","ama","fakat","çünkü","ancak","lakin"];
+const soruEkleri = ["mi","mı","mu","mü"];
+
+function duzelt() {
+    let text = document.getElementById("inputText").value.trim();
+    if(text==="") { document.getElementById("output").textContent="Lütfen metin girin!"; return; }
+
+    text = text.replace(/\s+/g,' ');
+
+    // Cümleleri ayır
+    let sentences = text.split(/([.!?]+)/).filter(s=>s.trim()!=="");
+    let corrected = "";
+
+    for(let i=0;i<sentences.length;i+=2){
+        let sentence = sentences[i].trim();
+        let punctuation = sentences[i+1]?sentences[i+1]:".";
+
+        if(sentence.length===0) continue;
+
+        // Kelime bazlı düzeltme
+        sentence = sentence.split(' ').map(word=>{
+            let clean = word.toLowerCase().replace(/[.,!?;:]/g,'');
+            return sozluk[clean] || word;
+        }).join(' ');
+
+        // Virgül sonrası boşluk
+        sentence = sentence.replace(/,([^\s])/g,', $1');
+
+        // Bağlaç mantığı
+        baglaclar.forEach(b=>{
+            let regex = new RegExp(",\\s*"+b,"gi");
+            sentence = sentence.replace(regex,b);
+        });
+
+        // Cümle başı büyük harf
+        sentence = sentence.charAt(0).toUpperCase() + sentence.slice(1);
+
+        // Soru ekleri
+        let words = sentence.split(' ');
+        if(soruEkleri.includes(words[words.length-1].toLowerCase()) && !/[?]$/.test(sentence)){
+            punctuation="?";
+        }
+
+        // Cümle sonu noktalama
+        if(!/[.!?]$/.test(sentence)) punctuation=".";
+
+        corrected += sentence + punctuation + " ";
+    }
+
+    corrected = corrected.replace(/\s+/g,' ').trim();
+
+    // Özel isim ve şehirler
+    isimler.forEach(name=>{
+        let regex = new RegExp("\\b"+name.toLowerCase()+"\\b","g");
+        corrected = corrected.replace(regex,name);
+    });
+    sehirler.forEach(city=>{
+        let regex = new RegExp("\\b"+city.toLowerCase()+"\\b","g");
+        corrected = corrected.replace(regex,city);
     });
 
-    const data = await response.json();
-    document.getElementById("output").textContent = data.corrected;
+    document.getElementById("output").textContent = corrected;
 }
 </script>
 
