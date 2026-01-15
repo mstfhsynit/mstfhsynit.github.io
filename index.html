@@ -1,96 +1,22 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<title>İletişim</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body{
-  font-family:Arial;
-  margin:0;
-  background:#f4f4f4;
-}
-header{
-  background:#2563eb;
-  color:white;
-  padding:15px;
-  text-align:center;
-}
-#connect, #chatBox{
-  max-width:400px;
-  margin:20px auto;
-  background:white;
-  padding:15px;
-  border-radius:10px;
-}
-input, button{
-  width:100%;
-  padding:10px;
-  margin-top:8px;
-}
-#chat{
-  height:200px;
-  overflow:auto;
-  border:1px solid #ccc;
-  padding:5px;
-}
-.msg{
-  background:#e5e7eb;
-  margin:5px;
-  padding:5px;
-  border-radius:5px;
-}
-</style>
+    <meta charset="UTF-8">
+    <title>Miraç Kandili</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f8ff;
+            font-family: Arial, sans-serif;
+            font-size: 2em;
+            color: #4b0082;
+        }
+    </style>
 </head>
-
 <body>
-
-<header>📨 İletişim</header>
-
-<div id="connect">
-  <p><b>IP Adresi Gir:</b></p>
-  <input id="ip" placeholder="Örn: 192.168.1.5">
-  <button onclick="connect()">Bağlan</button>
-</div>
-
-<div id="chatBox" style="display:none;">
-  <div id="chat"></div>
-  <input id="msg" placeholder="Mesaj yaz">
-  <button onclick="send()">Gönder</button>
-</div>
-
-<script>
-let socket;
-
-function connect(){
-  const ip = document.getElementById("ip").value;
-  if(!ip) return alert("IP gir");
-
-  socket = io("http://" + ip + ":3000");
-
-  socket.on("connect", ()=>{
-    document.getElementById("connect").style.display="none";
-    document.getElementById("chatBox").style.display="block";
-  });
-
-  socket.on("message", text=>{
-    const d=document.createElement("div");
-    d.className="msg";
-    d.innerText=text;
-    chat.appendChild(d);
-    chat.scrollTop=chat.scrollHeight;
-  });
-}
-
-function send(){
-  const m = msg.value;
-  if(m){
-    socket.emit("message", m);
-    msg.value="";
-  }
-}
-</script>
-
-<script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    Miraç Kandiliniz Mübarek Olsun
 </body>
 </html>
