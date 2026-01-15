@@ -2,139 +2,260 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Çocuklar İçin Labirent Oyunu</title>
+<title>Çocuk Etkinlik Dünyası</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body{
   margin:0;
-  font-family:Arial, sans-serif;
-  background:#1e1e1e;
-  color:white;
+  font-family:"Comic Sans MS", Arial, sans-serif;
+  background:linear-gradient(#fff1c1,#e0f7ff);
+  color:#333;
   text-align:center;
 }
 
-h1{
-  color:#00e5ff;
-  margin-top:10px;
+header{
+  background:#ff9f1c;
+  padding:15px;
+  font-size:24px;
+  color:white;
 }
 
-#maze{
+.menu{
   display:grid;
-  grid-template-columns:repeat(10, 32px);
-  grid-template-rows:repeat(10, 32px);
-  gap:2px;
-  margin:15px auto;
-  background:#333;
-  padding:6px;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:15px;
+  padding:20px;
+  max-width:900px;
+  margin:auto;
+}
+
+.card{
+  background:white;
+  border-radius:20px;
+  padding:15px;
+  box-shadow:0 5px 10px rgba(0,0,0,0.15);
+}
+
+button{
+  padding:10px 15px;
+  font-size:16px;
+  border:none;
+  border-radius:15px;
+  background:#4cc9f0;
+  cursor:pointer;
+}
+
+section{ display:none; padding:20px; }
+
+canvas{
+  border:3px solid #333;
+  background:white;
   border-radius:10px;
 }
 
-.cell{
-  width:32px;
-  height:32px;
-  background:#ccc;
+/* LABİRENT */
+#maze{
+  display:grid;
+  grid-template-columns:repeat(8,35px);
+  grid-template-rows:repeat(7,35px);
+  gap:2px;
+  margin:auto;
 }
+.cell{ width:35px; height:35px; background:#ddd; }
+.wall{ background:#333; }
+.player{ background:#ffd60a; }
+.goal{ background:#ff006e; }
 
-.wall{
-  background:#000;
+/* HAFIZA */
+.memory{
+  display:grid;
+  grid-template-columns:repeat(4,60px);
+  gap:10px;
+  justify-content:center;
 }
-
-.player{
-  background:yellow;
-}
-
-.goal{
-  background:red;
-}
-
-.controls{
-  margin-top:15px;
-}
-
-.controls button{
-  width:65px;
-  height:65px;
-  font-size:24px;
-  margin:5px;
-  border:none;
-  border-radius:12px;
-  background:#00e5ff;
-  color:black;
+.mem{
+  width:60px; height:60px;
+  background:#90dbf4;
+  font-size:30px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:10px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>🧩 Labirent Oyunu</h1>
-<p>Hedefe ulaş 🎯</p>
+<header>🎈 Çocuk Etkinlik Dünyası 🎈</header>
 
-<div id="maze"></div>
-
-<div class="controls">
-  <button onclick="move('up')">⬆️</button><br>
-  <button onclick="move('left')">⬅️</button>
-  <button onclick="move('down')">⬇️</button>
-  <button onclick="move('right')">➡️</button>
+<div class="menu" id="menu">
+  <div class="card"><h3>🧩 Labirent</h3><button onclick="openSec('lab')">Oyna</button></div>
+  <div class="card"><h3>🎨 Boyama</h3><button onclick="openSec('paint')">Başla</button></div>
+  <div class="card"><h3>🧮 Matematik</h3><button onclick="openSec('math')">Çöz</button></div>
+  <div class="card"><h3>🔤 Harf Oyunu</h3><button onclick="openSec('harf')">Başla</button></div>
+  <div class="card"><h3>🧠 Hafıza</h3><button onclick="openSec('memory')">Oyna</button></div>
+  <div class="card"><h3>🎵 Müzik</h3><button onclick="playMusic()">Çal</button></div>
 </div>
 
-<!-- ARKA PLAN MÜZİĞİ -->
-<audio autoplay loop>
+<!-- LABİRENT -->
+<section id="lab">
+<h2>Labirent</h2>
+<div id="maze"></div><br>
+<button onclick="move('up')">⬆️</button>
+<button onclick="move('left')">⬅️</button>
+<button onclick="move('down')">⬇️</button>
+<button onclick="move('right')">➡️</button><br><br>
+<button onclick="back()">Geri</button>
+</section>
+
+<!-- BOYAMA -->
+<section id="paint">
+<h2>Boyama</h2>
+<canvas id="c" width="300" height="300"></canvas><br>
+<button onclick="clearC()">Temizle</button>
+<button onclick="back()">Geri</button>
+</section>
+
+<!-- MATEMATİK -->
+<section id="math">
+<h2>Matematik</h2>
+<p id="q"></p>
+<input id="a"><br><br>
+<button onclick="checkMath()">Kontrol</button>
+<button onclick="back()">Geri</button>
+</section>
+
+<!-- HARF -->
+<section id="harf">
+<h2>Harf Oyunu</h2>
+<p>Bu harfi söyle: <b id="harfTxt"></b></p>
+<button onclick="newHarf()">Yeni Harf</button>
+<button onclick="back()">Geri</button>
+</section>
+
+<!-- HAFIZA -->
+<section id="memory">
+<h2>Hafıza Oyunu</h2>
+<div class="memory" id="mem"></div><br>
+<button onclick="back()">Geri</button>
+</section>
+
+<audio id="music" loop>
   <source src="Şenay-Hayat-Bayram-Olsa-26.mp3" type="audio/mpeg">
 </audio>
 
 <script>
-const mazeData = [
- ["P","W","W","W","W","W","W","W","W","W"],
- [" "," "," "," ","W"," "," "," "," ","W"],
- ["W"," ","W"," ","W"," ","W","W"," ","W"],
- ["W"," ","W"," "," "," "," ","W"," ","W"],
- ["W"," ","W","W","W","W"," ","W"," ","W"],
- ["W"," "," "," "," "," "," ","W"," "," "],
- ["W","W","W","W","W","W"," ","W","W","W"],
- ["W"," "," "," "," ","W"," "," "," ","W"],
- ["W"," ","W","W"," "," "," ","W"," ","W"],
- ["W"," "," ","W"," ","W"," "," "," ","G"]
-];
+function openSec(id){
+ document.getElementById("menu").style.display="none";
+ document.querySelectorAll("section").forEach(s=>s.style.display="none");
+ document.getElementById(id).style.display="block";
+}
+function back(){
+ document.getElementById("menu").style.display="grid";
+ document.querySelectorAll("section").forEach(s=>s.style.display="none");
+}
 
-const maze=document.getElementById("maze");
-let px=0, py=0;
+/* MÜZİK */
+function playMusic(){ document.getElementById("music").play(); }
 
-function drawMaze(){
-  maze.innerHTML="";
-  for(let y=0;y<10;y++){
-    for(let x=0;x<10;x++){
-      const d=document.createElement("div");
-      d.classList.add("cell");
-      if(mazeData[y][x]==="W") d.classList.add("wall");
-      if(x===px && y===py) d.classList.add("player");
-      if(mazeData[y][x]==="G") d.classList.add("goal");
-      maze.appendChild(d);
+/* BOYAMA */
+let ctx=c.getContext("2d"), draw=false;
+c.addEventListener("touchstart",()=>draw=true);
+c.addEventListener("touchend",()=>draw=false);
+c.addEventListener("touchmove",e=>{
+ e.preventDefault();
+ if(draw){
+  let t=e.touches[0], r=c.getBoundingClientRect();
+  ctx.fillRect(t.clientX-r.left,t.clientY-r.top,5,5);
+ }
+});
+function clearC(){ ctx.clearRect(0,0,300,300); }
+
+/* MATEMATİK */
+let x,y;
+function newQ(){
+ x=Math.floor(Math.random()*10);
+ y=Math.floor(Math.random()*10);
+ q.innerText=x+" + "+y+" = ?";
+}
+newQ();
+function checkMath(){
+ alert(Number(a.value)==x+y ? "Aferin!" : "Tekrar dene");
+ newQ(); a.value="";
+}
+
+/* HARF */
+function newHarf(){
+ harfTxt.innerText=String.fromCharCode(65+Math.floor(Math.random()*26));
+}
+newHarf();
+
+/* HAFIZA */
+const emojis=["🍎","🍌","🍎","🍌","⭐","⭐","🐶","🐶"];
+let open=[];
+function loadMem(){
+ mem.innerHTML="";
+ open=[];
+ emojis.sort(()=>0.5-Math.random());
+ emojis.forEach(e=>{
+  let d=document.createElement("div");
+  d.className="mem"; d.innerText="❓";
+  d.onclick=()=>flip(d,e);
+  mem.appendChild(d);
+ });
+}
+function flip(d,e){
+ if(open.length<2 && d.innerText=="❓"){
+  d.innerText=e; open.push(d);
+  if(open.length==2){
+   setTimeout(()=>{
+    if(open[0].innerText!=open[1].innerText){
+     open[0].innerText="❓";
+     open[1].innerText="❓";
     }
+    open=[];
+   },800);
   }
+ }
 }
+loadMem();
 
+/* LABİRENT */
+const mazeData=[
+["P","W","W","W","W","W","W","W"],
+[" "," "," "," ","W"," "," ","W"],
+["W"," ","W"," ","W"," ","W","W"],
+["W"," ","W"," "," "," "," ","W"],
+["W"," ","W","W","W","W"," ","W"],
+["W"," "," "," "," "," "," "," "],
+["W","W","W","W","W","W","W","G"]
+];
+let px=0,py=0;
+function drawMaze(){
+ maze.innerHTML="";
+ for(let y=0;y<7;y++){
+  for(let x=0;x<8;x++){
+   let d=document.createElement("div");
+   d.className="cell";
+   if(mazeData[y][x]=="W") d.classList.add("wall");
+   if(px==x && py==y) d.classList.add("player");
+   if(mazeData[y][x]=="G") d.classList.add("goal");
+   maze.appendChild(d);
+  }
+ }
+}
 function move(dir){
-  let nx=px, ny=py;
-  if(dir==="up") ny--;
-  if(dir==="down") ny++;
-  if(dir==="left") nx--;
-  if(dir==="right") nx++;
-
-  if(nx>=0 && ny>=0 && nx<10 && ny<10 && mazeData[ny][nx]!=="W"){
-    px=nx; py=ny;
-  }
-
-  drawMaze();
-
-  if(mazeData[py][px]==="G"){
-    alert("🎉 Tebrikler! Başardın!");
-    px=0; py=0;
-    drawMaze();
-  }
+ let nx=px,ny=py;
+ if(dir=="up")ny--; if(dir=="down")ny++;
+ if(dir=="left")nx--; if(dir=="right")nx++;
+ if(nx>=0&&ny>=0&&nx<8&&ny<7&&mazeData[ny][nx]!="W"){
+  px=nx; py=ny;
+ }
+ drawMaze();
+ if(mazeData[py][px]=="G"){ alert("🎉 Başardın!"); px=0;py=0; drawMaze(); }
 }
-
 drawMaze();
 </script>
 
