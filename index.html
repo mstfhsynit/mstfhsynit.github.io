@@ -1,111 +1,65 @@
-<!DOCTYPE html>
+# backend.py
+from flask import Flask, request, jsonify
+import openai
+
+openai.api_key = "BURAYA_OPENAI_API_KEY"
+
+app = Flask(__name__)
+
+@app.route("/duzelt", methods=["POST"])
+def duzelt():
+    data = request.json
+    text = data.get("text", "")
+    
+    if not text:
+        return jsonify({"corrected": "Lütfen bir metin girin!"})
+    
+    # AI modeline metni gönder
+    prompt = f"Türkçe metni tamamen doğru yazım, noktalama ve cümle mantığı ile düzelt: {text}"
+    
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[{"role":"user","content":prompt}],
+        temperature=0
+    )
+    
+    corrected_text = response.choices[0].message.content
+    return jsonify({"corrected": corrected_text})
+
+if __name__ == "__main__":
+    app.run(port=5000)
+    <!DOCTYPE html>
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Akıllı NLP Türkçe Noktalama ve Yazım Düzeltici</title>
+<title>AI %100 Hatasız Türkçe Düzeltici</title>
 <style>
-    body { display:flex; flex-direction:column; align-items:center; padding:50px; font-family:Arial,sans-serif; background-color:#f0f8ff; color:#333; }
-    h1 { font-size:2em; margin-bottom:20px; text-align:center; }
-    textarea { width:90%; max-width:600px; height:150px; font-size:1em; padding:10px; margin-bottom:10px; }
-    button { padding:10px 20px; font-size:1em; cursor:pointer; }
-    #output { margin-top:20px; font-size:1.2em; color:#4b0082; text-align:center; white-space:pre-wrap; }
+body { font-family: Arial; background:#f0f8ff; padding:50px; display:flex; flex-direction:column; align-items:center;}
+textarea { width:90%; max-width:600px; height:150px; margin-bottom:10px; padding:10px;}
+button { padding:10px 20px; font-size:1em; cursor:pointer; }
+#output { margin-top:20px; font-size:1.2em; color:#4b0082; white-space:pre-wrap; text-align:center;}
 </style>
 </head>
 <body>
 
-<h1>Akıllı NLP Türkçe Metin Düzeltici</h1>
-<textarea id="inputText" placeholder="Buraya yazınızı girin..."></textarea>
+<h1>AI %100 Hatasız Türkçe Düzeltici</h1>
+<textarea id="inputText" placeholder="Metni buraya yazın..."></textarea>
 <button onclick="duzelt()">Düzelt</button>
 <div id="output"></div>
 
 <script>
-// Sık yapılan yazım hataları
-const sozluk = {
-    "msj":"mesaj","larim":"larım","dusuyormu":"düşüyor mu","gondereyim":"göndereyim",
-    "tesekkurler":"Teşekkürler","merhaba":"Merhaba","mubarek":"Mübarek",
-    "subhanallh":"Subhanallah","elhamdulliah":"Elhamdülillah",
-    "nasilsiniz":"Nasılsınız","gunaydin":"Günaydın","iyigunler":"İyi günler",
-    "allh":"Allah","sagol":"Sağol","iyiaksamlar":"İyi akşamlar",
-    "iyigeceler":"İyi geceler","nasil":"nasıl","cok":"çok","harika":"harika"
-};
+async function duzelt() {
+    let text = document.getElementById("inputText").value;
+    if(!text) { document.getElementById("output").textContent="Lütfen metin girin!"; return; }
 
-// Özel isimler ve şehirler
-const isimler = ["Mustafa","Ahmet","Ali","Mehmet","Ayşe","Fatma","Emre","Hüseyin"];
-const sehirler = ["İstanbul","Ankara","İzmir","Bursa","Antalya","Trabzon","Kahramanmaraş"];
-
-// Bağlaçlar
-const baglaclar = ["ve","ile","ama","fakat","çünkü","ancak","lakin"];
-
-// Soru kelimeleri ve ekleri
-const soruEkleri = ["mi","mı","mu","mü"];
-
-function duzelt() {
-    let text = document.getElementById("inputText").value.trim();
-    if(text==="") {
-        document.getElementById("output").textContent="Lütfen bir metin girin!";
-        return;
-    }
-
-    // 1. Fazla boşlukları temizle
-    text = text.replace(/\s+/g,' ');
-
-    // 2. Cümleleri ayır (nokta, soru işareti, ünlem, virgül bazlı)
-    let sentences = text.split(/([.!?]+)/).filter(s=>s.trim()!=="");
-    let corrected = "";
-
-    for(let i=0;i<sentences.length;i+=2){
-        let sentence = sentences[i].trim();
-        let punctuation = sentences[i+1]?sentences[i+1]:".";
-
-        if(sentence.length===0) continue;
-
-        // 3. Kelime bazlı düzeltme
-        sentence = sentence.split(' ').map(word=>{
-            let clean = word.toLowerCase().replace(/[.,!?;:]/g,'');
-            if(sozluk[clean]) return sozluk[clean];
-            return word;
-        }).join(' ');
-
-        // 4. Virgül sonrası boşluk
-        sentence = sentence.replace(/,([^\s])/g,', $1');
-
-        // 5. Bağlaç mantığı
-        baglaclar.forEach(b=>{
-            let regex = new RegExp(",\\s*"+b,"gi");
-            sentence = sentence.replace(regex,b);
-        });
-
-        // 6. Cümle başı büyük harf
-        sentence = sentence.charAt(0).toUpperCase() + sentence.slice(1);
-
-        // 7. NLP tabanlı soru işareti ekleme
-        let words = sentence.split(' ');
-        if(soruEkleri.includes(words[words.length-1].toLowerCase()) && !/[?]$/.test(sentence)){
-            punctuation = "?";
-        }
-
-        // 8. Cümle sonuna noktalama ekleme
-        if(!/[.!?]$/.test(sentence)) punctuation = ".";
-
-        corrected += sentence + punctuation + " ";
-    }
-
-    corrected = corrected.replace(/\s+/g,' ').trim();
-
-    // 9. Özel isim ve şehirler
-    isimler.forEach(name=>{
-        let regex = new RegExp("\\b"+name.toLowerCase()+"\\b","g");
-        corrected = corrected.replace(regex,name);
-    });
-    sehirler.forEach(city=>{
-        let regex = new RegExp("\\b"+city.toLowerCase()+"\\b","g");
-        corrected = corrected.replace(regex,city);
+    const response = await fetch("http://localhost:5000/duzelt", {
+        method:"POST",
+        headers: { "Content-Type":"application/json" },
+        body: JSON.stringify({ text })
     });
 
-    // 10. Tarih, saat ve sayılara dokunma
-    corrected = corrected.replace(/(\d+)\s*([a-zA-ZçğıöşüÇĞİÖŞÜ]+)/g,'$1 $2');
-
-    document.getElementById("output").textContent = corrected;
+    const data = await response.json();
+    document.getElementById("output").textContent = data.corrected;
 }
 </script>
 
