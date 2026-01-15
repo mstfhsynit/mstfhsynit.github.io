@@ -2,93 +2,111 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Yusuf Yılan Oyunu</title>
+  <title>Yusuf Labirent Oyunu</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { display:flex; justify-content:center; align-items:center; flex-direction:column; height:100vh; background:#222; color:white; font-family:Arial,sans-serif; }
+    body {
+      display:flex; 
+      justify-content:center; 
+      align-items:center; 
+      flex-direction:column; 
+      height:100vh; 
+      background:#222; 
+      color:white; 
+      font-family:Arial,sans-serif;
+    }
     h1 { color:#00e5ff; }
-    canvas { background:#000; margin-bottom:10px; }
-    .controls button { width:60px; height:60px; margin:5px; font-size:20px; font-weight:bold; border:none; border-radius:10px; background:#00e5ff; color:#002b36; }
-    .controls { display:flex; flex-wrap:wrap; width:200px; justify-content:center; margin-top:10px; }
+
+    /* Labirent alanı */
+    #maze { 
+      display:grid; 
+      grid-template-columns: repeat(10, 30px); 
+      grid-template-rows: repeat(10, 30px); 
+      gap:2px; 
+      margin-top:20px; 
+      /* Arka plan resmi */
+      background-image: url('resmim.png'); 
+      background-size: cover;
+      background-position: center;
+      padding:5px;
+    }
+
+    .cell { width:30px; height:30px; background:rgba(68,68,68,0.7); }
+    .player { background:yellow; }
+    .goal { background:red; }
+
+    .controls button { 
+      width:60px; height:60px; margin:5px; font-size:20px; font-weight:bold; 
+      border:none; border-radius:10px; background:#00e5ff; color:#002b36; 
+    }
+    .controls { display:flex; flex-wrap:wrap; width:200px; justify-content:center; margin-top:15px; }
   </style>
 </head>
 <body>
 
-<h1>Yılan Oyunu 🎮</h1>
-<canvas id="game" width="300" height="300"></canvas>
+<h1>Labirent Oyunu 🎮</h1>
+
+<div id="maze"></div>
 
 <div class="controls">
-  <button onclick="d='UP'">↑</button>
-  <button onclick="d='LEFT'">←</button>
-  <button onclick="d='DOWN'">↓</button>
-  <button onclick="d='RIGHT'">→</button>
+  <button onclick="move('UP')">↑</button>
+  <button onclick="move('LEFT')">←</button>
+  <button onclick="move('DOWN')">↓</button>
+  <button onclick="move('RIGHT')">→</button>
 </div>
 
 <script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
-const box = 15;
-let snake = [{x: 9*box, y: 9*box}];
-let food = {x: Math.floor(Math.random()*20)*box, y: Math.floor(Math.random()*20)*box};
-let score = 0;
-let d;
+const mazeEl = document.getElementById("maze");
+const size = 10;
+let playerPos = {x:0, y:0};
+let goalPos = {x:9, y:9};
+let cells = [];
 
-function collision(head, array){
-  for(let i=0; i<array.length; i++){
-    if(head.x == array[i].x && head.y == array[i].y){
-      return true;
-    }
+// Maze oluştur
+for(let y=0; y<size; y++){
+  for(let x=0; x<size; x++){
+    const cell = document.createElement("div");
+    cell.classList.add("cell");
+    mazeEl.appendChild(cell);
+    cells.push({el: cell, x:x, y:y});
   }
-  return false;
 }
 
 function draw(){
-  ctx.fillStyle="#000";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-
-  for(let i=0;i<snake.length;i++){
-    ctx.fillStyle=(i==0)?"lime":"green";
-    ctx.fillRect(snake[i].x,snake[i].y,box,box);
-  }
-
-  ctx.fillStyle="red";
-  ctx.fillRect(food.x,food.y,box,box);
-
-  let snakeX = snake[0].x;
-  let snakeY = snake[0].y;
-
-  if(d=="LEFT") snakeX-=box;
-  if(d=="UP") snakeY-=box;
-  if(d=="RIGHT") snakeX+=box;
-  if(d=="DOWN") snakeY+=box;
-
-  if(snakeX==food.x && snakeY==food.y){
-    score++;
-    food={x:Math.floor(Math.random()*20)*box, y:Math.floor(Math.random()*20)*box};
-  } else {
-    snake.pop();
-  }
-
-  let newHead={x:snakeX,y:snakeY};
-
-  if(snakeX<0 || snakeX>=canvas.width || snakeY<0 || snakeY>=canvas.height || collision(newHead,snake)){
-    clearInterval(game);
-    alert("Oyun Bitti! Skorunuz: "+score);
-  }
-
-  snake.unshift(newHead);
-  ctx.fillStyle="white";
-  ctx.font="16px Arial";
-  ctx.fillText("Skor: "+score,5,16);
+  cells.forEach(c => c.el.classList.remove("player","goal"));
+  let pCell = cells.find(c=>c.x==playerPos.x && c.y==playerPos.y);
+  let gCell = cells.find(c=>c.x==goalPos.x && c.y==goalPos.y);
+  pCell.el.classList.add("player");
+  gCell.el.classList.add("goal");
 }
 
-document.addEventListener("keydown",function(event){
-  if(event.keyCode==37 && d!="RIGHT") d="LEFT";
-  else if(event.keyCode==38 && d!="DOWN") d="UP";
-  else if(event.keyCode==39 && d!="LEFT") d="RIGHT";
-  else if(event.keyCode==40 && d!="UP") d="DOWN";
+function move(dir){
+  if(dir=="UP" && playerPos.y>0) playerPos.y--;
+  if(dir=="DOWN" && playerPos.y<size-1) playerPos.y++;
+  if(dir=="LEFT" && playerPos.x>0) playerPos.x--;
+  if(dir=="RIGHT" && playerPos.x<size-1) playerPos.x++;
+  draw();
+  checkWin();
+}
+
+function checkWin(){
+  if(playerPos.x==goalPos.x && playerPos.y==goalPos.y){
+    alert("Tebrikler! Labirenti tamamladın 🎉");
+    playerPos = {x:0,y:0};
+    draw();
+  }
+}
+
+// Klavye ok tuşları
+document.addEventListener("keydown", function(e){
+  if(e.keyCode==37) move("LEFT");
+  if(e.keyCode==38) move("UP");
+  if(e.keyCode==39) move("RIGHT");
+  if(e.keyCode==40) move("DOWN");
 });
 
-let game=setInterval(draw,120);
+draw();
 </script>
-<img src="file_00000000cdc471f4a4d8c305b2c6d1f2%20(1).png" alt="Benim Resmim" width="300">
+
+</body>
+</html>
