@@ -2,115 +2,93 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Akerayticaret</title>
+<title>Akerayticaret | Demo</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+*{box-sizing:border-box}
 body{
   margin:0;
   font-family:Arial, sans-serif;
-  background:#f3f3f3;
+  background:#f4f4f4;
 }
 
+/* HEADER */
 header{
   background:#000;
-  color:white;
+  color:#fff;
   padding:15px;
   display:flex;
   justify-content:space-between;
   align-items:center;
 }
+header h1{margin:0;font-size:20px}
+header span{font-size:13px;color:#bbb}
 
-header h1{
-  margin:0;
-  font-size:20px;
-}
-
-header span{
-  font-size:14px;
-  color:#ccc;
-}
-
+/* PRODUCTS */
 .products{
   padding:15px;
   display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px,1fr));
+  grid-template-columns: repeat(auto-fit, minmax(170px,1fr));
   gap:15px;
 }
-
 .product{
-  background:white;
+  background:#fff;
   border-radius:10px;
   padding:10px;
   text-align:center;
-  box-shadow:0 2px 6px rgba(0,0,0,0.1);
+  box-shadow:0 2px 6px rgba(0,0,0,.1);
 }
-
 .product img{
   width:100%;
-  height:140px;
+  height:150px;
   object-fit:cover;
   border-radius:8px;
 }
-
 .product h3{
   font-size:14px;
-  margin:8px 0;
+  margin:8px 0 4px;
 }
-
 .product p{
   color:#e91e63;
   font-weight:bold;
-  margin:5px 0;
+  margin:4px 0;
 }
-
 .product button{
   width:100%;
   padding:8px;
   border:none;
   border-radius:6px;
   background:#000;
-  color:white;
+  color:#fff;
   cursor:pointer;
 }
+.product button:hover{background:#333}
 
-.product button:hover{
-  background:#333;
-}
-
+/* CART */
 .cart{
   position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  background:white;
-  padding:10px;
+  bottom:0; left:0; right:0;
+  background:#fff;
   border-top:2px solid #ddd;
+  padding:10px;
 }
-
 .cart h2{
   margin:0 0 5px;
   font-size:16px;
 }
-
 .cart ul{
   list-style:none;
-  padding:0;
-  margin:0;
-  max-height:100px;
+  padding:0; margin:0;
+  max-height:90px;
   overflow:auto;
 }
-
 .cart li{
   display:flex;
   justify-content:space-between;
   font-size:14px;
 }
-
-.total{
-  margin-top:5px;
-  font-weight:bold;
-}
+.total{font-weight:bold;margin-top:5px}
 </style>
 </head>
 
@@ -124,35 +102,35 @@ header span{
 <section class="products">
 
   <div class="product">
-    <img src="https://via.placeholder.com/300x200">
+    <img src="https://images.unsplash.com/photo-1585386959984-a4155228f6f1">
     <h3>Kablosuz Bluetooth Kulaklık</h3>
     <p>299 ₺</p>
     <button onclick="addToCart('Kablosuz Bluetooth Kulaklık',299)">Sepete Ekle</button>
   </div>
 
   <div class="product">
-    <img src="https://via.placeholder.com/300x200">
-    <h3>Hızlı Şarj Type-C Kablo</h3>
+    <img src="https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6">
+    <h3>Type-C Hızlı Şarj Kablosu</h3>
     <p>79 ₺</p>
-    <button onclick="addToCart('Hızlı Şarj Type-C Kablo',79)">Sepete Ekle</button>
+    <button onclick="addToCart('Type-C Hızlı Şarj Kablosu',79)">Sepete Ekle</button>
   </div>
 
   <div class="product">
-    <img src="https://via.placeholder.com/300x200">
+    <img src="https://images.unsplash.com/photo-1598970434795-0c54fe7c0648">
     <h3>Powerbank 20.000 mAh</h3>
     <p>449 ₺</p>
     <button onclick="addToCart('Powerbank 20.000 mAh',449)">Sepete Ekle</button>
   </div>
 
   <div class="product">
-    <img src="https://via.placeholder.com/300x200">
+    <img src="https://images.unsplash.com/photo-1606813902917-9d35f08fd7b4">
     <h3>Araç İçi Telefon Tutucu</h3>
     <p>129 ₺</p>
     <button onclick="addToCart('Araç İçi Telefon Tutucu',129)">Sepete Ekle</button>
   </div>
 
   <div class="product">
-    <img src="https://via.placeholder.com/300x200">
+    <img src="https://images.unsplash.com/photo-1589003077984-894e133dabab">
     <h3>Bluetooth Hoparlör</h3>
     <p>349 ₺</p>
     <button onclick="addToCart('Bluetooth Hoparlör',349)">Sepete Ekle</button>
@@ -167,27 +145,25 @@ header span{
 </div>
 
 <script>
-let cart = [];
-let total = 0;
+let cart=[];
+let total=0;
 
-function addToCart(name, price){
-  cart.push({name, price});
-  total += price;
+function addToCart(name,price){
+  cart.push({name,price});
+  total+=price;
   renderCart();
 }
 
 function renderCart(){
-  const list = document.getElementById("cartList");
-  const totalEl = document.getElementById("total");
-  list.innerHTML = "";
-
+  const list=document.getElementById("cartList");
+  const totalEl=document.getElementById("total");
+  list.innerHTML="";
   cart.forEach(item=>{
-    const li = document.createElement("li");
-    li.innerHTML = `<span>${item.name}</span><span>${item.price} ₺</span>`;
+    const li=document.createElement("li");
+    li.innerHTML=`<span>${item.name}</span><span>${item.price} ₺</span>`;
     list.appendChild(li);
   });
-
-  totalEl.textContent = total;
+  totalEl.textContent=total;
 }
 </script>
 
