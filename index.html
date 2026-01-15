@@ -2,287 +2,95 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Çocuk Etkinlik Dünyası</title>
+<title>İletişim</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
 body{
+  font-family:Arial;
   margin:0;
-  font-family:"Comic Sans MS", Arial, sans-serif;
-  background:linear-gradient(#fff1c1,#e0f7ff);
-  color:#333;
+  background:#f4f4f4;
+}
+header{
+  background:#2563eb;
+  color:white;
+  padding:15px;
   text-align:center;
 }
-
-header{
-  background:#ff9f1c;
-  padding:15px;
-  font-size:24px;
-  color:white;
-}
-
-.menu{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
-  gap:15px;
-  padding:20px;
-  max-width:900px;
-  margin:auto;
-}
-
-.card{
+#connect, #chatBox{
+  max-width:400px;
+  margin:20px auto;
   background:white;
-  border-radius:20px;
   padding:15px;
-  box-shadow:0 5px 10px rgba(0,0,0,0.15);
+  border-radius:10px;
 }
-
-button{
-  padding:10px 15px;
-  font-size:16px;
-  border:none;
-  border-radius:15px;
-  background:#4cc9f0;
-  cursor:pointer;
+input, button{
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+}
+#chat{
+  height:200px;
+  overflow:auto;
+  border:1px solid #ccc;
+  padding:5px;
+}
+.msg{
+  background:#e5e7eb;
   margin:5px;
-}
-
-section{ display:none; padding:20px; }
-
-canvas{
-  border:3px solid #333;
-  background:white;
-  border-radius:10px;
-}
-
-/* LABİRENT */
-#maze{
-  display:grid;
-  grid-template-columns:repeat(8,35px);
-  grid-template-rows:repeat(7,35px);
-  gap:2px;
-  margin:auto;
-}
-.cell{ width:35px; height:35px; background:#ddd; }
-.wall{ background:#333; }
-.player{ background:#ffd60a; }
-.goal{ background:#ff006e; }
-
-/* HAFIZA */
-.memory{
-  display:grid;
-  grid-template-columns:repeat(4,60px);
-  gap:10px;
-  justify-content:center;
-}
-.mem{
-  width:60px; height:60px;
-  background:#90dbf4;
-  font-size:30px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:10px;
+  padding:5px;
+  border-radius:5px;
 }
 </style>
 </head>
 
 <body>
 
-<header>🎈 Çocuk Etkinlik Dünyası 🎈</header>
+<header>📨 İletişim</header>
 
-<div class="menu" id="menu">
-  <div class="card"><h3>🧩 Labirent</h3><button onclick="openSec('lab')">Oyna</button></div>
-  <div class="card"><h3>🎨 Boyama</h3><button onclick="openSec('paint')">Başla</button></div>
-  <div class="card"><h3>🧮 Matematik</h3><button onclick="openSec('math')">Çöz</button></div>
-  <div class="card"><h3>🔤 Harf Oyunu</h3><button onclick="openSec('harf')">Başla</button></div>
-  <div class="card"><h3>🧠 Hafıza</h3><button onclick="openSec('memory')">Oyna</button></div>
-  <div class="card">
-    <h3>🎵 Müzik</h3>
-    <button onclick="toggleMusic()">▶️ / ⏸️</button>
-  </div>
+<div id="connect">
+  <p><b>IP Adresi Gir:</b></p>
+  <input id="ip" placeholder="Örn: 192.168.1.5">
+  <button onclick="connect()">Bağlan</button>
 </div>
 
-<!-- LABİRENT -->
-<section id="lab">
-<h2>Labirent</h2>
-<div id="maze"></div><br>
-<button onclick="move('up')">⬆️</button><br>
-<button onclick="move('left')">⬅️</button>
-<button onclick="move('down')">⬇️</button>
-<button onclick="move('right')">➡️</button><br><br>
-<button onclick="back()">Geri</button>
-</section>
-
-<!-- BOYAMA -->
-<section id="paint">
-<h2>Boyama</h2>
-<canvas id="c" width="300" height="300"></canvas><br>
-<button onclick="clearC()">Temizle</button>
-<button onclick="back()">Geri</button>
-</section>
-
-<!-- MATEMATİK -->
-<section id="math">
-<h2>Matematik</h2>
-<p id="q"></p>
-<input id="a" type="number"><br><br>
-<button onclick="checkMath()">Kontrol</button>
-<button onclick="back()">Geri</button>
-</section>
-
-<!-- HARF -->
-<section id="harf">
-<h2>Harf Oyunu</h2>
-<p>Bu harfi söyle: <b id="harfTxt"></b></p>
-<button onclick="newHarf()">Yeni Harf</button>
-<button onclick="back()">Geri</button>
-</section>
-
-<!-- HAFIZA -->
-<section id="memory">
-<h2>Hafıza Oyunu</h2>
-<div class="memory" id="mem"></div><br>
-<button onclick="back()">Geri</button>
-</section>
-
-<audio id="music" loop>
- <source src="senay.mp3" type="audio/mpeg">
-</audio>
+<div id="chatBox" style="display:none;">
+  <div id="chat"></div>
+  <input id="msg" placeholder="Mesaj yaz">
+  <button onclick="send()">Gönder</button>
+</div>
 
 <script>
-function openSec(id){
- menu.style.display="none";
- document.querySelectorAll("section").forEach(s=>s.style.display="none");
- document.getElementById(id).style.display="block";
-}
-function back(){
- menu.style.display="grid";
- document.querySelectorAll("section").forEach(s=>s.style.display="none");
+let socket;
+
+function connect(){
+  const ip = document.getElementById("ip").value;
+  if(!ip) return alert("IP gir");
+
+  socket = io("http://" + ip + ":3000");
+
+  socket.on("connect", ()=>{
+    document.getElementById("connect").style.display="none";
+    document.getElementById("chatBox").style.display="block";
+  });
+
+  socket.on("message", text=>{
+    const d=document.createElement("div");
+    d.className="msg";
+    d.innerText=text;
+    chat.appendChild(d);
+    chat.scrollTop=chat.scrollHeight;
+  });
 }
 
-/* MÜZİK */
-let playing=false;
-function toggleMusic(){
- const m=document.getElementById("music");
- if(!playing){
-   m.play();
-   playing=true;
- }else{
-   m.pause();
-   playing=false;
- }
-}
-
-/* BOYAMA */
-const c=document.getElementById("c");
-const ctx=c.getContext("2d");
-let draw=false;
-
-c.addEventListener("touchstart",()=>draw=true);
-c.addEventListener("touchend",()=>draw=false);
-c.addEventListener("touchmove",e=>{
- e.preventDefault();
- if(draw){
-  let t=e.touches[0], r=c.getBoundingClientRect();
-  ctx.fillStyle="#ff006e";
-  ctx.fillRect(t.clientX-r.left,t.clientY-r.top,6,6);
- }
-});
-function clearC(){ ctx.clearRect(0,0,300,300); }
-
-/* MATEMATİK */
-let x,y;
-function newQ(){
- x=Math.floor(Math.random()*10);
- y=Math.floor(Math.random()*10);
- q.innerText=`${x} + ${y} = ?`;
-}
-newQ();
-function checkMath(){
- alert(Number(a.value)==x+y ? "🎉 Aferin!" : "❌ Tekrar dene");
- newQ(); a.value="";
-}
-
-/* HARF */
-function newHarf(){
- harfTxt.innerText=String.fromCharCode(65+Math.floor(Math.random()*26));
-}
-newHarf();
-
-/* HAFIZA */
-const emojis=["🍎","🍌","🍎","🍌","⭐","⭐","🐶","🐶"];
-let open=[];
-function loadMem(){
- mem.innerHTML="";
- open=[];
- emojis.sort(()=>0.5-Math.random());
- emojis.forEach(e=>{
-  let d=document.createElement("div");
-  d.className="mem"; d.innerText="❓";
-  d.onclick=()=>flip(d,e);
-  mem.appendChild(d);
- });
-}
-function flip(d,e){
- if(open.length<2 && d.innerText=="❓"){
-  d.innerText=e; open.push(d);
-  if(open.length==2){
-   setTimeout(()=>{
-    if(open[0].innerText!=open[1].innerText){
-     open[0].innerText="❓";
-     open[1].innerText="❓";
-    }
-    open=[];
-   },700);
+function send(){
+  const m = msg.value;
+  if(m){
+    socket.emit("message", m);
+    msg.value="";
   }
- }
 }
-loadMem();
-
-/* LABİRENT */
-const mazeData=[
-["P","W","W","W","W","W","W","W"],
-[" "," "," "," ","W"," "," ","W"],
-["W"," ","W"," ","W"," ","W","W"],
-["W"," ","W"," "," "," "," ","W"],
-["W"," ","W","W","W","W"," ","W"],
-["W"," "," "," "," "," "," "," "],
-["W","W","W","W","W","W","W","G"]
-];
-let px=0,py=0;
-
-function drawMaze(){
- maze.innerHTML="";
- for(let y=0;y<7;y++){
-  for(let x=0;x<8;x++){
-   let d=document.createElement("div");
-   d.className="cell";
-   if(mazeData[y][x]=="W") d.classList.add("wall");
-   if(px==x && py==y) d.classList.add("player");
-   if(mazeData[y][x]=="G") d.classList.add("goal");
-   maze.appendChild(d);
-  }
- }
-}
-function move(dir){
- let nx=px,ny=py;
- if(dir=="up")ny--;
- if(dir=="down")ny++;
- if(dir=="left")nx--;
- if(dir=="right")nx++;
- if(nx>=0&&ny>=0&&nx<8&&ny<7&&mazeData[ny][nx]!="W"){
-  px=nx; py=ny;
- }
- drawMaze();
- if(mazeData[py][px]=="G"){
-  alert("🎉 Kazandın!");
-  px=0; py=0;
-  drawMaze();
- }
-}
-drawMaze();
 </script>
 
+<script src="http://localhost:3000/socket.io/socket.io.js"></script>
 </body>
 </html>
