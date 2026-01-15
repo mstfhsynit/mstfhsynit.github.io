@@ -1,95 +1,112 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <title>Miraç Kandili</title>
-    <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow-x: hidden;
-            font-family: 'Arial', sans-serif;
-        }
-
-        body {
-            background: radial-gradient(circle at top, #001f3f, #003366);
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start; /* Scroll olursa yazılar yukarıdan başlasın */
-            padding-top: 50px; /* Yazıları biraz aşağıya al */
-            text-align: center;
-        }
-
-        h1 {
-            font-size: 3em;
-            margin: 0.3em;
-            text-shadow: 2px 2px 8px #000;
-        }
-
-        p {
-            font-size: 2em;
-            margin: 0.2em;
-            text-shadow: 1px 1px 5px #000;
-        }
-
-        /* Yıldız container */
-        #stars {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none; /* Yıldızlar yazıların üstüne gelince tıklamayı engelle */
-            z-index: 0;
-        }
-
-        .star {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            width: 2px;
-            height: 2px;
-            opacity: 0.8;
-            animation: twinkle 2s infinite alternate;
-        }
-
-        @keyframes twinkle {
-            0% {opacity: 0.3;}
-            100% {opacity: 1;}
-        }
-
-        /* Yazıları üstte göstermek için z-index */
-        h1, p {
-            position: relative;
-            z-index: 1;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Akıllı Türkçe Metin Düzeltici</title>
+<style>
+    body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 50px;
+        font-family: Arial, sans-serif;
+        background-color: #f0f8ff;
+        color: #333;
+    }
+    h1 { font-size: 2em; margin-bottom: 20px; }
+    textarea { width: 90%; max-width: 600px; height: 150px; font-size: 1em; padding: 10px; }
+    button { margin-top: 10px; padding: 10px 20px; font-size: 1em; cursor: pointer; }
+    #output { margin-top: 20px; font-size: 1.2em; color: #4b0082; text-align: center; white-space: pre-wrap; }
+</style>
 </head>
 <body>
-    <div id="stars"></div>
 
-    <h1>Miraç Kandiliniz Mübarek Olsun</h1>
-    <p>Subhanallah</p>
-    <p>Elhamdülillah</p>
-    <p>Allahu Akbar</p>
-    <p>La ilahe illallah</p>
-    <p>Astaghfirullah</p>
-    <p>Allahümme salli ala Muhammed</p>
+<h1>Akıllı Türkçe Metin Düzeltici</h1>
+<textarea id="inputText" placeholder="Buraya yazınızı girin..."></textarea>
+<button onclick="duzelt()">Düzelt</button>
+<div id="output"></div>
 
-    <script>
-        const starsContainer = document.getElementById("stars");
-        for (let i = 0; i < 100; i++) {
-            const star = document.createElement("div");
-            star.className = "star";
-            star.style.top = Math.random() * 100 + "%";
-            star.style.left = Math.random() * 100 + "%";
-            star.style.width = star.style.height = Math.random() * 3 + 1 + "px";
-            star.style.animationDuration = (Math.random() * 3 + 2) + "s";
-            starsContainer.appendChild(star);
-        }
-    </script>
+<script>
+// Basit Türkçe sözlük örneği
+const sozluk = {
+    "merhaba": "Merhaba",
+    "kandiliniz": "Kandiliniz",
+    "mubarek": "Mübarek",
+    "tesekkurler": "Teşekkürler",
+    "subhanallh": "Subhanallah",
+    "elhamdulliah": "Elhamdülillah"
+};
+
+// Özel isimler ve şehirler
+const isimler = ["Mustafa","Ahmet","Ali","Mehmet","Ayşe","Fatma"];
+const sehirler = ["İstanbul","Ankara","İzmir","Bursa","Antalya","Trabzon","Kahramanmaraş"];
+
+// Bağlaçlar
+const baglaclar = ["ve","ile","ama","fakat","çünkü","ancak"];
+
+function duzelt() {
+    let text = document.getElementById("inputText").value.trim();
+    if(text === "") {
+        document.getElementById("output").textContent = "Lütfen bir metin girin!";
+        return;
+    }
+
+    // 1. Fazla boşlukları temizle
+    text = text.replace(/\s+/g,' ');
+
+    // 2. Noktalama eksikse sonuna nokta ekle
+    if(!/[.!?]$/.test(text)) text += ".";
+
+    // 3. Cümleleri ayır
+    let sentences = text.split(/([.!?]+)/).filter(s => s.trim() !== "");
+
+    let corrected = "";
+    for(let i=0;i<sentences.length;i+=2){
+        let sentence = sentences[i].trim();
+        let punctuation = sentences[i+1] ? sentences[i+1] : ".";
+
+        if(sentence.length===0) continue;
+
+        // 4. Cümle başı büyük harf
+        sentence = sentence.charAt(0).toUpperCase() + sentence.slice(1).toLowerCase();
+
+        // 5. Kelime bazlı düzeltme (sözlük)
+        sentence = sentence.split(' ').map(word=>{
+            let clean = word.toLowerCase().replace(/[.,!?;:]/g,'');
+            if(sozluk[clean]) return sozluk[clean];
+            return word;
+        }).join(' ');
+
+        // 6. Virgül sonrası boşluk
+        sentence = sentence.replace(/,([^\s])/g,', $1');
+
+        // 7. Bağlaç öncesi/sonrası fazla virgül silme
+        baglaclar.forEach(b=>{
+            let regex1 = new RegExp(",\\s*"+b,"gi");
+            sentence = sentence.replace(regex1,b);
+        });
+
+        corrected += sentence + punctuation + " ";
+    }
+
+    corrected = corrected.replace(/\s+/g,' ').trim();
+
+    // 8. Özel isim ve şehirleri büyük yap
+    isimler.forEach(name=>{
+        let regex = new RegExp("\\b"+name.toLowerCase()+"\\b","g");
+        corrected = corrected.replace(regex,name);
+    });
+    sehirler.forEach(city=>{
+        let regex = new RegExp("\\b"+city.toLowerCase()+"\\b","g");
+        corrected = corrected.replace(regex,city);
+    });
+
+    // 9. Tarih, saat ve sayılara dokunma (basit)
+    corrected = corrected.replace(/(\d+)\s*([a-zA-ZçğıöşüÇĞİÖŞÜ]+)/g,'$1 $2');
+
+    document.getElementById("output").textContent = corrected;
+}
+</script>
+
 </body>
 </html>
