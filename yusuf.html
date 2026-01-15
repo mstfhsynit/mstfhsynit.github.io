@@ -2,59 +2,109 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Yusuf Oyunu</title>
+  <title>Yusuf Yılan Oyunu</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #222;
+      color: white;
+      font-family: Arial, sans-serif;
+      flex-direction: column;
+    }
+    canvas {
+      background: #000;
+      display: block;
+      margin-bottom: 20px;
+    }
+    h1 { color: #00e5ff; }
+  </style>
 </head>
 <body>
 
-<h1>Yusuf bu oyunu oyna 🎲</h1>
-
-<button id="startBtn">Oyunu Başlat</button>
-
-<div id="game" style="display:none;">
-  <p id="question"></p>
-  <input type="number" id="answer" placeholder="Cevap">
-  <button onclick="checkAnswer()">Gönder</button>
-  <p id="result"></p>
-</div>
+<h1>Yılan Oyunu 🎮</h1>
+<canvas id="game" width="400" height="400"></canvas>
+<p>Ok tuşları ile oynayın!</p>
 
 <script>
-let questions = [
-  {q: "3 + 4 = ?", a: 7},
-  {q: "5 × 2 = ?", a: 10},
-  {q: "6 + 7 = ?", a: 13},
-  {q: "4 × 3 = ?", a: 12}
-];
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-let index = 0;
+const box = 20;
+let snake = [{x: 9*box, y: 9*box}];
+let food = {
+  x: Math.floor(Math.random()*20)*box,
+  y: Math.floor(Math.random()*20)*box
+};
+let score = 0;
+let d;
+document.addEventListener("keydown", direction);
 
-document.getElementById("startBtn").onclick = function() {
-  document.getElementById("startBtn").style.display = "none";
-  document.getElementById("game").style.display = "block";
-  showQuestion();
+function direction(event){
+  if(event.keyCode == 37 && d != "RIGHT") d = "LEFT";
+  else if(event.keyCode == 38 && d != "DOWN") d = "UP";
+  else if(event.keyCode == 39 && d != "LEFT") d = "RIGHT";
+  else if(event.keyCode == 40 && d != "UP") d = "DOWN";
 }
 
-function showQuestion() {
-  document.getElementById("question").innerText = questions[index].q;
-  document.getElementById("answer").value = "";
-  document.getElementById("result").innerText = "";
-}
-
-function checkAnswer() {
-  let userAnswer = Number(document.getElementById("answer").value);
-  if(userAnswer === questions[index].a) {
-    document.getElementById("result").innerText = "Tebrikler ✅ Doğru!";
-    index++;
-    if(index < questions.length) {
-      setTimeout(showQuestion, 1000);
-    } else {
-      setTimeout(() => {
-        document.getElementById("game").innerHTML = "<h2>Harika, tüm soruları tamamladın! 🎉</h2>";
-      }, 1000);
+function collision(head, array){
+  for(let i=0; i<array.length; i++){
+    if(head.x == array[i].x && head.y == array[i].y){
+      return true;
     }
-  } else {
-    document.getElementById("result").innerText = "Yanlış ❌ Tekrar dene!";
   }
+  return false;
 }
+
+function draw(){
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  for(let i=0; i<snake.length; i++){
+    ctx.fillStyle = (i==0) ? "lime" : "green";
+    ctx.fillRect(snake[i].x, snake[i].y, box, box);
+    ctx.strokeStyle = "#000";
+    ctx.strokeRect(snake[i].x, snake[i].y, box, box);
+  }
+
+  ctx.fillStyle = "red";
+  ctx.fillRect(food.x, food.y, box, box);
+
+  let snakeX = snake[0].x;
+  let snakeY = snake[0].y;
+
+  if(d == "LEFT") snakeX -= box;
+  if(d == "UP") snakeY -= box;
+  if(d == "RIGHT") snakeX += box;
+  if(d == "DOWN") snakeY += box;
+
+  if(snakeX == food.x && snakeY == food.y){
+    score++;
+    food = {
+      x: Math.floor(Math.random()*20)*box,
+      y: Math.floor(Math.random()*20)*box
+    };
+  } else {
+    snake.pop();
+  }
+
+  let newHead = {x: snakeX, y: snakeY};
+
+  if(snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)){
+    clearInterval(game);
+    alert("Oyun Bitti! Skorunuz: " + score);
+  }
+
+  snake.unshift(newHead);
+
+  ctx.fillStyle = "white";
+  ctx.font = "20px Arial";
+  ctx.fillText("Skor: "+score, 10, 20);
+}
+
+let game = setInterval(draw, 100);
 </script>
 
 </body>
