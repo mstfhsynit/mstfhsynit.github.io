@@ -34,7 +34,7 @@
       height:30px; 
       background: rgba(68,68,68,0.5); 
     }
-    .wall { background: rgba(0,0,0,0.7); } /* duvar */
+    .wall { background: rgba(0,0,0,0.7); }
     .player { background: yellow; }
     .goal { background: red; }
 
@@ -59,6 +59,12 @@
   <button onclick="move('RIGHT')">→</button>
 </div>
 
+<!-- Arka plan müziği -->
+<audio autoplay loop>
+  <source src="Funk-01-106-bpm.wav" type="audio/wav">
+  Tarayıcınız audio etiketini desteklemiyor.
+</audio>
+
 <script>
 const mazeEl = document.getElementById("maze");
 const size = 10;
@@ -66,7 +72,6 @@ let playerPos = {x:0, y:0};
 let goalPos = {x:9, y:9};
 let cells = [];
 
-// Labirent matrisi: 0 = boş, 1 = duvar
 const mazeData = [
   [0,1,1,1,1,1,1,1,1,1],
   [0,0,0,0,1,0,0,0,0,1],
@@ -80,7 +85,6 @@ const mazeData = [
   [1,0,0,1,0,1,0,0,0,0]
 ];
 
-// Maze hücrelerini oluştur
 for(let y=0; y<size; y++){
   for(let x=0; x<size; x++){
     const cell = document.createElement("div");
@@ -108,7 +112,6 @@ function move(dir){
   if(dir=="LEFT") newX--;
   if(dir=="RIGHT") newX++;
 
-  // sınır ve duvar kontrolü
   if(newX>=0 && newX<size && newY>=0 && newY<size && mazeData[newY][newX]===0){
     playerPos.x = newX;
     playerPos.y = newY;
@@ -126,7 +129,6 @@ function checkWin(){
   }
 }
 
-// Klavye ok tuşları
 document.addEventListener("keydown", function(e){
   if(e.keyCode==37) move("LEFT");
   if(e.keyCode==38) move("UP");
@@ -139,7 +141,3 @@ draw();
 
 </body>
 </html>
-<audio autoplay loop>
-  <source src="Funk-01-106-bpm.wav" type="audio/wav">
-  Tarayıcınız audio etiketini desteklemiyor.
-</audio>
