@@ -17,14 +17,13 @@
     }
     h1 { color:#00e5ff; }
 
-    /* Labirent alanı */
     #maze { 
       display:grid; 
       grid-template-columns: repeat(10, 30px); 
       grid-template-rows: repeat(10, 30px); 
       gap:2px; 
       margin-top:20px; 
-      background-image: url('Ekran%20görüntüsü%202026-01-15%20090329.jpg'); /* resmin adı boşlukları %20 ile */
+      background-image: url('Ekran%20görüntüsü%202026-01-15%20090329.jpg');
       background-size: cover;
       background-position: center;
       padding:5px;
@@ -33,10 +32,11 @@
     .cell { 
       width:30px; 
       height:30px; 
-      background: rgba(68,68,68,0.5); /* saydam kareler */
+      background: rgba(68,68,68,0.5); 
     }
-    .player { background:yellow; }
-    .goal { background:red; }
+    .wall { background: rgba(0,0,0,0.7); } /* duvar */
+    .player { background: yellow; }
+    .goal { background: red; }
 
     .controls button { 
       width:60px; height:60px; margin:5px; font-size:20px; font-weight:bold; 
@@ -66,11 +66,26 @@ let playerPos = {x:0, y:0};
 let goalPos = {x:9, y:9};
 let cells = [];
 
-// Maze oluştur
+// Labirent matrisi: 0 = boş, 1 = duvar
+const mazeData = [
+  [0,1,1,1,1,1,1,1,1,1],
+  [0,0,0,0,1,0,0,0,0,1],
+  [1,0,1,0,1,0,1,1,0,1],
+  [1,0,1,0,0,0,0,1,0,1],
+  [1,0,1,1,1,1,0,1,0,1],
+  [1,0,0,0,0,0,0,1,0,0],
+  [1,1,1,1,1,1,0,1,1,1],
+  [1,0,0,0,0,1,0,0,0,1],
+  [1,0,1,1,0,0,0,1,0,1],
+  [1,0,0,1,0,1,0,0,0,0]
+];
+
+// Maze hücrelerini oluştur
 for(let y=0; y<size; y++){
   for(let x=0; x<size; x++){
     const cell = document.createElement("div");
     cell.classList.add("cell");
+    if(mazeData[y][x] === 1) cell.classList.add("wall");
     mazeEl.appendChild(cell);
     cells.push({el: cell, x:x, y:y});
   }
@@ -85,10 +100,20 @@ function draw(){
 }
 
 function move(dir){
-  if(dir=="UP" && playerPos.y>0) playerPos.y--;
-  if(dir=="DOWN" && playerPos.y<size-1) playerPos.y++;
-  if(dir=="LEFT" && playerPos.x>0) playerPos.x--;
-  if(dir=="RIGHT" && playerPos.x<size-1) playerPos.x++;
+  let newX = playerPos.x;
+  let newY = playerPos.y;
+
+  if(dir=="UP") newY--;
+  if(dir=="DOWN") newY++;
+  if(dir=="LEFT") newX--;
+  if(dir=="RIGHT") newX++;
+
+  // sınır ve duvar kontrolü
+  if(newX>=0 && newX<size && newY>=0 && newY<size && mazeData[newY][newX]===0){
+    playerPos.x = newX;
+    playerPos.y = newY;
+  }
+
   draw();
   checkWin();
 }
@@ -96,7 +121,7 @@ function move(dir){
 function checkWin(){
   if(playerPos.x==goalPos.x && playerPos.y==goalPos.y){
     alert("Tebrikler! Labirenti tamamladın 🎉");
-    playerPos = {x:0,y:0};
+    playerPos = {x:0, y:0};
     draw();
   }
 }
