@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Yusuf Labirent Oyunu</title>
+  <title>Mstfhsynit Labirent</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -24,20 +24,24 @@
       grid-template-rows: repeat(10, 30px); 
       gap:2px; 
       margin-top:20px; 
-      /* Arka plan resmi */
-      background-image: url('resmim.png'); 
+      background-image: url('Ekran%20görüntüsü%202026-01-15%20090329.jpg'); /* resmin adı boşlukları %20 ile */
       background-size: cover;
       background-position: center;
       padding:5px;
     }
 
-    .cell { width:30px; height:30px; background:rgba(68,68,68,0.7); }
+    .cell { 
+      width:30px; 
+      height:30px; 
+      background: rgba(68,68,68,0.5); /* saydam kareler */
+    }
     .player { background:yellow; }
     .goal { background:red; }
 
     .controls button { 
       width:60px; height:60px; margin:5px; font-size:20px; font-weight:bold; 
       border:none; border-radius:10px; background:#00e5ff; color:#002b36; 
+      cursor:pointer;
     }
     .controls { display:flex; flex-wrap:wrap; width:200px; justify-content:center; margin-top:15px; }
   </style>
