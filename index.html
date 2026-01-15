@@ -27,26 +27,23 @@
 <div id="output"></div>
 
 <script>
-// Basit Türkçe sözlük örneği
+// Örnek genişletilmiş sözlük (istediğin kadar kelime ekleyebilirsin)
 const sozluk = {
-    "merhaba": "Merhaba",
-    "kandiliniz": "Kandiliniz",
-    "mubarek": "Mübarek",
-    "tesekkurler": "Teşekkürler",
-    "subhanallh": "Subhanallah",
-    "elhamdulliah": "Elhamdülillah"
+    "merhaba":"Merhaba","kandiliniz":"Kandiliniz","mubarek":"Mübarek","tesekkurler":"Teşekkürler",
+    "subhanallh":"Subhanallah","elhamdulliah":"Elhamdülillah","nasilsiniz":"Nasılsınız",
+    "gunaydin":"Günaydın","iyigunler":"İyi günler","allah":"Allah"
 };
 
-// Özel isimler ve şehirler
-const isimler = ["Mustafa","Ahmet","Ali","Mehmet","Ayşe","Fatma"];
+// Özel isimler ve şehirler (listeyi dilediğin kadar genişletebilirsin)
+const isimler = ["Mustafa","Ahmet","Ali","Mehmet","Ayşe","Fatma","Emre","Hüseyin"];
 const sehirler = ["İstanbul","Ankara","İzmir","Bursa","Antalya","Trabzon","Kahramanmaraş"];
 
 // Bağlaçlar
-const baglaclar = ["ve","ile","ama","fakat","çünkü","ancak"];
+const baglaclar = ["ve","ile","ama","fakat","çünkü","ancak","lakin"];
 
 function duzelt() {
     let text = document.getElementById("inputText").value.trim();
-    if(text === "") {
+    if(text==="") {
         document.getElementById("output").textContent = "Lütfen bir metin girin!";
         return;
     }
@@ -58,13 +55,12 @@ function duzelt() {
     if(!/[.!?]$/.test(text)) text += ".";
 
     // 3. Cümleleri ayır
-    let sentences = text.split(/([.!?]+)/).filter(s => s.trim() !== "");
-
+    let sentences = text.split(/([.!?]+)/).filter(s => s.trim()!=="");
     let corrected = "";
+
     for(let i=0;i<sentences.length;i+=2){
         let sentence = sentences[i].trim();
-        let punctuation = sentences[i+1] ? sentences[i+1] : ".";
-
+        let punctuation = sentences[i+1]?sentences[i+1]:".";
         if(sentence.length===0) continue;
 
         // 4. Cümle başı büyük harf
@@ -77,10 +73,10 @@ function duzelt() {
             return word;
         }).join(' ');
 
-        // 6. Virgül sonrası boşluk
+        // 6. Virgül sonrası boşluk düzelt
         sentence = sentence.replace(/,([^\s])/g,', $1');
 
-        // 7. Bağlaç öncesi/sonrası fazla virgül silme
+        // 7. Bağlaç öncesi/fazla virgül düzelt
         baglaclar.forEach(b=>{
             let regex1 = new RegExp(",\\s*"+b,"gi");
             sentence = sentence.replace(regex1,b);
@@ -101,7 +97,7 @@ function duzelt() {
         corrected = corrected.replace(regex,city);
     });
 
-    // 9. Tarih, saat ve sayılara dokunma (basit)
+    // 9. Tarih, saat ve sayılara dokunma
     corrected = corrected.replace(/(\d+)\s*([a-zA-ZçğıöşüÇĞİÖŞÜ]+)/g,'$1 $2');
 
     document.getElementById("output").textContent = corrected;
