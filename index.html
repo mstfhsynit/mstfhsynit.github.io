@@ -13,64 +13,27 @@ body {
     padding: 50px;
     color: #1b262c;
 }
-
 @keyframes gradientBG {
     0% {background-position:0% 50%;}
     50% {background-position:100% 50%;}
     100% {background-position:0% 50%;}
 }
-
-h1 {
-    font-size: 36px;
-    margin-bottom: 20px;
-}
-
-#question {
-    font-size: 24px;
-    margin: 30px 0;
-    min-height: 60px;
-    transition: transform 0.2s;
-}
-
-.btn {
-    padding: 15px 35px;
-    margin: 15px;
-    font-size: 20px;
-    font-weight: bold;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    color: white;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-}
-
+h1 { font-size: 36px; margin-bottom: 20px; }
+#question { font-size: 24px; margin: 30px 0; min-height: 60px; transition: transform 0.2s, color 0.2s; }
+.btn { padding: 15px 35px; margin: 15px; font-size: 20px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; color: white; transition: transform 0.2s, box-shadow 0.2s, background 0.2s; }
+.btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
 .yes { background-color: #06d6a0; }
 .no { background-color: #ef233c; }
-
-#message {
-    margin-top: 40px;
-    font-size: 24px;
-    position: relative;
-}
-
-/* Yukarı doğru konfeti */
-.confetti {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    opacity: 0.9;
-    animation: rise 1.5s ease-out forwards;
-}
-
+#message { margin-top: 40px; font-size: 24px; position: relative; }
+.confetti { position: absolute; width: 10px; height: 10px; border-radius: 50%; opacity: 0.9; animation: rise 1.5s ease-out forwards; }
 @keyframes rise {
     0% {transform: translateY(0) rotate(0deg);}
     100% {transform: translateY(-200px) rotate(720deg); opacity:0;}
+}
+.randomChar { position: absolute; font-size: 14px; font-weight: bold; color: rgba(0,0,0,0.2); animation: floatUp 1s linear forwards; }
+@keyframes floatUp {
+    0% {transform: translateY(0) rotate(0deg); opacity:1;}
+    100% {transform: translateY(-100px) rotate(360deg); opacity:0;}
 }
 </style>
 </head>
@@ -80,17 +43,15 @@ h1 {
 <p>1 ile 1000 arasında bir sayı tut. Bilgisayar sorularla tahmin edecek.</p>
 
 <div id="question">Hazır…</div>
-
 <button class="btn yes" id="yesBtn">Evet</button>
 <button class="btn no" id="noBtn">Hayır</button>
 
 <div id="message"></div>
 
 <script>
-// Başlangıç: tüm sayılar
+// Başlangıç
 let possibleNumbers = [];
 for(let i=1; i<=1000; i++) possibleNumbers.push(i);
-
 let questionsAsked = 0;
 const maxQuestions = 15;
 let currentQuestion = null;
@@ -100,15 +61,20 @@ const messageDiv = document.getElementById("message");
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
 
-// Ses efekti: her iki buton için 400 Hz
-function playSound(){
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(400, ctx.currentTime);
-    osc.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.15);
+// Ses efektleri
+function playButtonSound(){ const ctx = new (window.AudioContext||window.webkitAudioContext)(); const osc=ctx.createOscillator(); osc.type='sine'; osc.frequency.setValueAtTime(400, ctx.currentTime); osc.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime+0.15);}
+function playMelody(){ const ctx=new (window.AudioContext||window.webkitAudioContext)(); const osc=ctx.createOscillator(); osc.type='triangle'; let times=[0,0.2,0.4]; let freqs=[440, 523, 659]; osc.connect(ctx.destination); osc.start(); times.forEach((t,i)=>osc.frequency.setValueAtTime(freqs[i], ctx.currentTime+t)); osc.stop(ctx.currentTime+0.6);}
+
+// Rastgele karakter animasyonu
+function randomChars(){
+    for(let i=0;i<10;i++){
+        const span=document.createElement("div");
+        span.className="randomChar";
+        span.style.left=`${Math.random()*100}%`;
+        span.textContent = String.fromCharCode(33+Math.floor(Math.random()*94));
+        messageDiv.appendChild(span);
+        setTimeout(()=>span.remove(),1000);
+    }
 }
 
 // Rastgele soru üret
@@ -117,15 +83,13 @@ function generateQuestion(){
         animateGuess(possibleNumbers[0]);
         return;
     }
-
     questionsAsked++;
     const min = Math.min(...possibleNumbers);
     const max = Math.max(...possibleNumbers);
-    const randomPivot = Math.floor(Math.random()*(max-min+1))+min;
-
-    currentQuestion = {pivot: randomPivot};
-    questionDiv.textContent = `Tuttuğunuz sayı ${randomPivot}’den büyük mü?`;
-    questionDiv.style.transform = "scale(1)";
+    const pivot = Math.floor(Math.random()*(max-min+1))+min;
+    currentQuestion = {pivot};
+    questionDiv.textContent = `Tuttuğunuz sayı ${pivot}’den büyük mü?`;
+    questionDiv.style.transform="scale(1)";
 }
 
 // Tahmin animasyonu
@@ -134,49 +98,49 @@ function animateGuess(finalNumber){
     yesBtn.style.display="none";
     noBtn.style.display="none";
 
-    messageDiv.innerHTML = `Bilgisayar tahmin ediyor...`;
-    let fakeNumber = 1;
-
-    const interval = setInterval(()=>{
-        fakeNumber += Math.floor(Math.random()*20)+1;
+    messageDiv.innerHTML="Bilgisayar tahmin ediyor...";
+    let fakeNumber=1;
+    const interval=setInterval(()=>{
+        fakeNumber+=Math.floor(Math.random()*20)+1;
         if(fakeNumber>1000) fakeNumber=1;
         messageDiv.textContent=`Bilgisayar tahmin ediyor: ${fakeNumber}`;
-        messageDiv.style.transform = `scale(${1 + Math.random()*0.2})`;
+        messageDiv.style.transform=`scale(${1+Math.random()*0.2})`;
+        randomChars();
     },50);
 
     setTimeout(()=>{
         clearInterval(interval);
         messageDiv.textContent=`🎉 Bilgisayar tahmin ediyor: ${finalNumber}`;
         confettiEffect();
+        playMelody();
+        messageDiv.innerHTML+=`<br>Bilgisayar ${questionsAsked} soruda sayınızı buldu!`;
     },2000);
 }
 
-// Yukarı doğru konfeti
+// Yukarı konfeti
 function confettiEffect(){
     for(let i=0;i<30;i++){
         const c=document.createElement("div");
-        c.classList.add("confetti");
-        c.style.left = `${Math.random()*100}%`;
-        c.style.backgroundColor = `hsl(${Math.random()*360},70%,60%)`;
+        c.className="confetti";
+        c.style.left=`${Math.random()*100}%`;
+        c.style.backgroundColor=`hsl(${Math.random()*360},70%,60%)`;
         messageDiv.appendChild(c);
         setTimeout(()=>c.remove(),1500);
     }
 }
 
-// Cevap verildiğinde filtrele ve ses çal
+// Cevap ver
 function answer(isYes){
-    playSound(); // hem Evet hem Hayır 400 Hz
-    if(isYes) possibleNumbers = possibleNumbers.filter(n=>n>currentQuestion.pivot);
-    else possibleNumbers = possibleNumbers.filter(n=>n<=currentQuestion.pivot);
-
+    playButtonSound();
+    if(isYes) possibleNumbers=possibleNumbers.filter(n=>n>currentQuestion.pivot);
+    else possibleNumbers=possibleNumbers.filter(n=>n<=currentQuestion.pivot);
     generateQuestion();
 }
 
-yesBtn.addEventListener("click", ()=>answer(true));
-noBtn.addEventListener("click", ()=>answer(false));
+yesBtn.addEventListener("click",()=>answer(true));
+noBtn.addEventListener("click",()=>answer(false));
 
 generateQuestion();
 </script>
-
 </body>
 </html>
