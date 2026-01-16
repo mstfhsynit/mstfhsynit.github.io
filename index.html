@@ -35,7 +35,6 @@ h1 { font-size: 36px; margin-bottom: 20px; }
     0% {transform: translateY(0) rotate(0deg); opacity:1;}
     100% {transform: translateY(-100px) rotate(360deg); opacity:0;}
 }
-/* Buton zıplama animasyonu */
 @keyframes jump {
     0% {transform: translateY(0);}
     50% {transform: translateY(-15px);}
@@ -59,8 +58,6 @@ h1 { font-size: 36px; margin-bottom: 20px; }
 let possibleNumbers = [];
 for(let i=1; i<=1000; i++) possibleNumbers.push(i);
 let questionsAsked = 0;
-const maxQuestions = 15;
-let currentQuestion = null;
 
 const questionDiv = document.getElementById("question");
 const messageDiv = document.getElementById("message");
@@ -101,17 +98,18 @@ function randomChars(){
     }
 }
 
-// Rastgele soru üret
+// Rastgele soru üret (binary search mantığı)
+let currentPivot = null;
 function generateQuestion(){
-    if(possibleNumbers.length <= 1 || questionsAsked >= maxQuestions){
+    if(possibleNumbers.length <= 1){
         animateGuess(possibleNumbers[0]);
         return;
     }
     questionsAsked++;
     const min = Math.min(...possibleNumbers);
     const max = Math.max(...possibleNumbers);
-    const pivot = Math.floor(Math.random()*(max-min+1))+min;
-    currentQuestion = {pivot};
+    const pivot = Math.floor((min + max)/2);
+    currentPivot = pivot;
     questionDiv.textContent = `Tuttuğunuz sayı ${pivot}’den büyük mü?`;
 }
 
@@ -155,10 +153,10 @@ function confettiEffect(){
 // Buton animasyonu ve cevap
 function buttonAnswer(btn, isYes){
     btn.style.animation="jump 0.3s ease";
-    setTimeout(()=>btn.style.animation="",300); // animasyonu resetle
+    setTimeout(()=>btn.style.animation="",300);
     playButtonSound();
-    if(isYes) possibleNumbers=possibleNumbers.filter(n=>n>currentQuestion.pivot);
-    else possibleNumbers=possibleNumbers.filter(n=>n<=currentQuestion.pivot);
+    if(isYes) possibleNumbers = possibleNumbers.filter(n=>n>currentPivot);
+    else possibleNumbers = possibleNumbers.filter(n=>n<=currentPivot);
     generateQuestion();
 }
 
