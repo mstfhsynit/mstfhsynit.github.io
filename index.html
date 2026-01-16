@@ -58,21 +58,19 @@ h1 {
     position: relative;
 }
 
-/* Confetti parçacıkları */
+/* Yukarı doğru konfeti */
 .confetti {
     position: absolute;
     width: 10px;
     height: 10px;
-    background-color: gold;
-    top: 0;
-    left: 50%;
-    opacity: 0.8;
-    animation: fall 2s linear forwards;
+    border-radius: 50%;
+    opacity: 0.9;
+    animation: rise 1.5s ease-out forwards;
 }
 
-@keyframes fall {
+@keyframes rise {
     0% {transform: translateY(0) rotate(0deg);}
-    100% {transform: translateY(200px) rotate(360deg);}
+    100% {transform: translateY(-200px) rotate(720deg); opacity:0;}
 }
 </style>
 </head>
@@ -102,20 +100,16 @@ const messageDiv = document.getElementById("message");
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
 
-// Ses efekti
-function playSound(frequency, duration){
+// Ses efekti: her iki buton için 400 Hz
+function playSound(){
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     const osc = ctx.createOscillator();
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(frequency, ctx.currentTime);
+    osc.frequency.setValueAtTime(400, ctx.currentTime);
     osc.connect(ctx.destination);
     osc.start();
-    osc.stop(ctx.currentTime + duration);
+    osc.stop(ctx.currentTime + 0.15);
 }
-
-// Evet/Hayır sesleri
-function yesSound(){ playSound(600,0.15);}
-function noSound(){ playSound(400,0.15);}
 
 // Rastgele soru üret
 function generateQuestion(){
@@ -157,23 +151,21 @@ function animateGuess(finalNumber){
     },2000);
 }
 
-// Basit confetti efekti
+// Yukarı doğru konfeti
 function confettiEffect(){
     for(let i=0;i<30;i++){
         const c=document.createElement("div");
         c.classList.add("confetti");
         c.style.left = `${Math.random()*100}%`;
-        c.style.backgroundColor = `hsl(${Math.random()*360}, 70%, 60%)`;
+        c.style.backgroundColor = `hsl(${Math.random()*360},70%,60%)`;
         messageDiv.appendChild(c);
-        setTimeout(()=>c.remove(),2000);
+        setTimeout(()=>c.remove(),1500);
     }
 }
 
 // Cevap verildiğinde filtrele ve ses çal
 function answer(isYes){
-    if(isYes) yesSound();
-    else noSound();
-
+    playSound(); // hem Evet hem Hayır 400 Hz
     if(isYes) possibleNumbers = possibleNumbers.filter(n=>n>currentQuestion.pivot);
     else possibleNumbers = possibleNumbers.filter(n=>n<=currentQuestion.pivot);
 
@@ -187,4 +179,4 @@ generateQuestion();
 </script>
 
 </body>
-    </html>
+</html>
