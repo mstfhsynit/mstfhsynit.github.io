@@ -63,7 +63,7 @@ h1 {
 let numbers = [];
 for(let i=1;i<=100;i++) numbers.push(i);
 
-// Karışık 10 soru
+// 10 Karışık soru (çift/tek ve belirli sayıdan büyük mü)
 let questions = [
     {text:"Tuttuğunuz sayı çift mi?", type:"even"},
     {text:"Tuttuğunuz sayı 17’den büyük mü?", type:"gt", value:17},
@@ -78,20 +78,18 @@ let questions = [
 ];
 
 let currentQuestion = 0;
-let finalGuess = null; // Tahmin için
+let answers = []; // Kullanıcının cevapları
 
 const questionDiv = document.getElementById("question");
 const messageDiv = document.getElementById("message");
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
 
-// Kullanıcının cevaplarını kaydet
-let answers = [];
-
+// Soruyu ekrana göster
 function showQuestion() {
     if(currentQuestion >= questions.length){
-        // Sonunda tahmin yap
-        finalGuess = makeGuess();
+        // Sonunda doğru tahmini hesapla
+        let finalGuess = makeGuess();
         questionDiv.style.display = "none";
         yesBtn.style.display = "none";
         noBtn.style.display = "none";
@@ -101,9 +99,8 @@ function showQuestion() {
     questionDiv.textContent = questions[currentQuestion].text;
 }
 
-// Mantıklı tahmin algoritması
+// Mantıklı tahmin hesaplama
 function makeGuess(){
-    // Arka planda sayıları filtrele
     let possible = numbers.slice();
     for(let i=0;i<questions.length;i++){
         let q = questions[i];
@@ -116,10 +113,10 @@ function makeGuess(){
             possible = possible.filter(n => a ? n>q.value : n<=q.value);
         }
     }
-    // Son kalan sayıyı tahmin et
-    return possible[0];
+    return possible[0]; // Kalan tek sayı
 }
 
+// Cevap verildiğinde
 function answer(isYes){
     answers.push(isYes);
     currentQuestion++;
