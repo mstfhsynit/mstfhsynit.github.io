@@ -13,19 +13,13 @@
 
     h1 {
         color: #1b262c;
-        margin-bottom: 10px;
-    }
-
-    p {
-        color: #1b262c;
-        font-size: 18px;
     }
 
     #guess {
         font-size: 48px;
         font-weight: bold;
         color: #0f4c75;
-        margin: 30px 0;
+        margin: 20px 0;
         background: #bbe1fa;
         display: inline-block;
         padding: 20px 40px;
@@ -33,10 +27,15 @@
         box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
     }
 
+    .question {
+        margin: 15px 0;
+        font-size: 20px;
+    }
+
     .btn {
-        padding: 15px 25px;
-        margin: 10px;
-        font-size: 18px;
+        padding: 10px 20px;
+        margin: 5px;
+        font-size: 16px;
         font-weight: bold;
         border: none;
         border-radius: 10px;
@@ -55,6 +54,14 @@
     #even { background-color: #f4a261; }
     #odd { background-color: #2a9d8f; }
     #correct { background-color: #ffd166; color: #1b262c; }
+
+    .answer {
+        display: block;
+        margin-top: 5px;
+        font-size: 16px;
+        font-weight: bold;
+        color: #1b262c;
+    }
 
     #message {
         margin-top: 30px;
@@ -75,67 +82,109 @@
 <p>1 ile 100 arasında bir sayı tut. Bilgisayar tahmin edecek.</p>
 
 <div id="guess">-</div>
-<br>
-<button class="btn" id="smaller">Tahminimden Küçük</button>
-<button class="btn" id="bigger">Tahminimden Büyük</button>
-<button class="btn" id="even">Sayı Çift</button>
-<button class="btn" id="odd">Sayı Tek</button>
-<button class="btn" id="correct">Doğru</button>
+
+<div class="question">
+    Tahminimden sayı büyük mü?  
+    <button class="btn" id="bigger">Büyük</button>  
+    <span class="answer" id="biggerAnswer"></span>
+</div>
+
+<div class="question">
+    Tahminimden sayı küçük mü?  
+    <button class="btn" id="smaller">Küçük</button>  
+    <span class="answer" id="smallerAnswer"></span>
+</div>
+
+<div class="question">
+    Sayı çift mi?  
+    <button class="btn" id="even">Çift</button>  
+    <span class="answer" id="evenAnswer"></span>
+</div>
+
+<div class="question">
+    Sayı tek mi?  
+    <button class="btn" id="odd">Tek</button>  
+    <span class="answer" id="oddAnswer"></span>
+</div>
+
+<div class="question">
+    Bilgisayar doğru tahmin etti mi?  
+    <button class="btn" id="correct">Doğru</button>
+</div>
 
 <div id="message"></div>
 
 <script>
-    let min = 1, max = 100, currentGuess, attempts = 0;
-    const guessDiv = document.getElementById('guess');
-    const messageDiv = document.getElementById('message');
+let min = 1, max = 100, currentGuess, attempts = 0;
+const guessDiv = document.getElementById('guess');
+const messageDiv = document.getElementById('message');
 
-    function nextGuess() {
-        attempts++;
-        currentGuess = Math.floor((min + max) / 2);
-        guessDiv.textContent = currentGuess;
-        messageDiv.textContent = `Bilgisayar ${attempts}. tahminini yaptı.`;
-    }
+const biggerAnswer = document.getElementById('biggerAnswer');
+const smallerAnswer = document.getElementById('smallerAnswer');
+const evenAnswer = document.getElementById('evenAnswer');
+const oddAnswer = document.getElementById('oddAnswer');
 
-    function updateMessage(text) {
-        messageDiv.textContent = text;
-    }
+function nextGuess() {
+    attempts++;
+    currentGuess = Math.floor((min + max) / 2);
+    guessDiv.textContent = currentGuess;
+    messageDiv.textContent = `Bilgisayar ${attempts}. tahminini yaptı.`;
+    
+    // Önceki cevapları temizle
+    biggerAnswer.textContent = '';
+    smallerAnswer.textContent = '';
+    evenAnswer.textContent = '';
+    oddAnswer.textContent = '';
+}
 
-    document.getElementById('smaller').addEventListener('click', () => {
-        max = currentGuess - 1;
-        if (min > max) return updateMessage("Hata! İpuçları tutarsız.");
-        nextGuess();
-    });
-
-    document.getElementById('bigger').addEventListener('click', () => {
-        min = currentGuess + 1;
-        if (min > max) return updateMessage("Hata! İpuçları tutarsız.");
-        nextGuess();
-    });
-
-    document.getElementById('even').addEventListener('click', () => {
-        if (currentGuess % 2 !== 0) {
-            updateMessage("Hata! İpuçları tutarsız (çift/tek).");
-        } else {
-            // bilgisayar aralığı değiştirmeden devam
-            updateMessage(`Bilgisayar ${attempts}. tahminini yaptı. (Çift)`);
-        }
-    });
-
-    document.getElementById('odd').addEventListener('click', () => {
-        if (currentGuess % 2 === 0) {
-            updateMessage("Hata! İpuçları tutarsız (çift/tek).");
-        } else {
-            updateMessage(`Bilgisayar ${attempts}. tahminini yaptı. (Tek)`);
-        }
-    });
-
-    document.getElementById('correct').addEventListener('click', () => {
-        updateMessage(`🎉 Bilgisayar ${currentGuess} sayısını ${attempts} denemede buldu!`);
-        guessDiv.textContent = "-";
-    });
-
-    // Başlangıç tahmini
+// Büyük
+document.getElementById('bigger').addEventListener('click', () => {
+    min = currentGuess + 1;
+    biggerAnswer.textContent = '✔';
+    if (min > max) return messageDiv.textContent = "Hata! İpuçları tutarsız.";
     nextGuess();
+});
+
+// Küçük
+document.getElementById('smaller').addEventListener('click', () => {
+    max = currentGuess - 1;
+    smallerAnswer.textContent = '✔';
+    if (min > max) return messageDiv.textContent = "Hata! İpuçları tutarsız.";
+    nextGuess();
+});
+
+// Çift
+document.getElementById('even').addEventListener('click', () => {
+    evenAnswer.textContent = '✔';
+    if (currentGuess % 2 !== 0) {
+        // Tahmin tek, sayı çift → tekleri elemine et
+        if (min % 2 !== 0) min++;
+        if (max % 2 !== 0) max--;
+    }
+    if (min > max) return messageDiv.textContent = "Hata! İpuçları tutarsız.";
+    nextGuess();
+});
+
+// Tek
+document.getElementById('odd').addEventListener('click', () => {
+    oddAnswer.textContent = '✔';
+    if (currentGuess % 2 === 0) {
+        // Tahmin çift, sayı tek → çiftleri elemine et
+        if (min % 2 === 0) min++;
+        if (max % 2 === 0) max--;
+    }
+    if (min > max) return messageDiv.textContent = "Hata! İpuçları tutarsız.";
+    nextGuess();
+});
+
+// Doğru
+document.getElementById('correct').addEventListener('click', () => {
+    messageDiv.textContent = `🎉 Bilgisayar ${currentGuess} sayısını ${attempts} denemede buldu!`;
+    guessDiv.textContent = '-';
+});
+
+// Başlangıç tahmini
+nextGuess();
 </script>
 
 </body>
