@@ -6,34 +6,38 @@
 <style>
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f0f4f8;
+    background: linear-gradient(135deg, #a8edea, #fed6e3);
     text-align: center;
     padding: 50px;
-}
-
-h1 {
     color: #1b262c;
 }
 
+h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
 #question {
-    font-size: 24px;
+    font-size: 28px;
     margin: 30px 0;
+    min-height: 60px;
 }
 
 .btn {
-    padding: 15px 30px;
-    margin: 10px;
-    font-size: 18px;
+    padding: 15px 35px;
+    margin: 15px;
+    font-size: 20px;
     font-weight: bold;
     border: none;
     border-radius: 12px;
     cursor: pointer;
     color: white;
-    transition: transform 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .btn:hover {
     transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
 .yes { background-color: #06d6a0; }
@@ -41,15 +45,15 @@ h1 {
 
 #message {
     margin-top: 40px;
-    font-size: 20px;
-    color: #1b262c;
+    font-size: 24px;
 }
+
 </style>
 </head>
 <body>
 
 <h1>Mantık Oyunu</h1>
-<p>1 ile 100 arasında bir sayı tut. Sorulara Evet/Hayır ile cevap ver.</p>
+<p>1 ile 100 arasında bir sayı tut. Bilgisayar sorularla tahmin edecek.</p>
 
 <div id="question">Hazır…</div>
 
@@ -59,67 +63,45 @@ h1 {
 <div id="message"></div>
 
 <script>
-// 1–100 arası tüm sayılar
-let numbers = [];
-for(let i=1;i<=100;i++) numbers.push(i);
+// Başlangıç aralığı
+let min = 1;
+let max = 100;
+let currentGuess;
 
-// 10 Karışık soru (çift/tek ve belirli sayıdan büyük mü)
-let questions = [
-    {text:"Tuttuğunuz sayı çift mi?", type:"even"},
-    {text:"Tuttuğunuz sayı 17’den büyük mü?", type:"gt", value:17},
-    {text:"Tuttuğunuz sayı tek mi?", type:"odd"},
-    {text:"Tuttuğunuz sayı 50’den büyük mü?", type:"gt", value:50},
-    {text:"Tuttuğunuz sayı 10’dan büyük mü?", type:"gt", value:10},
-    {text:"Tuttuğunuz sayı 75’ten büyük mü?", type:"gt", value:75},
-    {text:"Tuttuğunuz sayı 60’dan büyük mü?", type:"gt", value:60},
-    {text:"Tuttuğunuz sayı çift mi?", type:"even"},
-    {text:"Tuttuğunuz sayı 40’dan büyük mü?", type:"gt", value:40},
-    {text:"Tuttuğunuz sayı 90’dan büyük mü?", type:"gt", value:90}
-];
+// Soru tipi: "50’den büyük mü?" gibi
+function getNextQuestion(){
+    // Binary search mantığı: ortadaki sayıyı sor
+    currentGuess = Math.floor((min + max) / 2);
+    return `Tuttuğunuz sayı ${currentGuess}’den büyük mü?`;
+}
 
-let currentQuestion = 0;
-let answers = []; // Kullanıcının cevapları
-
+// Soruyu ekrana göster
 const questionDiv = document.getElementById("question");
 const messageDiv = document.getElementById("message");
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
 
-// Soruyu ekrana göster
-function showQuestion() {
-    if(currentQuestion >= questions.length){
-        // Sonunda doğru tahmini hesapla
-        let finalGuess = makeGuess();
+function showQuestion(){
+    // Eğer min = max ise tahmin hazır
+    if(min === max){
         questionDiv.style.display = "none";
         yesBtn.style.display = "none";
         noBtn.style.display = "none";
-        messageDiv.innerHTML = `🎉 Bilgisayar tahmin ediyor: ${finalGuess}`;
+        messageDiv.innerHTML = `🎉 Bilgisayar tahmin ediyor: ${min}`;
         return;
     }
-    questionDiv.textContent = questions[currentQuestion].text;
-}
-
-// Mantıklı tahmin hesaplama
-function makeGuess(){
-    let possible = numbers.slice();
-    for(let i=0;i<questions.length;i++){
-        let q = questions[i];
-        let a = answers[i];
-        if(q.type === "even"){
-            possible = possible.filter(n => a ? n%2===0 : n%2!==0);
-        } else if(q.type === "odd"){
-            possible = possible.filter(n => a ? n%2!==0 : n%2===0);
-        } else if(q.type === "gt"){
-            possible = possible.filter(n => a ? n>q.value : n<=q.value);
-        }
-    }
-    return possible[0]; // Kalan tek sayı
+    questionDiv.textContent = getNextQuestion();
 }
 
 // Cevap verildiğinde
 function answer(isYes){
-    answers.push(isYes);
-    currentQuestion++;
+    if(isYes){
+        // Sayı büyük → min güncellenir
+        min = currentGuess + 1;
+    } else {
+        // Sayı büyük değil → max güncellenir
+        max = currentGuess;
+    }
     showQuestion();
 }
 
