@@ -8,8 +8,8 @@
 body{
     margin:0;
     font-family:Arial, sans-serif;
-    background:radial-gradient(circle,#020b18,#000);
-    color:#fff;
+    background:linear-gradient(135deg,#020024,#090979,#00d4ff);
+    color:#ffffff;
     display:flex;
     justify-content:center;
     align-items:center;
@@ -18,57 +18,107 @@ body{
 .container{
     width:95%;
     max-width:650px;
-    background:#0f2342;
+    background:rgba(10,20,50,0.95);
     padding:25px;
-    border-radius:14px;
+    border-radius:16px;
     text-align:center;
-    box-shadow:0 0 30px rgba(0,0,0,.7);
+    box-shadow:0 0 40px rgba(0,212,255,0.4);
 }
+
+h1,h2,h3{
+    color:#00eaff;
+    text-shadow:0 0 10px rgba(0,234,255,0.8);
+}
+
 button{
-    padding:12px 22px;
+    padding:12px 24px;
     margin:10px 6px;
     border:none;
-    border-radius:6px;
+    border-radius:8px;
     font-size:1em;
     cursor:pointer;
+    font-weight:bold;
+    transition:0.2s;
 }
-.start{background:#0984e3;color:#fff;}
-.yes{background:#00b894;color:#fff;}
-.no{background:#d63031;color:#fff;}
-.like{background:#2ecc71;color:#000;}
-.dislike{background:#e74c3c;color:#fff;}
-.reset{background:#636e72;color:#fff;}
+
+button:hover{
+    transform:scale(1.05);
+    box-shadow:0 0 15px rgba(255,255,255,0.5);
+}
+
+.start{
+    background:linear-gradient(45deg,#00eaff,#0066ff);
+    color:#000;
+}
+
+.yes{
+    background:linear-gradient(45deg,#00ff99,#00cc66);
+    color:#000;
+}
+
+.no{
+    background:linear-gradient(45deg,#ff4d4d,#c0392b);
+    color:#fff;
+}
+
+.like{
+    background:linear-gradient(45deg,#f1ff00,#f39c12);
+    color:#000;
+}
+
+.dislike{
+    background:linear-gradient(45deg,#ff7675,#d63031);
+    color:#fff;
+}
+
+.send{
+    background:linear-gradient(45deg,#a29bfe,#6c5ce7);
+    color:#fff;
+}
+
+.reset{
+    background:linear-gradient(45deg,#b2bec3,#636e72);
+    color:#000;
+}
 
 .hidden{display:none;}
 
 .numbers{
     max-height:220px;
     overflow:auto;
-    background:#081a33;
+    background:rgba(0,0,0,0.4);
     padding:12px;
-    border-radius:8px;
+    border-radius:10px;
     margin-top:12px;
-    line-height:1.6;
+    line-height:1.7;
+    color:#ffffff;
 }
 
 .final{
     font-size:4em;
     color:#00ffcc;
-    text-shadow:0 0 20px rgba(0,255,204,.9);
+    text-shadow:0 0 25px rgba(0,255,204,1);
 }
 
 textarea{
     width:100%;
     height:80px;
     margin-top:10px;
-    border-radius:6px;
+    border-radius:8px;
     border:none;
     padding:10px;
     font-size:1em;
+    background:#020b18;
+    color:#00ffcc;
+}
+
+textarea::placeholder{
+    color:#6dd5ed;
 }
 
 .feedback-result{
     margin-top:10px;
+    font-weight:bold;
     color:#00ffcc;
 }
 </style>
@@ -77,15 +127,12 @@ textarea{
 <body>
 <div class="container">
 
-<!-- BAŞLANGIÇ -->
 <div id="start">
     <h1>🔮 Zihnini Okuyorum</h1>
-    <p>1–100 arasında bir sayı tut.<br>
-    Kartlara bak ve sadece cevap ver.</p>
+    <p>1–100 arasında bir sayı tut.<br>Sadece EVET / HAYIR de.</p>
     <button class="start" onclick="start()">Başla</button>
 </div>
 
-<!-- KART -->
 <div id="card" class="hidden">
     <h2 id="title"></h2>
     <p>Aklındaki sayı bu kartta var mı?</p>
@@ -94,18 +141,17 @@ textarea{
     <button class="no" onclick="answer(false)">HAYIR</button>
 </div>
 
-<!-- SONUÇ -->
 <div id="final" class="hidden">
     <h2>🎯 Tuttuğun Sayı</h2>
     <div id="result" class="final"></div>
 
-    <hr style="margin:20px 0; opacity:.3">
+    <h3>Oyunu beğendin mi?</h3>
+    <button class="like" onclick="rate('Beğenildi')">👍 Beğendim</button>
+    <button class="dislike" onclick="rate('Beğenilmedi')">👎 Beğenmedim</button>
 
-    <h3>Oyunu beğendiniz mi?</h3>
-    <button class="like" onclick="feedback('Beğendi')">👍 Beğendim</button>
-    <button class="dislike" onclick="feedback('Beğenmedi')">👎 Beğenmedim</button>
-
-    <textarea id="comment" placeholder="Fikrini bizimle paylaşmak ister misin?"></textarea>
+    <h3>Fikrini bizimle paylaş</h3>
+    <textarea id="comment" placeholder="Yorumunu yaz..."></textarea>
+    <button class="send" onclick="sendComment()">📩 Gönder</button>
 
     <div id="feedbackResult" class="feedback-result"></div>
 
@@ -115,13 +161,12 @@ textarea{
 </div>
 
 <script>
-const cardValues = [1,2,4,8,16,32,64,128]; // 128 = kontrol
-let index = 0;
-let answers = [];
+const cardValues=[1,2,4,8,16,32,64,128];
+let index=0;
+let answers=[];
 
 function start(){
-    index = 0;
-    answers = [];
+    index=0; answers=[];
     document.getElementById("start").classList.add("hidden");
     document.getElementById("final").classList.add("hidden");
     document.getElementById("card").classList.remove("hidden");
@@ -129,57 +174,49 @@ function start(){
 }
 
 function loadCard(){
-    const v = cardValues[index];
-    document.getElementById("title").textContent = "Kart " + (index+1);
-
+    const v=cardValues[index];
+    document.getElementById("title").textContent="Kart "+(index+1);
     let nums=[];
     for(let i=1;i<=100;i++){
-        if((i & v) === v) nums.push(i);
+        if((i&v)===v) nums.push(i);
     }
-    document.getElementById("numbers").textContent = nums.join(" • ");
+    document.getElementById("numbers").textContent=nums.join(" • ");
 }
 
 function answer(val){
     answers.push(val);
     index++;
-    if(index < cardValues.length){
-        loadCard();
-    }else{
-        calculate();
-    }
+    index<cardValues.length?loadCard():calculate();
 }
 
 function calculate(){
     document.getElementById("card").classList.add("hidden");
     document.getElementById("final").classList.remove("hidden");
-
-    let scores = {};
+    let scores={};
     for(let i=1;i<=100;i++){
         scores[i]=0;
         cardValues.forEach((v,idx)=>{
-            const shouldBe = ((i & v) === v);
-            if(answers[idx] === shouldBe) scores[i]++;
+            if(answers[idx]===((i&v)===v)) scores[i]++;
         });
     }
-
-    let best = 1;
-    for(let i=2;i<=100;i++){
-        if(scores[i] > scores[best]) best = i;
-    }
-
-    document.getElementById("result").textContent = best;
+    let best=1;
+    for(let i=2;i<=100;i++) if(scores[i]>scores[best]) best=i;
+    document.getElementById("result").textContent=best;
 }
 
-function feedback(type){
-    const comment = document.getElementById("comment").value.trim();
-    let msg = `Geri bildiriminiz alındı: ${type}`;
-    if(comment) msg += " 💬";
-    document.getElementById("feedbackResult").textContent = msg;
+function rate(txt){
+    document.getElementById("feedbackResult").textContent="Oyun "+txt+" ⭐";
+}
+
+function sendComment(){
+    const t=document.getElementById("comment").value.trim();
+    document.getElementById("feedbackResult").textContent=
+        t?"Geri bildirimin alındı ✅":"Lütfen yorum yaz.";
+    if(t) document.getElementById("comment").value="";
 }
 
 function resetGame(){
-    document.getElementById("comment").value = "";
-    document.getElementById("feedbackResult").textContent = "";
+    document.getElementById("feedbackResult").textContent="";
     document.getElementById("final").classList.add("hidden");
     document.getElementById("start").classList.remove("hidden");
 }
