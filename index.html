@@ -2,109 +2,193 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Yüz İfadesi Analizi</title>
+<title>Mini Proje Merkezi</title>
 
 <style>
 body {
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #0b1d3a, #102a54);
-  color: #ffffff;
-  padding: 50px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0a1a2f;
+    color: #ffffff;
+    text-align: center;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding: 30px;
 }
 
 h1 {
-  font-size: 2em;
-  margin-bottom: 10px;
+    margin-bottom: 20px;
 }
 
-p {
-  margin-bottom: 20px;
-  color: #cddcff;
+.menu button {
+    width: 100%;
+    padding: 15px;
+    margin: 8px 0;
+    font-size: 1.1em;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    background: #1e90ff;
+    color: white;
 }
 
-textarea {
-  width: 90%;
-  max-width: 500px;
-  height: 120px;
-  padding: 12px;
-  font-size: 1em;
-  background: #162a52;
-  color: #ffffff;
-  border: 1px solid #3a5ba0;
-  border-radius: 8px;
+.menu button:hover {
+    background: #63b3ff;
 }
 
-button {
-  margin-top: 15px;
-  padding: 12px 25px;
-  font-size: 1em;
-  cursor: pointer;
-  background: #1e90ff;
-  color: #ffffff;
-  border: none;
-  border-radius: 6px;
+.box {
+    display: none;
+    background: #13294b;
+    padding: 20px;
+    border-radius: 10px;
 }
 
-#result {
-  margin-top: 30px;
-  font-size: 1.5em;
-  text-align: center;
-  display: none;
+textarea, input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 6px;
+    border: none;
+    font-size: 1em;
+}
+
+.action {
+    padding: 10px 20px;
+    background: #00b894;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.back {
+    margin-top: 20px;
+    background: #ff7675;
+}
+
+.result {
+    margin-top: 15px;
+    font-size: 1.2em;
 }
 </style>
-
 </head>
+
 <body>
+<div class="container">
 
-<h1>Bugün Ne Diyecek?</h1>
-<p>Bugünkü hâlini birkaç kelimeyle yaz.</p>
+<!-- ANA SAYFA -->
+<div id="home" class="menu">
+    <h1>📌 Mini Proje Merkezi</h1>
+    <button onclick="openBox(1)">1️⃣ Günlük Ruh Hâli Analizörü</button>
+    <button onclick="openBox(2)">2️⃣ Kendini Tanı Testi</button>
+    <button onclick="openBox(3)">3️⃣ Metin Tonu Analizi</button>
+    <button onclick="openBox(4)">4️⃣ Nazikleştirici</button>
+    <button onclick="openBox(5)">5️⃣ Günün Mesajı</button>
+</div>
 
-<textarea id="userText" placeholder="Örn: Çok mutluyum ama biraz yorgunum..."></textarea>
+<!-- PROJE 1 -->
+<div id="box1" class="box">
+    <h2>😊 Günlük Ruh Hâli Analizörü</h2>
+    <textarea id="moodText" placeholder="Bugün nasıl hissediyorsun?"></textarea>
+    <button class="action" onclick="moodAnalyze()">Sonucu Al</button>
+    <div id="moodResult" class="result"></div>
+    <button class="back" onclick="goHome()">⬅ Geri</button>
+</div>
 
-<button onclick="sonucuAl()">Sonucu Al</button>
+<!-- PROJE 2 -->
+<div id="box2" class="box">
+    <h2>🧠 Kendini Tanı</h2>
+    <p>Sosyal olmayı sever misin?</p>
+    <button class="action" onclick="showResult('Sosyal')">Evet</button>
+    <button class="action" onclick="showResult('İçe dönük')">Hayır</button>
+    <div class="result" id="testResult"></div>
+    <button class="back" onclick="goHome()">⬅ Geri</button>
+</div>
 
-<div id="result"></div>
+<!-- PROJE 3 -->
+<div id="box3" class="box">
+    <h2>✍️ Metin Tonu Analizi</h2>
+    <textarea id="toneText" placeholder="Metni yaz..."></textarea>
+    <button class="action" onclick="toneAnalyze()">Analiz Et</button>
+    <div class="result" id="toneResult"></div>
+    <button class="back" onclick="goHome()">⬅ Geri</button>
+</div>
+
+<!-- PROJE 4 -->
+<div id="box4" class="box">
+    <h2>💬 Nazikleştirici</h2>
+    <textarea id="rudeText" placeholder="Sert cümle yaz"></textarea>
+    <button class="action" onclick="polite()">Nazikleştir</button>
+    <div class="result" id="politeResult"></div>
+    <button class="back" onclick="goHome()">⬅ Geri</button>
+</div>
+
+<!-- PROJE 5 -->
+<div id="box5" class="box">
+    <h2>🌟 Günün Mesajı</h2>
+    <button class="action" onclick="dailyMessage()">Mesajı Göster</button>
+    <div class="result" id="msgResult"></div>
+    <button class="back" onclick="goHome()">⬅ Geri</button>
+</div>
+
+</div>
 
 <script>
-function sonucuAl() {
-  const text = document.getElementById("userText").value.toLowerCase();
-  const result = document.getElementById("result");
+function openBox(n) {
+    document.getElementById("home").style.display = "none";
+    document.querySelectorAll(".box").forEach(b => b.style.display = "none");
+    document.getElementById("box" + n).style.display = "block";
+}
 
-  if (!text.trim()) {
-    result.style.display = "block";
-    result.textContent = "🙂 Bir şeyler yazmalısın.";
-    return;
-  }
+function goHome() {
+    document.querySelectorAll(".box").forEach(b => b.style.display = "none");
+    document.getElementById("home").style.display = "block";
+}
 
-  let ifade = "😐";
-  let aciklama = "Nötr bir ifade.";
+// PROJE 1
+function moodAnalyze() {
+    let t = document.getElementById("moodText").value.toLowerCase();
+    let r = "😐 Kararsız bir ruh hâli";
+    if (t.includes("mutlu")) r = "😊 Mutlusun!";
+    if (t.includes("üzgün")) r = "😢 Üzgünsün";
+    if (t.includes("stres")) r = "😣 Streslisin";
+    document.getElementById("moodResult").textContent = r;
+}
 
-  if (text.includes("mutlu") || text.includes("iyi") || text.includes("harika")) {
-    ifade = "😄";
-    aciklama = "Bugün oldukça mutlu görünüyorsun!";
-  } 
-  else if (text.includes("yorgun") || text.includes("bitkin")) {
-    ifade = "😴";
-    aciklama = "Biraz yorgun bir ifade var.";
-  }
-  else if (text.includes("üzgün") || text.includes("kötü")) {
-    ifade = "😢";
-    aciklama = "Bugün biraz üzgün görünüyorsun.";
-  }
-  else if (text.includes("sinirli") || text.includes("kızgın")) {
-    ifade = "😠";
-    aciklama = "Sinirli bir yüz ifadesi var.";
-  }
-  else if (text.includes("stresli") || text.includes("gergin")) {
-    ifade = "😣";
-    aciklama = "Stresli ve gergin görünüyorsun.";
-  }
+// PROJE 2
+function showResult(res) {
+    document.getElementById("testResult").textContent = "Sonuç: " + res;
+}
 
-  result.style.display = "block";
-  result.innerHTML = ifade + "<br><br>" + aciklama;
+// PROJE 3
+function toneAnalyze() {
+    let t = document.getElementById("toneText").value.toLowerCase();
+    let r = "📄 Nötr ton";
+    if (t.includes("teşekkür")) r = "😊 Samimi";
+    if (t.includes("lütfen")) r = "🙏 Nazik";
+    if (t.includes("hemen")) r = "😠 Sert";
+    document.getElementById("toneResult").textContent = r;
+}
+
+// PROJE 4
+function polite() {
+    let t = document.getElementById("rudeText").value;
+    document.getElementById("politeResult").textContent =
+        "Daha nazik hâli: Lütfen bu konuda yardımcı olabilir misin?";
+}
+
+// PROJE 5
+function dailyMessage() {
+    const msgs = [
+        "Bugün senin günün 🌈",
+        "Sabır her kapıyı açar 🤲",
+        "Küçük adımlar büyük sonuçlar doğurur 🚀"
+    ];
+    document.getElementById("msgResult").textContent =
+        msgs[Math.floor(Math.random() * msgs.length)];
 }
 </script>
 
