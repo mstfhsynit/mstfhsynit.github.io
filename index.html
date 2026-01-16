@@ -2,188 +2,109 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Tek Dosya Türkçe Düzeltici 😄</title>
+<title>Yüz İfadesi Analizi</title>
 
 <style>
-/* ORTAK FONT */
 body {
   font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #0b1d3a, #102a54);
+  color: #ffffff;
   padding: 50px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: background 0.3s, color 0.3s;
-}
-
-/* ===== KOYU TEMA (varsayılan) ===== */
-body {
-  background-color: #0b1d3a;
-  color: #ffffff;
 }
 
 h1 {
   font-size: 2em;
+  margin-bottom: 10px;
+}
+
+p {
   margin-bottom: 20px;
-  text-align: center;
-  color: #ffffff;
+  color: #cddcff;
 }
 
 textarea {
   width: 90%;
-  max-width: 600px;
-  height: 150px;
-  margin-bottom: 5px;
-  padding: 10px;
+  max-width: 500px;
+  height: 120px;
+  padding: 12px;
   font-size: 1em;
-  background-color: #162a52;
+  background: #162a52;
   color: #ffffff;
   border: 1px solid #3a5ba0;
+  border-radius: 8px;
 }
 
 button {
-  padding: 10px 20px;
+  margin-top: 15px;
+  padding: 12px 25px;
   font-size: 1em;
   cursor: pointer;
-  margin: 5px;
-  background-color: #1e90ff;
+  background: #1e90ff;
   color: #ffffff;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
 }
 
-#sayac {
-  margin-bottom: 10px;
-  color: #b0c4ff;
-  font-size: 0.9em;
-}
-
-#output {
-  margin-top: 20px;
-  font-size: 1.2em;
-  color: #e6f0ff;
-  white-space: pre-wrap;
+#result {
+  margin-top: 30px;
+  font-size: 1.5em;
   text-align: center;
-  max-width: 600px;
-}
-
-/* ===== AÇIK TEMA ===== */
-body.light {
-  background-color: #f0f8ff;
-  color: #000000;
-}
-
-body.light h1 {
-  color: #1a1a1a;
-}
-
-body.light textarea {
-  background-color: #ffffff;
-  color: #000000;
-  border: 1px solid #999999;
-}
-
-body.light button {
-  background-color: #4b6cff;
-  color: #ffffff;
-}
-
-body.light #sayac {
-  color: #333333;
-}
-
-body.light #output {
-  color: #4b0082;
+  display: none;
 }
 </style>
 
 </head>
 <body>
 
-<h1>Tek Dosya Türkçe Düzeltici 😄</h1>
+<h1>Bugün Ne Diyecek?</h1>
+<p>Bugünkü hâlini birkaç kelimeyle yaz.</p>
 
-<button onclick="temaDegistir()">🌙 Tema Değiştir</button>
+<textarea id="userText" placeholder="Örn: Çok mutluyum ama biraz yorgunum..."></textarea>
 
-<textarea id="inputText" placeholder="Metni buraya yazın..."></textarea>
+<button onclick="sonucuAl()">Sonucu Al</button>
 
-<div id="sayac">Karakter: 0</div>
-
-<button onclick="duzelt()">Düzelt</button>
-<button onclick="kopyala()">Kopyala</button>
-
-<div id="output"></div>
+<div id="result"></div>
 
 <script>
-const sozluk = {
-  "msj":"mesaj","larim":"larım","dusuyormu":"düşüyor mu","gondereyim":"göndereyim",
-  "tesekkurler":"Teşekkürler","merhaba":"Merhaba","mubarek":"Mübarek",
-  "subhanallh":"Subhanallah","elhamdulliah":"Elhamdülillah",
-  "nasilsiniz":"Nasılsınız","gunaydin":"Günaydın","iyigunler":"İyi günler",
-  "allh":"Allah","sagol":"Sağol","iyiaksamlar":"İyi akşamlar",
-  "iyigeceler":"İyi geceler","nasil":"nasıl","cok":"çok","harika":"harika",
-  "sanami":"sana mı","nasilsin":"Nasılsın","yapiyin":"yapıyın","sorayimmi":"sorayım mı"
-};
+function sonucuAl() {
+  const text = document.getElementById("userText").value.toLowerCase();
+  const result = document.getElementById("result");
 
-const baglaclar = ["ve","ile","ama","fakat","çünkü","ancak","lakin"];
-const soruEkleri = ["mi","mı","mu","mü"];
-
-// Karakter sayacı
-document.getElementById("inputText").addEventListener("input", function(){
-  document.getElementById("sayac").textContent = "Karakter: " + this.value.length;
-});
-
-function duzelt() {
-  let text = document.getElementById("inputText").value.trim();
-  if (!text) {
-    document.getElementById("output").textContent = "Lütfen metin girin!";
+  if (!text.trim()) {
+    result.style.display = "block";
+    result.textContent = "🙂 Bir şeyler yazmalısın.";
     return;
   }
 
-  text = text.replace(/\s+/g, ' ');
-  let sentences = text.split(/([.!?]+)/).filter(s => s.trim() !== "");
-  let corrected = "";
+  let ifade = "😐";
+  let aciklama = "Nötr bir ifade.";
 
-  for (let i = 0; i < sentences.length; i += 2) {
-    let sentence = sentences[i].trim();
-    let punctuation = sentences[i + 1] ? sentences[i + 1] : ".";
-
-    sentence = sentence.split(' ').map(word => {
-      let clean = word.toLowerCase().replace(/[.,!?;:]/g, '');
-      return sozluk[clean] || word;
-    }).join(' ');
-
-    sentence = sentence.replace(/,([^\s])/g, ', $1');
-
-    baglaclar.forEach(b => {
-      let regex = new RegExp(",\\s*" + b, "gi");
-      sentence = sentence.replace(regex, b);
-    });
-
-    sentence = sentence.charAt(0).toUpperCase() + sentence.slice(1);
-
-    let words = sentence.split(' ');
-    if (soruEkleri.includes(words[words.length - 1].toLowerCase()) && !/[?]$/.test(sentence)) {
-      punctuation = "?";
-    }
-
-    if (!/[.!?]$/.test(sentence)) punctuation = ".";
-
-    corrected += sentence + punctuation + " ";
+  if (text.includes("mutlu") || text.includes("iyi") || text.includes("harika")) {
+    ifade = "😄";
+    aciklama = "Bugün oldukça mutlu görünüyorsun!";
+  } 
+  else if (text.includes("yorgun") || text.includes("bitkin")) {
+    ifade = "😴";
+    aciklama = "Biraz yorgun bir ifade var.";
+  }
+  else if (text.includes("üzgün") || text.includes("kötü")) {
+    ifade = "😢";
+    aciklama = "Bugün biraz üzgün görünüyorsun.";
+  }
+  else if (text.includes("sinirli") || text.includes("kızgın")) {
+    ifade = "😠";
+    aciklama = "Sinirli bir yüz ifadesi var.";
+  }
+  else if (text.includes("stresli") || text.includes("gergin")) {
+    ifade = "😣";
+    aciklama = "Stresli ve gergin görünüyorsun.";
   }
 
-  document.getElementById("output").textContent = corrected.trim();
-}
-
-// Kopyala
-function kopyala() {
-  const text = document.getElementById("output").textContent;
-  if (!text) return;
-  navigator.clipboard.writeText(text);
-  alert("Düzeltilmiş metin kopyalandı!");
-}
-
-// Tema değiştir
-function temaDegistir() {
-  document.body.classList.toggle("light");
+  result.style.display = "block";
+  result.innerHTML = ifade + "<br><br>" + aciklama;
 }
 </script>
 
