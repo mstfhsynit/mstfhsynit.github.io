@@ -29,6 +29,7 @@ h1 {
     font-size: 24px;
     margin: 30px 0;
     min-height: 60px;
+    transition: transform 0.2s;
 }
 
 .btn {
@@ -54,6 +55,24 @@ h1 {
 #message {
     margin-top: 40px;
     font-size: 24px;
+    position: relative;
+}
+
+/* Confetti parçacıkları */
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: gold;
+    top: 0;
+    left: 50%;
+    opacity: 0.8;
+    animation: fall 2s linear forwards;
+}
+
+@keyframes fall {
+    0% {transform: translateY(0) rotate(0deg);}
+    100% {transform: translateY(200px) rotate(360deg);}
 }
 </style>
 </head>
@@ -83,7 +102,7 @@ const messageDiv = document.getElementById("message");
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
 
-// Ses efekti: JS ile frekans ve süre
+// Ses efekti
 function playSound(frequency, duration){
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     const osc = ctx.createOscillator();
@@ -94,15 +113,9 @@ function playSound(frequency, duration){
     osc.stop(ctx.currentTime + duration);
 }
 
-// Evet butonu: nötr-pozitif kısa bip
-function yesSound(){
-    playSound(600, 0.15);
-}
-
-// Hayır butonu: nötr kısa bip
-function noSound(){
-    playSound(400, 0.15);
-}
+// Evet/Hayır sesleri
+function yesSound(){ playSound(600,0.15);}
+function noSound(){ playSound(400,0.15);}
 
 // Rastgele soru üret
 function generateQuestion(){
@@ -112,33 +125,48 @@ function generateQuestion(){
     }
 
     questionsAsked++;
-
     const min = Math.min(...possibleNumbers);
     const max = Math.max(...possibleNumbers);
-    const randomPivot = Math.floor(Math.random() * (max - min + 1)) + min;
+    const randomPivot = Math.floor(Math.random()*(max-min+1))+min;
 
     currentQuestion = {pivot: randomPivot};
     questionDiv.textContent = `Tuttuğunuz sayı ${randomPivot}’den büyük mü?`;
+    questionDiv.style.transform = "scale(1)";
 }
 
 // Tahmin animasyonu
 function animateGuess(finalNumber){
-    questionDiv.style.display = "none";
-    yesBtn.style.display = "none";
-    noBtn.style.display = "none";
+    questionDiv.style.display="none";
+    yesBtn.style.display="none";
+    noBtn.style.display="none";
 
     messageDiv.innerHTML = `Bilgisayar tahmin ediyor...`;
     let fakeNumber = 1;
+
     const interval = setInterval(()=>{
-        messageDiv.textContent = `Bilgisayar tahmin ediyor: ${fakeNumber}`;
         fakeNumber += Math.floor(Math.random()*20)+1;
-        if(fakeNumber > 1000) fakeNumber = 1;
-    }, 50);
+        if(fakeNumber>1000) fakeNumber=1;
+        messageDiv.textContent=`Bilgisayar tahmin ediyor: ${fakeNumber}`;
+        messageDiv.style.transform = `scale(${1 + Math.random()*0.2})`;
+    },50);
 
     setTimeout(()=>{
         clearInterval(interval);
-        messageDiv.textContent = `🎉 Bilgisayar tahmin ediyor: ${finalNumber}`;
-    }, 2000);
+        messageDiv.textContent=`🎉 Bilgisayar tahmin ediyor: ${finalNumber}`;
+        confettiEffect();
+    },2000);
+}
+
+// Basit confetti efekti
+function confettiEffect(){
+    for(let i=0;i<30;i++){
+        const c=document.createElement("div");
+        c.classList.add("confetti");
+        c.style.left = `${Math.random()*100}%`;
+        c.style.backgroundColor = `hsl(${Math.random()*360}, 70%, 60%)`;
+        messageDiv.appendChild(c);
+        setTimeout(()=>c.remove(),2000);
+    }
 }
 
 // Cevap verildiğinde filtrele ve ses çal
@@ -146,11 +174,9 @@ function answer(isYes){
     if(isYes) yesSound();
     else noSound();
 
-    if(isYes){
-        possibleNumbers = possibleNumbers.filter(n => n > currentQuestion.pivot);
-    } else {
-        possibleNumbers = possibleNumbers.filter(n => n <= currentQuestion.pivot);
-    }
+    if(isYes) possibleNumbers = possibleNumbers.filter(n=>n>currentQuestion.pivot);
+    else possibleNumbers = possibleNumbers.filter(n=>n<=currentQuestion.pivot);
+
     generateQuestion();
 }
 
@@ -161,4 +187,4 @@ generateQuestion();
 </script>
 
 </body>
-</html>
+    </html>
