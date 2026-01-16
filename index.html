@@ -2,14 +2,14 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Aklındaki Sayıyı Bilen Sistem</title>
+<title>Sayı Okuyan Sistem 🔮</title>
 
 <style>
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: #0a1a2f;
-    color: #ffffff;
+    background: radial-gradient(circle, #0a1a2f, #020b18);
+    color: white;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -17,58 +17,69 @@ body {
 }
 
 .container {
-    width: 90%;
-    max-width: 500px;
+    width: 95%;
+    max-width: 650px;
     background: #13294b;
     padding: 25px;
-    border-radius: 12px;
+    border-radius: 14px;
     text-align: center;
+    box-shadow: 0 0 25px rgba(0,0,0,0.6);
+    animation: fadeIn 0.6s ease;
 }
 
-h1, h2 {
-    margin-bottom: 15px;
-}
-
-input {
-    width: 100%;
-    padding: 10px;
-    font-size: 1.1em;
-    border-radius: 6px;
-    border: none;
-    margin-top: 10px;
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
 }
 
 button {
-    padding: 10px 20px;
-    margin: 10px 5px;
+    padding: 12px 22px;
+    margin: 12px 6px;
     font-size: 1em;
     border: none;
     border-radius: 6px;
     cursor: pointer;
 }
 
-.check {
-    background: #0984e3;
-    color: white;
+.yes { background: #00b894; color: white; }
+.no  { background: #d63031; color: white; }
+.start { background: #0984e3; color: white; }
+
+.hidden { display: none; }
+
+.numbers {
+    max-height: 230px;
+    overflow-y: auto;
+    background: #0d203f;
+    padding: 14px;
+    margin-top: 14px;
+    border-radius: 8px;
+    font-size: 0.95em;
+    line-height: 1.7;
+    animation: slideUp 0.4s ease;
 }
 
-.yes {
-    background: #00b894;
-    color: white;
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.no {
-    background: #d63031;
-    color: white;
+.countdown {
+    font-size: 3em;
+    margin-top: 20px;
+    animation: pop 0.5s ease;
 }
 
-.result {
-    margin-top: 10px;
-    font-size: 1.1em;
+@keyframes pop {
+    from { transform: scale(0.6); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }
 
-.hidden {
-    display: none;
+.finalNumber {
+    font-size: 4em;
+    color: #00ffcc;
+    text-shadow: 0 0 15px rgba(0,255,204,0.8);
+    margin-top: 15px;
 }
 </style>
 </head>
@@ -77,38 +88,41 @@ button {
 
 <div class="container">
 
+<!-- BAŞLANGIÇ -->
 <div id="start">
     <h1>🔮 Aklındaki Sayıyı Bileceğim</h1>
-    <p>1 ile 4000 arasında bir sayı tut.<br>
-    Kartlarda sadece kontrol etmen yeterli.</p>
-    <button class="check" onclick="start()">Başla</button>
+    <p>1 ile 100 arasında bir sayı tut.<br>
+    Kartlara bak ve sadece cevap ver.</p>
+    <button class="start" onclick="start()">Başla</button>
 </div>
 
+<!-- KART -->
 <div id="card" class="hidden">
     <h2 id="cardTitle"></h2>
-    <p>Aklındaki sayı bu kartta mı?</p>
+    <p>Aklındaki sayı bu kartta var mı?</p>
 
-    <input type="number" id="searchInput" placeholder="Sayını buraya yaz">
+    <div id="numbers" class="numbers"></div>
 
-    <button class="check" onclick="check()">Kontrol Et</button>
-
-    <div id="checkResult" class="result"></div>
-
-    <div id="answerButtons" class="hidden">
-        <button class="yes" onclick="answer(true)">EVET</button>
-        <button class="no" onclick="answer(false)">HAYIR</button>
-    </div>
+    <button class="yes" onclick="answer(true)">EVET</button>
+    <button class="no" onclick="answer(false)">HAYIR</button>
 </div>
 
+<!-- GERİ SAYIM -->
+<div id="countdown" class="hidden">
+    <h2>Tuttuğun sayıyı okuyorum…</h2>
+    <div id="count" class="countdown"></div>
+</div>
+
+<!-- SON -->
 <div id="final" class="hidden">
-    <h2>🎯 Tuttuğun Sayı:</h2>
-    <h1 id="finalNumber"></h1>
+    <h2>🎯 Tuttuğun Sayı</h2>
+    <div id="finalNumber" class="finalNumber"></div>
 </div>
 
 </div>
 
 <script>
-const cards = [1,2,4,8,16,32,64,128,256,512,1024,2048];
+const cards = [1, 2, 4, 8, 16, 32, 64];
 let index = 0;
 let total = 0;
 
@@ -119,29 +133,16 @@ function start() {
 }
 
 function loadCard() {
+    const value = cards[index];
     document.getElementById("cardTitle").textContent =
-        `Kart ${index+1} (Değer: ${cards[index]})`;
-    document.getElementById("searchInput").value = "";
-    document.getElementById("checkResult").textContent = "";
-    document.getElementById("answerButtons").classList.add("hidden");
-}
+        `Kart ${index + 1}`;
 
-function check() {
-    const val = parseInt(document.getElementById("searchInput").value);
-    const res = document.getElementById("checkResult");
-
-    if (!val || val < 1 || val > 4000) {
-        res.textContent = "❌ 1–4000 arasında geçerli bir sayı gir";
-        return;
+    let nums = [];
+    for (let i = 1; i <= 100; i++) {
+        if ((i & value) === value) nums.push(i);
     }
 
-    if ((val & cards[index]) === cards[index]) {
-        res.textContent = "✅ Bu kartta VAR";
-    } else {
-        res.textContent = "❌ Bu kartta YOK";
-    }
-
-    document.getElementById("answerButtons").classList.remove("hidden");
+    document.getElementById("numbers").textContent = nums.join(" • ");
 }
 
 function answer(isYes) {
@@ -151,12 +152,31 @@ function answer(isYes) {
     if (index < cards.length) {
         loadCard();
     } else {
-        showResult();
+        startCountdown();
     }
 }
 
-function showResult() {
+function startCountdown() {
     document.getElementById("card").classList.add("hidden");
+    document.getElementById("countdown").classList.remove("hidden");
+
+    let count = 3;
+    const el = document.getElementById("count");
+    el.textContent = count;
+
+    const timer = setInterval(() => {
+        count--;
+        if (count > 0) {
+            el.textContent = count;
+        } else {
+            clearInterval(timer);
+            showResult();
+        }
+    }, 1000);
+}
+
+function showResult() {
+    document.getElementById("countdown").classList.add("hidden");
     document.getElementById("final").classList.remove("hidden");
     document.getElementById("finalNumber").textContent = total;
 }
