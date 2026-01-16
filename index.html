@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Mantık Oyunu - Bilgisayar Tahmin Ediyor</title>
+<title>Mantık Oyunu 1-1000</title>
 <style>
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -47,13 +47,12 @@ h1 {
     margin-top: 40px;
     font-size: 24px;
 }
-
 </style>
 </head>
 <body>
 
 <h1>Mantık Oyunu</h1>
-<p>1 ile 100 arasında bir sayı tut. Bilgisayar sorularla tahmin edecek.</p>
+<p>1 ile 1000 arasında bir sayı tut. Bilgisayar sorularla tahmin edecek.</p>
 
 <div id="question">Hazır…</div>
 
@@ -65,24 +64,21 @@ h1 {
 <script>
 // Başlangıç aralığı
 let min = 1;
-let max = 100;
+let max = 1000;
 let currentGuess;
 
-// Soru tipi: "50’den büyük mü?" gibi
+// Binary search mantığı: ortadaki sayıyı sor
 function getNextQuestion(){
-    // Binary search mantığı: ortadaki sayıyı sor
     currentGuess = Math.floor((min + max) / 2);
     return `Tuttuğunuz sayı ${currentGuess}’den büyük mü?`;
 }
 
-// Soruyu ekrana göster
 const questionDiv = document.getElementById("question");
 const messageDiv = document.getElementById("message");
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
 
 function showQuestion(){
-    // Eğer min = max ise tahmin hazır
     if(min === max){
         questionDiv.style.display = "none";
         yesBtn.style.display = "none";
@@ -93,13 +89,10 @@ function showQuestion(){
     questionDiv.textContent = getNextQuestion();
 }
 
-// Cevap verildiğinde
 function answer(isYes){
     if(isYes){
-        // Sayı büyük → min güncellenir
         min = currentGuess + 1;
     } else {
-        // Sayı büyük değil → max güncellenir
         max = currentGuess;
     }
     showQuestion();
