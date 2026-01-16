@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Mini Proje Merkezi</title>
+<title>Aklındaki Sayıyı Bilen Sistem</title>
 
 <style>
 body {
@@ -10,185 +10,155 @@ body {
     font-family: Arial, sans-serif;
     background: #0a1a2f;
     color: #ffffff;
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 
 .container {
-    max-width: 800px;
-    margin: auto;
-    padding: 30px;
-}
-
-h1 {
-    margin-bottom: 20px;
-}
-
-.menu button {
-    width: 100%;
-    padding: 15px;
-    margin: 8px 0;
-    font-size: 1.1em;
-    cursor: pointer;
-    border: none;
-    border-radius: 8px;
-    background: #1e90ff;
-    color: white;
-}
-
-.menu button:hover {
-    background: #63b3ff;
-}
-
-.box {
-    display: none;
+    width: 90%;
+    max-width: 500px;
     background: #13294b;
-    padding: 20px;
-    border-radius: 10px;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
 }
 
-textarea, input {
+h1, h2 {
+    margin-bottom: 15px;
+}
+
+input {
     width: 100%;
     padding: 10px;
-    margin: 10px 0;
+    font-size: 1.1em;
     border-radius: 6px;
     border: none;
-    font-size: 1em;
+    margin-top: 10px;
 }
 
-.action {
+button {
     padding: 10px 20px;
-    background: #00b894;
-    color: white;
+    margin: 10px 5px;
+    font-size: 1em;
     border: none;
     border-radius: 6px;
     cursor: pointer;
 }
 
-.back {
-    margin-top: 20px;
-    background: #ff7675;
+.check {
+    background: #0984e3;
+    color: white;
+}
+
+.yes {
+    background: #00b894;
+    color: white;
+}
+
+.no {
+    background: #d63031;
+    color: white;
 }
 
 .result {
-    margin-top: 15px;
-    font-size: 1.2em;
+    margin-top: 10px;
+    font-size: 1.1em;
+}
+
+.hidden {
+    display: none;
 }
 </style>
 </head>
 
 <body>
+
 <div class="container">
 
-<!-- ANA SAYFA -->
-<div id="home" class="menu">
-    <h1>📌 Mini Proje Merkezi</h1>
-    <button onclick="openBox(1)">1️⃣ Günlük Ruh Hâli Analizörü</button>
-    <button onclick="openBox(2)">2️⃣ Kendini Tanı Testi</button>
-    <button onclick="openBox(3)">3️⃣ Metin Tonu Analizi</button>
-    <button onclick="openBox(4)">4️⃣ Nazikleştirici</button>
-    <button onclick="openBox(5)">5️⃣ Günün Mesajı</button>
+<div id="start">
+    <h1>🔮 Aklındaki Sayıyı Bileceğim</h1>
+    <p>1 ile 4000 arasında bir sayı tut.<br>
+    Kartlarda sadece kontrol etmen yeterli.</p>
+    <button class="check" onclick="start()">Başla</button>
 </div>
 
-<!-- PROJE 1 -->
-<div id="box1" class="box">
-    <h2>😊 Günlük Ruh Hâli Analizörü</h2>
-    <textarea id="moodText" placeholder="Bugün nasıl hissediyorsun?"></textarea>
-    <button class="action" onclick="moodAnalyze()">Sonucu Al</button>
-    <div id="moodResult" class="result"></div>
-    <button class="back" onclick="goHome()">⬅ Geri</button>
+<div id="card" class="hidden">
+    <h2 id="cardTitle"></h2>
+    <p>Aklındaki sayı bu kartta mı?</p>
+
+    <input type="number" id="searchInput" placeholder="Sayını buraya yaz">
+
+    <button class="check" onclick="check()">Kontrol Et</button>
+
+    <div id="checkResult" class="result"></div>
+
+    <div id="answerButtons" class="hidden">
+        <button class="yes" onclick="answer(true)">EVET</button>
+        <button class="no" onclick="answer(false)">HAYIR</button>
+    </div>
 </div>
 
-<!-- PROJE 2 -->
-<div id="box2" class="box">
-    <h2>🧠 Kendini Tanı</h2>
-    <p>Sosyal olmayı sever misin?</p>
-    <button class="action" onclick="showResult('Sosyal')">Evet</button>
-    <button class="action" onclick="showResult('İçe dönük')">Hayır</button>
-    <div class="result" id="testResult"></div>
-    <button class="back" onclick="goHome()">⬅ Geri</button>
-</div>
-
-<!-- PROJE 3 -->
-<div id="box3" class="box">
-    <h2>✍️ Metin Tonu Analizi</h2>
-    <textarea id="toneText" placeholder="Metni yaz..."></textarea>
-    <button class="action" onclick="toneAnalyze()">Analiz Et</button>
-    <div class="result" id="toneResult"></div>
-    <button class="back" onclick="goHome()">⬅ Geri</button>
-</div>
-
-<!-- PROJE 4 -->
-<div id="box4" class="box">
-    <h2>💬 Nazikleştirici</h2>
-    <textarea id="rudeText" placeholder="Sert cümle yaz"></textarea>
-    <button class="action" onclick="polite()">Nazikleştir</button>
-    <div class="result" id="politeResult"></div>
-    <button class="back" onclick="goHome()">⬅ Geri</button>
-</div>
-
-<!-- PROJE 5 -->
-<div id="box5" class="box">
-    <h2>🌟 Günün Mesajı</h2>
-    <button class="action" onclick="dailyMessage()">Mesajı Göster</button>
-    <div class="result" id="msgResult"></div>
-    <button class="back" onclick="goHome()">⬅ Geri</button>
+<div id="final" class="hidden">
+    <h2>🎯 Tuttuğun Sayı:</h2>
+    <h1 id="finalNumber"></h1>
 </div>
 
 </div>
 
 <script>
-function openBox(n) {
-    document.getElementById("home").style.display = "none";
-    document.querySelectorAll(".box").forEach(b => b.style.display = "none");
-    document.getElementById("box" + n).style.display = "block";
+const cards = [1,2,4,8,16,32,64,128,256,512,1024,2048];
+let index = 0;
+let total = 0;
+
+function start() {
+    document.getElementById("start").classList.add("hidden");
+    document.getElementById("card").classList.remove("hidden");
+    loadCard();
 }
 
-function goHome() {
-    document.querySelectorAll(".box").forEach(b => b.style.display = "none");
-    document.getElementById("home").style.display = "block";
+function loadCard() {
+    document.getElementById("cardTitle").textContent =
+        `Kart ${index+1} (Değer: ${cards[index]})`;
+    document.getElementById("searchInput").value = "";
+    document.getElementById("checkResult").textContent = "";
+    document.getElementById("answerButtons").classList.add("hidden");
 }
 
-// PROJE 1
-function moodAnalyze() {
-    let t = document.getElementById("moodText").value.toLowerCase();
-    let r = "😐 Kararsız bir ruh hâli";
-    if (t.includes("mutlu")) r = "😊 Mutlusun!";
-    if (t.includes("üzgün")) r = "😢 Üzgünsün";
-    if (t.includes("stres")) r = "😣 Streslisin";
-    document.getElementById("moodResult").textContent = r;
+function check() {
+    const val = parseInt(document.getElementById("searchInput").value);
+    const res = document.getElementById("checkResult");
+
+    if (!val || val < 1 || val > 4000) {
+        res.textContent = "❌ 1–4000 arasında geçerli bir sayı gir";
+        return;
+    }
+
+    if ((val & cards[index]) === cards[index]) {
+        res.textContent = "✅ Bu kartta VAR";
+    } else {
+        res.textContent = "❌ Bu kartta YOK";
+    }
+
+    document.getElementById("answerButtons").classList.remove("hidden");
 }
 
-// PROJE 2
-function showResult(res) {
-    document.getElementById("testResult").textContent = "Sonuç: " + res;
+function answer(isYes) {
+    if (isYes) total += cards[index];
+    index++;
+
+    if (index < cards.length) {
+        loadCard();
+    } else {
+        showResult();
+    }
 }
 
-// PROJE 3
-function toneAnalyze() {
-    let t = document.getElementById("toneText").value.toLowerCase();
-    let r = "📄 Nötr ton";
-    if (t.includes("teşekkür")) r = "😊 Samimi";
-    if (t.includes("lütfen")) r = "🙏 Nazik";
-    if (t.includes("hemen")) r = "😠 Sert";
-    document.getElementById("toneResult").textContent = r;
-}
-
-// PROJE 4
-function polite() {
-    let t = document.getElementById("rudeText").value;
-    document.getElementById("politeResult").textContent =
-        "Daha nazik hâli: Lütfen bu konuda yardımcı olabilir misin?";
-}
-
-// PROJE 5
-function dailyMessage() {
-    const msgs = [
-        "Bugün senin günün 🌈",
-        "Sabır her kapıyı açar 🤲",
-        "Küçük adımlar büyük sonuçlar doğurur 🚀"
-    ];
-    document.getElementById("msgResult").textContent =
-        msgs[Math.floor(Math.random() * msgs.length)];
+function showResult() {
+    document.getElementById("card").classList.add("hidden");
+    document.getElementById("final").classList.remove("hidden");
+    document.getElementById("finalNumber").textContent = total;
 }
 </script>
 
