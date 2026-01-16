@@ -52,6 +52,8 @@
 
     #smaller { background-color: #ef233c; }
     #bigger { background-color: #06d6a0; }
+    #even { background-color: #f4a261; }
+    #odd { background-color: #2a9d8f; }
     #correct { background-color: #ffd166; color: #1b262c; }
 
     #message {
@@ -74,28 +76,18 @@
 
 <div id="guess">-</div>
 <br>
-<button class="btn" id="smaller">Küçük</button>
-<button class="btn" id="bigger">Büyük</button>
+<button class="btn" id="smaller">Tahminimden Küçük</button>
+<button class="btn" id="bigger">Tahminimden Büyük</button>
+<button class="btn" id="even">Sayı Çift</button>
+<button class="btn" id="odd">Sayı Tek</button>
 <button class="btn" id="correct">Doğru</button>
 
 <div id="message"></div>
 
 <script>
-    let min, max, currentGuess, attempts;
-
+    let min = 1, max = 100, currentGuess, attempts = 0;
     const guessDiv = document.getElementById('guess');
     const messageDiv = document.getElementById('message');
-    const smallerBtn = document.getElementById('smaller');
-    const biggerBtn = document.getElementById('bigger');
-    const correctBtn = document.getElementById('correct');
-
-    function startGame() {
-        min = 1;
-        max = 100;
-        attempts = 0;
-        nextGuess();
-        messageDiv.textContent = '';
-    }
 
     function nextGuess() {
         attempts++;
@@ -104,32 +96,47 @@
         messageDiv.textContent = `Bilgisayar ${attempts}. tahminini yaptı.`;
     }
 
-    smallerBtn.addEventListener('click', () => {
+    function updateMessage(text) {
+        messageDiv.textContent = text;
+    }
+
+    document.getElementById('smaller').addEventListener('click', () => {
         max = currentGuess - 1;
-        if (min > max) {
-            messageDiv.textContent = "Hata! İpuçları tutarsız.";
-        } else {
-            nextGuess();
-        }
+        if (min > max) return updateMessage("Hata! İpuçları tutarsız.");
+        nextGuess();
     });
 
-    biggerBtn.addEventListener('click', () => {
+    document.getElementById('bigger').addEventListener('click', () => {
         min = currentGuess + 1;
-        if (min > max) {
-            messageDiv.textContent = "Hata! İpuçları tutarsız.";
+        if (min > max) return updateMessage("Hata! İpuçları tutarsız.");
+        nextGuess();
+    });
+
+    document.getElementById('even').addEventListener('click', () => {
+        if (currentGuess % 2 !== 0) {
+            updateMessage("Hata! İpuçları tutarsız (çift/tek).");
         } else {
-            nextGuess();
+            // bilgisayar aralığı değiştirmeden devam
+            updateMessage(`Bilgisayar ${attempts}. tahminini yaptı. (Çift)`);
         }
     });
 
-    correctBtn.addEventListener('click', () => {
-        messageDiv.innerHTML = `🎉 Bilgisayar ${currentGuess} sayısını ${attempts} denemede buldu!`;
+    document.getElementById('odd').addEventListener('click', () => {
+        if (currentGuess % 2 === 0) {
+            updateMessage("Hata! İpuçları tutarsız (çift/tek).");
+        } else {
+            updateMessage(`Bilgisayar ${attempts}. tahminini yaptı. (Tek)`);
+        }
+    });
+
+    document.getElementById('correct').addEventListener('click', () => {
+        updateMessage(`🎉 Bilgisayar ${currentGuess} sayısını ${attempts} denemede buldu!`);
         guessDiv.textContent = "-";
     });
 
-    // Oyunu başlat
-    startGame();
+    // Başlangıç tahmini
+    nextGuess();
 </script>
 
 </body>
-  </html>
+</html>
