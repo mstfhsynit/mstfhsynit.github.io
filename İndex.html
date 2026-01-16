@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Renkli Zihin Oyunu</title>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0A1A2F">
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <style>
+    body { font-family: sans-serif; text-align: center; background: #222; color:#fff; }
+    .hidden { display: none; }
+    button { margin: 10px; padding: 10px 20px; font-size: 16px; border:none; border-radius:8px; cursor:pointer; }
+    #question { font-size: 22px; margin: 20px; }
+    .color-box { width:80px; height:80px; display:inline-block; margin:10px; border-radius:10px; animation: pulse 1s infinite alternate; }
+    @keyframes pulse { from{ transform: scale(1); } to{ transform: scale(1.1); } }
+  </style>
+</head>
+<body>
+
+  <!-- Başlangıç -->
+  <div id="start">
+    <h1>Renkli Zihin Oyunu</h1>
+    <button onclick="startGame()">Başla</button>
+  </div>
+
+  <!-- Oyun ekranı -->
+  <div id="game" class="hidden">
+    <h2 id="question"></h2>
+    <div id="colors"></div>
+    <button onclick="answer(true)">Evet</button>
+    <button onclick="answer(false)">Hayır</button>
+  </div>
+
+  <!-- Sonuç ekranı -->
+  <div id="final" class="hidden">
+    <h2>Senin düşündüğün sayı:</h2>
+    <div id="chosenBox" style="width:120px;height:120px;margin:auto;border-radius:12px;"></div>
+    <button onclick="resetGame()">Tekrar Oyna</button>
+  </div>
+
+  <script>
+    let low=1, high=100, mid;
+    let colors = ["#e74c3c","#3498db","#2ecc71","#f1c40f","#9b59b6","#1abc9c","#e67e22","#ecf0f1"];
+    
+    function startGame(){
+      low=1; high=100;
+      document.getElementById("start").classList.add("hidden");
+      document.getElementById("final").classList.add("hidden");
+      document.getElementById("game").classList.remove("hidden");
+      loadColors();
+      ask();
+    }
+
+    function loadColors(){
+      const div = document.getElementById("colors");
+      div.innerHTML = "";
+      for(let i=0;i<8;i++){
+        const box = document.createElement("div");
+        box.className="color-box";
+        box.style.backgroundColor = colors[i];
+        div.appendChild(box);
+      }
+    }
+
+    function ask(){
+      if(low === high){
+        document.getElementById("game").classList.add("hidden");
+        document.getElementById("final").classList.remove("hidden");
+        // Son kutunun rengi seçiliyor rastgele
+        document.getElementById("chosenBox").style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+        document.getElementById("chosenBox").textContent = low;
+        document.getElementById("chosenBox").style.color="#000";
+        document.getElementById("chosenBox").style.fontSize="28px";
+        document.getElementById("chosenBox").style.display="flex";
+        document.getElementById("chosenBox").style.justifyContent="center";
+        document.getElementById("chosenBox").style.alignItems="center";
+        return;
+      }
+      mid = Math.floor((low + high + 1)/2);
+      document.getElementById("question").textContent = "Senin sayı " + mid + " veya daha büyük mü?";
+      // Renkleri rastgele karıştır
+      colors.sort(()=>Math.random()-0.5);
+      loadColors();
+    }
+
+    function answer(val){
+      if(val) low = mid;
+      else high = mid - 1;
+      ask();
+    }
+
+    function resetGame(){
+      document.getElementById("final").classList.add("hidden");
+      document.getElementById("start").classList.remove("hidden");
+    }
+  </script>
+
+</body>
+</html>
