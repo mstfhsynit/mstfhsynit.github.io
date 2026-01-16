@@ -4,206 +4,130 @@
 <meta charset="UTF-8">
 <title>Mantık Oyunu - Bilgisayar Tahmin Ediyor</title>
 <style>
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
-        text-align: center;
-        padding-top: 50px;
-    }
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f4f8;
+    text-align: center;
+    padding: 50px;
+}
 
-    h1 {
-        color: #1b262c;
-    }
+h1 {
+    color: #1b262c;
+}
 
-    #guess {
-        font-size: 48px;
-        font-weight: bold;
-        color: #0f4c75;
-        margin: 20px 0;
-        background: #bbe1fa;
-        display: inline-block;
-        padding: 20px 40px;
-        border-radius: 15px;
-        box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
-    }
+#question {
+    font-size: 24px;
+    margin: 30px 0;
+}
 
-    .question {
-        margin: 15px 0;
-        font-size: 20px;
-    }
+.btn {
+    padding: 15px 30px;
+    margin: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    color: white;
+    transition: transform 0.2s;
+}
 
-    .btn {
-        padding: 10px 20px;
-        margin: 5px;
-        font-size: 16px;
-        font-weight: bold;
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-        color: white;
-        transition: transform 0.2s, opacity 0.2s;
-    }
+.btn:hover {
+    transform: scale(1.05);
+}
 
-    .btn:hover {
-        transform: scale(1.05);
-        opacity: 0.9;
-    }
+.yes { background-color: #06d6a0; }
+.no { background-color: #ef233c; }
 
-    .yes { background-color: #06d6a0; }
-    .no { background-color: #ef233c; }
-    #correct { background-color: #ffd166; color: #1b262c; }
+#message {
+    margin-top: 40px;
+    font-size: 20px;
+    color: #1b262c;
+    min-height: 50px;
+}
 
-    .answer {
-        display: block;
-        margin-top: 5px;
-        font-size: 16px;
-        font-weight: bold;
-        color: #1b262c;
-    }
-
-    #message {
-        margin-top: 30px;
-        font-size: 20px;
-        color: #1b262c;
-        padding: 15px;
-        background: #fff;
-        display: inline-block;
-        border-radius: 15px;
-        box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
-        min-width: 300px;
-    }
+#remaining {
+    margin-top: 20px;
+    font-size: 16px;
+    color: #333;
+}
 </style>
 </head>
 <body>
 
 <h1>Mantık Oyunu</h1>
-<p>1 ile 100 arasında bir sayı tut. Bilgisayar tahmin edecek.</p>
+<p>1 ile 100 arasında bir sayı tut. Sorulara Evet/Hayır ile cevap ver.</p>
 
-<div id="guess">-</div>
+<div id="question">Hazır…</div>
 
-<div class="question">
-    Tahminimden sayı büyük mü?
-    <button class="btn yes" id="biggerYes">Evet</button>
-    <button class="btn no" id="biggerNo">Hayır</button>
-    <span class="answer" id="biggerAnswer"></span>
-</div>
-
-<div class="question">
-    Tahminimden sayı küçük mü?
-    <button class="btn yes" id="smallerYes">Evet</button>
-    <button class="btn no" id="smallerNo">Hayır</button>
-    <span class="answer" id="smallerAnswer"></span>
-</div>
-
-<div class="question">
-    Sayı çift mi?
-    <button class="btn yes" id="evenYes">Evet</button>
-    <button class="btn no" id="evenNo">Hayır</button>
-    <span class="answer" id="evenAnswer"></span>
-</div>
-
-<div class="question">
-    Sayı tek mi?
-    <button class="btn yes" id="oddYes">Evet</button>
-    <button class="btn no" id="oddNo">Hayır</button>
-    <span class="answer" id="oddAnswer"></span>
-</div>
-
-<div class="question">
-    Bilgisayar doğru tahmin etti mi?
-    <button class="btn" id="correct">Doğru</button>
-</div>
+<button class="btn yes" id="yesBtn">Evet</button>
+<button class="btn no" id="noBtn">Hayır</button>
 
 <div id="message"></div>
+<div id="remaining"></div>
 
 <script>
-let min = 1, max = 100, currentGuess, attempts = 0;
-const guessDiv = document.getElementById('guess');
-const messageDiv = document.getElementById('message');
+// 1–100 arası tüm sayılar
+let numbers = [];
+for(let i=1;i<=100;i++) numbers.push(i);
 
-const biggerAnswer = document.getElementById('biggerAnswer');
-const smallerAnswer = document.getElementById('smallerAnswer');
-const evenAnswer = document.getElementById('evenAnswer');
-const oddAnswer = document.getElementById('oddAnswer');
+// Karışık sorular listesi
+let questions = [
+    {text:"Tuttuğunuz sayı çift mi?", type:"even"},
+    {text:"Tuttuğunuz sayı 17’den büyük mü?", type:"gt", value:17},
+    {text:"Tuttuğunuz sayı tek mi?", type:"odd"},
+    {text:"Tuttuğunuz sayı 50’den büyük mü?", type:"gt", value:50},
+    {text:"Tuttuğunuz sayı 10’dan büyük mü?", type:"gt", value:10},
+    {text:"Tuttuğunuz sayı 75’ten büyük mü?", type:"gt", value:75},
+    {text:"Tuttuğunuz sayı 60’dan büyük mü?", type:"gt", value:60},
+    {text:"Tuttuğunuz sayı çift mi?", type:"even"},
+    {text:"Tuttuğunuz sayı 40’dan büyük mü?", type:"gt", value:40},
+    {text:"Tuttuğunuz sayı 90’dan büyük mü?", type:"gt", value:90}
+];
 
-function nextGuess() {
-    attempts++;
-    currentGuess = Math.floor((min + max) / 2);
-    guessDiv.textContent = currentGuess;
-    messageDiv.textContent = `Bilgisayar ${attempts}. tahminini yaptı.`;
-    
-    biggerAnswer.textContent = '';
-    smallerAnswer.textContent = '';
-    evenAnswer.textContent = '';
-    oddAnswer.textContent = '';
+let currentQuestion = 0;
+
+const questionDiv = document.getElementById("question");
+const messageDiv = document.getElementById("message");
+const remainingDiv = document.getElementById("remaining");
+const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
+
+function showQuestion() {
+    if(currentQuestion >= questions.length || numbers.length === 1){
+        // Tahmin yapıldı
+        messageDiv.innerHTML = `🎉 Bilgisayar tahmin ediyor: ${numbers[0]}`;
+        questionDiv.style.display = "none";
+        yesBtn.style.display = "none";
+        noBtn.style.display = "none";
+        remainingDiv.style.display = "none";
+        return;
+    }
+    let q = questions[currentQuestion];
+    questionDiv.textContent = q.text;
+    messageDiv.textContent = "";
+    remainingDiv.textContent = `Olası sayılar: ${numbers.length}`;
 }
 
-// Büyük Evet/Hayır
-document.getElementById('biggerYes').addEventListener('click', () => {
-    min = currentGuess + 1;
-    biggerAnswer.textContent = 'Evet';
-    nextGuess();
-});
-document.getElementById('biggerNo').addEventListener('click', () => {
-    biggerAnswer.textContent = 'Hayır';
-    nextGuess();
-});
-
-// Küçük Evet/Hayır
-document.getElementById('smallerYes').addEventListener('click', () => {
-    max = currentGuess - 1;
-    smallerAnswer.textContent = 'Evet';
-    nextGuess();
-});
-document.getElementById('smallerNo').addEventListener('click', () => {
-    smallerAnswer.textContent = 'Hayır';
-    nextGuess();
-});
-
-// Çift Evet/Hayır
-document.getElementById('evenYes').addEventListener('click', () => {
-    evenAnswer.textContent = 'Evet';
-    if (currentGuess % 2 !== 0) {
-        if (min % 2 !== 0) min++;
-        if (max % 2 !== 0) max--;
+// Kullanıcı Evet/Hayır cevabı
+function answer(isYes){
+    let q = questions[currentQuestion];
+    if(q.type === "even"){
+        numbers = numbers.filter(n => isYes ? n%2===0 : n%2!==0);
+    } else if(q.type === "odd"){
+        numbers = numbers.filter(n => isYes ? n%2!==0 : n%2===0);
+    } else if(q.type === "gt"){
+        numbers = numbers.filter(n => isYes ? n>q.value : n<=q.value);
     }
-    nextGuess();
-});
-document.getElementById('evenNo').addEventListener('click', () => {
-    evenAnswer.textContent = 'Hayır';
-    if (currentGuess % 2 === 0) {
-        if (min % 2 === 0) min++;
-        if (max % 2 === 0) max--;
-    }
-    nextGuess();
-});
+    currentQuestion++;
+    showQuestion();
+}
 
-// Tek Evet/Hayır
-document.getElementById('oddYes').addEventListener('click', () => {
-    oddAnswer.textContent = 'Evet';
-    if (currentGuess % 2 === 0) {
-        if (min % 2 === 0) min++;
-        if (max % 2 === 0) max--;
-    }
-    nextGuess();
-});
-document.getElementById('oddNo').addEventListener('click', () => {
-    oddAnswer.textContent = 'Hayır';
-    if (currentGuess % 2 !== 0) {
-        if (min % 2 !== 0) min++;
-        if (max % 2 !== 0) max--;
-    }
-    nextGuess();
-});
+yesBtn.addEventListener("click", ()=>answer(true));
+noBtn.addEventListener("click", ()=>answer(false));
 
-// Doğru
-document.getElementById('correct').addEventListener('click', () => {
-    messageDiv.textContent = `🎉 Bilgisayar ${currentGuess} sayısını ${attempts} denemede buldu!`;
-    guessDiv.textContent = '-';
-});
-
-// Başlangıç tahmini
-nextGuess();
+// Başlangıç
+showQuestion();
 </script>
 
 </body>
