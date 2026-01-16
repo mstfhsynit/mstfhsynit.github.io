@@ -49,10 +49,8 @@
         opacity: 0.9;
     }
 
-    #smaller { background-color: #ef233c; }
-    #bigger { background-color: #06d6a0; }
-    #even { background-color: #f4a261; }
-    #odd { background-color: #2a9d8f; }
+    .yes { background-color: #06d6a0; }
+    .no { background-color: #ef233c; }
     #correct { background-color: #ffd166; color: #1b262c; }
 
     .answer {
@@ -84,31 +82,35 @@
 <div id="guess">-</div>
 
 <div class="question">
-    Tahminimden sayı büyük mü?  
-    <button class="btn" id="bigger">Büyük</button>  
+    Tahminimden sayı büyük mü?
+    <button class="btn yes" id="biggerYes">Evet</button>
+    <button class="btn no" id="biggerNo">Hayır</button>
     <span class="answer" id="biggerAnswer"></span>
 </div>
 
 <div class="question">
-    Tahminimden sayı küçük mü?  
-    <button class="btn" id="smaller">Küçük</button>  
+    Tahminimden sayı küçük mü?
+    <button class="btn yes" id="smallerYes">Evet</button>
+    <button class="btn no" id="smallerNo">Hayır</button>
     <span class="answer" id="smallerAnswer"></span>
 </div>
 
 <div class="question">
-    Sayı çift mi?  
-    <button class="btn" id="even">Çift</button>  
+    Sayı çift mi?
+    <button class="btn yes" id="evenYes">Evet</button>
+    <button class="btn no" id="evenNo">Hayır</button>
     <span class="answer" id="evenAnswer"></span>
 </div>
 
 <div class="question">
-    Sayı tek mi?  
-    <button class="btn" id="odd">Tek</button>  
+    Sayı tek mi?
+    <button class="btn yes" id="oddYes">Evet</button>
+    <button class="btn no" id="oddNo">Hayır</button>
     <span class="answer" id="oddAnswer"></span>
 </div>
 
 <div class="question">
-    Bilgisayar doğru tahmin etti mi?  
+    Bilgisayar doğru tahmin etti mi?
     <button class="btn" id="correct">Doğru</button>
 </div>
 
@@ -130,50 +132,67 @@ function nextGuess() {
     guessDiv.textContent = currentGuess;
     messageDiv.textContent = `Bilgisayar ${attempts}. tahminini yaptı.`;
     
-    // Önceki cevapları temizle
     biggerAnswer.textContent = '';
     smallerAnswer.textContent = '';
     evenAnswer.textContent = '';
     oddAnswer.textContent = '';
 }
 
-// Büyük
-document.getElementById('bigger').addEventListener('click', () => {
+// Büyük Evet/Hayır
+document.getElementById('biggerYes').addEventListener('click', () => {
     min = currentGuess + 1;
-    biggerAnswer.textContent = '✔';
-    if (min > max) return messageDiv.textContent = "Hata! İpuçları tutarsız.";
+    biggerAnswer.textContent = 'Evet';
+    nextGuess();
+});
+document.getElementById('biggerNo').addEventListener('click', () => {
+    biggerAnswer.textContent = 'Hayır';
     nextGuess();
 });
 
-// Küçük
-document.getElementById('smaller').addEventListener('click', () => {
+// Küçük Evet/Hayır
+document.getElementById('smallerYes').addEventListener('click', () => {
     max = currentGuess - 1;
-    smallerAnswer.textContent = '✔';
-    if (min > max) return messageDiv.textContent = "Hata! İpuçları tutarsız.";
+    smallerAnswer.textContent = 'Evet';
+    nextGuess();
+});
+document.getElementById('smallerNo').addEventListener('click', () => {
+    smallerAnswer.textContent = 'Hayır';
     nextGuess();
 });
 
-// Çift
-document.getElementById('even').addEventListener('click', () => {
-    evenAnswer.textContent = '✔';
+// Çift Evet/Hayır
+document.getElementById('evenYes').addEventListener('click', () => {
+    evenAnswer.textContent = 'Evet';
     if (currentGuess % 2 !== 0) {
-        // Tahmin tek, sayı çift → tekleri elemine et
         if (min % 2 !== 0) min++;
         if (max % 2 !== 0) max--;
     }
-    if (min > max) return messageDiv.textContent = "Hata! İpuçları tutarsız.";
     nextGuess();
 });
-
-// Tek
-document.getElementById('odd').addEventListener('click', () => {
-    oddAnswer.textContent = '✔';
+document.getElementById('evenNo').addEventListener('click', () => {
+    evenAnswer.textContent = 'Hayır';
     if (currentGuess % 2 === 0) {
-        // Tahmin çift, sayı tek → çiftleri elemine et
         if (min % 2 === 0) min++;
         if (max % 2 === 0) max--;
     }
-    if (min > max) return messageDiv.textContent = "Hata! İpuçları tutarsız.";
+    nextGuess();
+});
+
+// Tek Evet/Hayır
+document.getElementById('oddYes').addEventListener('click', () => {
+    oddAnswer.textContent = 'Evet';
+    if (currentGuess % 2 === 0) {
+        if (min % 2 === 0) min++;
+        if (max % 2 === 0) max--;
+    }
+    nextGuess();
+});
+document.getElementById('oddNo').addEventListener('click', () => {
+    oddAnswer.textContent = 'Hayır';
+    if (currentGuess % 2 !== 0) {
+        if (min % 2 !== 0) min++;
+        if (max % 2 !== 0) max--;
+    }
     nextGuess();
 });
 
