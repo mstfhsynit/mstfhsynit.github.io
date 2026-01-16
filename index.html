@@ -5,20 +5,27 @@
 <title>Tek Dosya Türkçe Düzeltici 😄</title>
 
 <style>
+/* ORTAK FONT */
 body {
   font-family: Arial, sans-serif;
-  background-color: #0b1d3a; /* koyu mavi */
-  color: #ffffff;
   padding: 50px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* ===== KOYU TEMA (varsayılan) ===== */
+body {
+  background-color: #0b1d3a;
+  color: #ffffff;
 }
 
 h1 {
   font-size: 2em;
   margin-bottom: 20px;
   text-align: center;
+  color: #ffffff;
 }
 
 textarea {
@@ -37,10 +44,11 @@ button {
   padding: 10px 20px;
   font-size: 1em;
   cursor: pointer;
+  margin: 5px;
   background-color: #1e90ff;
   color: #ffffff;
   border: none;
-  margin: 5px;
+  border-radius: 5px;
 }
 
 #sayac {
@@ -58,15 +66,31 @@ button {
   max-width: 600px;
 }
 
-/* Açık tema */
+/* ===== AÇIK TEMA ===== */
 body.light {
-  background: #f0f8ff;
+  background-color: #f0f8ff;
   color: #000000;
 }
+
+body.light h1 {
+  color: #1a1a1a;
+}
+
 body.light textarea {
-  background: #ffffff;
+  background-color: #ffffff;
   color: #000000;
+  border: 1px solid #999999;
 }
+
+body.light button {
+  background-color: #4b6cff;
+  color: #ffffff;
+}
+
+body.light #sayac {
+  color: #333333;
+}
+
 body.light #output {
   color: #4b0082;
 }
@@ -89,7 +113,6 @@ body.light #output {
 <div id="output"></div>
 
 <script>
-// Basit kelime ve birleşik kelime sözlüğü
 const sozluk = {
   "msj":"mesaj","larim":"larım","dusuyormu":"düşüyor mu","gondereyim":"göndereyim",
   "tesekkurler":"Teşekkürler","merhaba":"Merhaba","mubarek":"Mübarek",
@@ -150,7 +173,7 @@ function duzelt() {
   document.getElementById("output").textContent = corrected.trim();
 }
 
-// Kopyala butonu
+// Kopyala
 function kopyala() {
   const text = document.getElementById("output").textContent;
   if (!text) return;
