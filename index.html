@@ -43,13 +43,6 @@ h1 {
     margin-top: 40px;
     font-size: 20px;
     color: #1b262c;
-    min-height: 50px;
-}
-
-#remaining {
-    margin-top: 20px;
-    font-size: 16px;
-    color: #333;
 }
 </style>
 </head>
@@ -64,14 +57,13 @@ h1 {
 <button class="btn no" id="noBtn">Hayır</button>
 
 <div id="message"></div>
-<div id="remaining"></div>
 
 <script>
 // 1–100 arası tüm sayılar
 let numbers = [];
 for(let i=1;i<=100;i++) numbers.push(i);
 
-// Karışık sorular listesi
+// Karışık 10 soru
 let questions = [
     {text:"Tuttuğunuz sayı çift mi?", type:"even"},
     {text:"Tuttuğunuz sayı 17’den büyük mü?", type:"gt", value:17},
@@ -86,39 +78,50 @@ let questions = [
 ];
 
 let currentQuestion = 0;
+let finalGuess = null; // Tahmin için
 
 const questionDiv = document.getElementById("question");
 const messageDiv = document.getElementById("message");
-const remainingDiv = document.getElementById("remaining");
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
 
+// Kullanıcının cevaplarını kaydet
+let answers = [];
+
 function showQuestion() {
-    if(currentQuestion >= questions.length || numbers.length === 1){
-        // Tahmin yapıldı
-        messageDiv.innerHTML = `🎉 Bilgisayar tahmin ediyor: ${numbers[0]}`;
+    if(currentQuestion >= questions.length){
+        // Sonunda tahmin yap
+        finalGuess = makeGuess();
         questionDiv.style.display = "none";
         yesBtn.style.display = "none";
         noBtn.style.display = "none";
-        remainingDiv.style.display = "none";
+        messageDiv.innerHTML = `🎉 Bilgisayar tahmin ediyor: ${finalGuess}`;
         return;
     }
-    let q = questions[currentQuestion];
-    questionDiv.textContent = q.text;
-    messageDiv.textContent = "";
-    remainingDiv.textContent = `Olası sayılar: ${numbers.length}`;
+    questionDiv.textContent = questions[currentQuestion].text;
 }
 
-// Kullanıcı Evet/Hayır cevabı
-function answer(isYes){
-    let q = questions[currentQuestion];
-    if(q.type === "even"){
-        numbers = numbers.filter(n => isYes ? n%2===0 : n%2!==0);
-    } else if(q.type === "odd"){
-        numbers = numbers.filter(n => isYes ? n%2!==0 : n%2===0);
-    } else if(q.type === "gt"){
-        numbers = numbers.filter(n => isYes ? n>q.value : n<=q.value);
+// Mantıklı tahmin algoritması
+function makeGuess(){
+    // Arka planda sayıları filtrele
+    let possible = numbers.slice();
+    for(let i=0;i<questions.length;i++){
+        let q = questions[i];
+        let a = answers[i];
+        if(q.type === "even"){
+            possible = possible.filter(n => a ? n%2===0 : n%2!==0);
+        } else if(q.type === "odd"){
+            possible = possible.filter(n => a ? n%2!==0 : n%2===0);
+        } else if(q.type === "gt"){
+            possible = possible.filter(n => a ? n>q.value : n<=q.value);
+        }
     }
+    // Son kalan sayıyı tahmin et
+    return possible[0];
+}
+
+function answer(isYes){
+    answers.push(isYes);
     currentQuestion++;
     showQuestion();
 }
