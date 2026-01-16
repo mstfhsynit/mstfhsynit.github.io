@@ -6,17 +6,11 @@
 <style>
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(270deg, #ffecd2, #fcb69f);
-    background-size: 400% 400%;
-    animation: gradientBG 15s ease infinite;
+    background-color: #0d1b2a; /* sabit koyu mavi arka plan */
     text-align: center;
     padding: 50px;
-    color: #1b262c;
-}
-@keyframes gradientBG {
-    0% {background-position:0% 50%;}
-    50% {background-position:100% 50%;}
-    100% {background-position:0% 50%;}
+    color: #ffffff;
+    overflow: hidden;
 }
 h1 { font-size: 36px; margin-bottom: 20px; }
 #question { font-size: 24px; margin: 30px 0; min-height: 60px; transition: transform 0.2s, color 0.2s; }
@@ -24,13 +18,13 @@ h1 { font-size: 36px; margin-bottom: 20px; }
 .btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
 .yes { background-color: #06d6a0; }
 .no { background-color: #ef233c; }
-#message { margin-top: 40px; font-size: 24px; position: relative; }
+#message { margin-top: 40px; font-size: 24px; position: relative; z-index:2; }
 .confetti { position: absolute; width: 10px; height: 10px; border-radius: 50%; opacity: 0.9; animation: rise 1.5s ease-out forwards; }
 @keyframes rise {
     0% {transform: translateY(0) rotate(0deg);}
     100% {transform: translateY(-200px) rotate(720deg); opacity:0;}
 }
-.randomChar { position: absolute; font-size: 14px; font-weight: bold; color: rgba(0,0,0,0.2); animation: floatUp 1s linear forwards; }
+.randomChar { position: absolute; font-size: 14px; font-weight: bold; color: rgba(255,255,255,0.2); animation: floatUp 1s linear forwards; }
 @keyframes floatUp {
     0% {transform: translateY(0) rotate(0deg); opacity:1;}
     100% {transform: translateY(-100px) rotate(360deg); opacity:0;}
@@ -39,6 +33,20 @@ h1 { font-size: 36px; margin-bottom: 20px; }
     0% {transform: translateY(0);}
     50% {transform: translateY(-15px);}
     100% {transform: translateY(0);}
+}
+/* yıldızlar */
+.star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.8;
+    animation: twinkle 5s infinite;
+}
+@keyframes twinkle {
+    0%,100% {opacity:0.5;}
+    50% {opacity:1;}
 }
 </style>
 </head>
@@ -54,6 +62,18 @@ h1 { font-size: 36px; margin-bottom: 20px; }
 <div id="message"></div>
 
 <script>
+// Yıldızları oluştur
+for(let i=0;i<100;i++){
+    const star = document.createElement("div");
+    star.className="star";
+    star.style.left = Math.random()*100 + "%";
+    star.style.top = Math.random()*100 + "%";
+    star.style.width = (Math.random()*2+1)+"px";
+    star.style.height = (Math.random()*2+1)+"px";
+    star.style.animationDuration = (Math.random()*3+2) + "s";
+    document.body.appendChild(star);
+}
+
 // Başlangıç
 let possibleNumbers = [];
 for(let i=1; i<=1000; i++) possibleNumbers.push(i);
@@ -98,7 +118,7 @@ function randomChars(){
     }
 }
 
-// Rastgele soru üret (binary search mantığı)
+// Rastgele soru üret (binary search)
 let currentPivot = null;
 function generateQuestion(){
     if(possibleNumbers.length <= 1){
