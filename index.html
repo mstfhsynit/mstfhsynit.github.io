@@ -1,47 +1,125 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Tek Dosya Türkçe Düzeltici 😄</title>
+
 <style>
-body { 
-  font-family: Arial, sans-serif; 
-  background:#0b1d3a; /* KOYU MAVİ */
-  padding:50px; 
-  display:flex; 
-  flex-direction:column; 
-  align-items:center;
-  color:#ffffff; /* Yazılar beyaz */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #0b1d3a; /* koyu mavi */
+  color: #ffffff; /* yazılar beyaz */
+  padding: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-h1 { 
-  font-size:2em; 
-  margin-bottom:20px; 
-  text-align:center; 
-  color:#ffffff;
+h1 {
+  font-size: 2em;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #ffffff;
 }
 
-textarea { 
-  width:90%; 
-  max-width:600px; 
-  height:150px; 
-  margin-bottom:10px; 
-  padding:10px; 
-  font-size:1em;
-  background:#162a52; /* koyu mavi */
-  color:#ffffff;
-  border:1px solid #3a5ba0;
+textarea {
+  width: 90%;
+  max-width: 600px;
+  height: 150px;
+  margin-bottom: 10px;
+  padding: 10px;
+  font-size: 1em;
+  background-color: #162a52;
+  color: #ffffff;
+  border: 1px solid #3a5ba0;
 }
 
-button { 
-  padding:10px 20px; 
-  font-size:1em; 
-  cursor:pointer;
-  background:#1e90ff;
-  color:#ffffff;
-  border:none;
+button {
+  padding: 10px 20px;
+  font-size: 1em;
+  cursor: pointer;
+  background-color: #1e90ff;
+  color: #ffffff;
+  border: none;
 }
 
-#output { 
-  margin-top:20px; 
-  font-size:1.2em; 
-  color:#e6f0ff; 
-  white-space:pre-wrap; 
-  text-align:center;
+#output {
+  margin-top: 20px;
+  font-size: 1.2em;
+  color: #e6f0ff;
+  white-space: pre-wrap;
+  text-align: center;
 }
 </style>
+
+</head>
+<body>
+
+<h1>Tek Dosya Türkçe Düzeltici 😄</h1>
+
+<textarea id="inputText" placeholder="Metni buraya yazın..."></textarea>
+
+<button onclick="duzelt()">Düzelt</button>
+
+<div id="output"></div>
+
+<script>
+const sozluk = {
+  "msj":"mesaj","larim":"larım","dusuyormu":"düşüyor mu","gondereyim":"göndereyim",
+  "tesekkurler":"Teşekkürler","merhaba":"Merhaba","mubarek":"Mübarek",
+  "subhanallh":"Subhanallah","elhamdulliah":"Elhamdülillah",
+  "nasilsiniz":"Nasılsınız","gunaydin":"Günaydın","iyigunler":"İyi günler",
+  "allh":"Allah","sagol":"Sağol","iyiaksamlar":"İyi akşamlar",
+  "iyigeceler":"İyi geceler","nasil":"nasıl","cok":"çok","harika":"harika",
+  "sanami":"sana mı","nasilsin":"Nasılsın","yapiyin":"yapıyın","sorayimmi":"sorayım mı"
+};
+
+const baglaclar = ["ve","ile","ama","fakat","çünkü","ancak","lakin"];
+const soruEkleri = ["mi","mı","mu","mü"];
+
+function duzelt() {
+  let text = document.getElementById("inputText").value.trim();
+  if (!text) {
+    document.getElementById("output").textContent = "Lütfen metin girin!";
+    return;
+  }
+
+  text = text.replace(/\s+/g, ' ');
+
+  let sentences = text.split(/([.!?]+)/).filter(s => s.trim() !== "");
+  let corrected = "";
+
+  for (let i = 0; i < sentences.length; i += 2) {
+    let sentence = sentences[i].trim();
+    let punctuation = sentences[i + 1] ? sentences[i + 1] : ".";
+
+    sentence = sentence.split(' ').map(word => {
+      let clean = word.toLowerCase().replace(/[.,!?;:]/g, '');
+      return sozluk[clean] || word;
+    }).join(' ');
+
+    sentence = sentence.replace(/,([^\s])/g, ', $1');
+
+    baglaclar.forEach(b => {
+      let regex = new RegExp(",\\s*" + b, "gi");
+      sentence = sentence.replace(regex, b);
+    });
+
+    sentence = sentence.charAt(0).toUpperCase() + sentence.slice(1);
+
+    let words = sentence.split(' ');
+    if (soruEkleri.includes(words[words.length - 1].toLowerCase()) && !/[?]$/.test(sentence)) {
+      punctuation = "?";
+    }
+
+    if (!/[.!?]$/.test(sentence)) punctuation = ".";
+
+    corrected += sentence + punctuation + " ";
+  }
+
+  document.getElementById("output").textContent = corrected.trim();
+}
+</script>
+
+</body>
+</html>
