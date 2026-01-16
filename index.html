@@ -55,7 +55,6 @@ h1 {
     margin-top: 40px;
     font-size: 24px;
 }
-
 </style>
 </head>
 <body>
@@ -76,7 +75,7 @@ let possibleNumbers = [];
 for(let i=1; i<=1000; i++) possibleNumbers.push(i);
 
 let questionsAsked = 0;
-const maxQuestions = 15; // tahmin için yeterli
+const maxQuestions = 15;
 let currentQuestion = null;
 
 const questionDiv = document.getElementById("question");
@@ -84,21 +83,30 @@ const messageDiv = document.getElementById("message");
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
 
-// Basit bip sesi
-function beep(){
+// Ses efekti: JS ile frekans ve süre
+function playSound(frequency, duration){
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const o = ctx.createOscillator();
-    o.type = 'sine';
-    o.frequency.setValueAtTime(440, ctx.currentTime);
-    o.connect(ctx.destination);
-    o.start();
-    o.stop(ctx.currentTime + 0.1);
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(frequency, ctx.currentTime);
+    osc.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+}
+
+// Evet butonu: nötr-pozitif kısa bip
+function yesSound(){
+    playSound(600, 0.15);
+}
+
+// Hayır butonu: nötr kısa bip
+function noSound(){
+    playSound(400, 0.15);
 }
 
 // Rastgele soru üret
 function generateQuestion(){
     if(possibleNumbers.length <= 1 || questionsAsked >= maxQuestions){
-        // Tahmin animasyonu
         animateGuess(possibleNumbers[0]);
         return;
     }
@@ -130,11 +138,14 @@ function animateGuess(finalNumber){
     setTimeout(()=>{
         clearInterval(interval);
         messageDiv.textContent = `🎉 Bilgisayar tahmin ediyor: ${finalNumber}`;
-    }, 2000); // 2 saniye animasyon
+    }, 2000);
 }
 
+// Cevap verildiğinde filtrele ve ses çal
 function answer(isYes){
-    beep();
+    if(isYes) yesSound();
+    else noSound();
+
     if(isYes){
         possibleNumbers = possibleNumbers.filter(n => n > currentQuestion.pivot);
     } else {
