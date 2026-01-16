@@ -232,3 +232,105 @@ function resetGame(){
 
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zihin Oyunu</title>
+
+  <!-- Manifest ve tema rengi -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0A1A2F">
+
+  <!-- İkonlar -->
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <!-- Buraya CSS ekleyebilirsin -->
+</head>
+<body>
+  <!-- Başlangıç ekranı -->
+  <div id="start">
+    <button onclick="start()">Başla</button>
+  </div>
+
+  <!-- Kart ekranı -->
+  <div id="card" class="hidden">
+    <h2 id="title"></h2>
+    <p id="numbers"></p>
+    <button onclick="answer(true)">Evet</button>
+    <button onclick="answer(false)">Hayır</button>
+  </div>
+
+  <!-- Sonuç ekranı -->
+  <div id="final" class="hidden">
+    <p>Sonuç: <span id="result"></span></p>
+    <input type="text" id="comment" placeholder="Yorumunuzu yazın">
+    <button onclick="sendComment()">Gönder</button>
+    <p id="feedbackResult"></p>
+    <button onclick="resetGame()">Tekrar Oyna</button>
+  </div>
+
+  <script>
+    let index=0, answers=[];
+    const cardValues=[1,2,4,8,16,32,64]; // Örnek değer
+
+    function start(){
+      index=0; answers=[];
+      document.getElementById("start").classList.add("hidden");
+      document.getElementById("final").classList.add("hidden");
+      document.getElementById("card").classList.remove("hidden");
+      loadCard();
+    }
+
+    function loadCard(){
+      const v=cardValues[index];
+      document.getElementById("title").textContent="Kart "+(index+1);
+      let nums=[];
+      for(let i=1;i<=100;i++){
+        if((i&v)===v) nums.push(i);
+      }
+      document.getElementById("numbers").textContent=nums.join(" • ");
+    }
+
+    function answer(val){
+      answers.push(val);
+      index++;
+      index<cardValues.length ? loadCard() : calculate();
+    }
+
+    function calculate(){
+      document.getElementById("card").classList.add("hidden");
+      document.getElementById("final").classList.remove("hidden");
+      let scores={};
+      for(let i=1;i<=100;i++){
+        scores[i]=0;
+        cardValues.forEach((v,idx)=>{
+          if(answers[idx]===((i&v)===v)) scores[i]++;
+        });
+      }
+      let best=1;
+      for(let i=2;i<=100;i++) if(scores[i]>scores[best]) best=i;
+      document.getElementById("result").textContent=best;
+    }
+
+    function rate(txt){
+      document.getElementById("feedbackResult").textContent="Oyun "+txt+" ⭐";
+    }
+
+    function sendComment(){
+      const t=document.getElementById("comment").value.trim();
+      document.getElementById("feedbackResult").textContent=
+          t?"Geri bildirimin alındı ✅":"Lütfen yorum yaz.";
+      if(t) document.getElementById("comment").value="";
+    }
+
+    function resetGame(){
+      document.getElementById("feedbackResult").textContent="";
+      document.getElementById("final").classList.add("hidden");
+      document.getElementById("start").classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>
