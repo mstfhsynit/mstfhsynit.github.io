@@ -8,7 +8,7 @@
 body {
   font-family: Arial, sans-serif;
   background-color: #0b1d3a; /* koyu mavi */
-  color: #ffffff; /* yazılar beyaz */
+  color: #ffffff;
   padding: 50px;
   display: flex;
   flex-direction: column;
@@ -19,14 +19,13 @@ h1 {
   font-size: 2em;
   margin-bottom: 20px;
   text-align: center;
-  color: #ffffff;
 }
 
 textarea {
   width: 90%;
   max-width: 600px;
   height: 150px;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   padding: 10px;
   font-size: 1em;
   background-color: #162a52;
@@ -41,6 +40,13 @@ button {
   background-color: #1e90ff;
   color: #ffffff;
   border: none;
+  margin: 5px;
+}
+
+#sayac {
+  margin-bottom: 10px;
+  color: #b0c4ff;
+  font-size: 0.9em;
 }
 
 #output {
@@ -49,6 +55,20 @@ button {
   color: #e6f0ff;
   white-space: pre-wrap;
   text-align: center;
+  max-width: 600px;
+}
+
+/* Açık tema */
+body.light {
+  background: #f0f8ff;
+  color: #000000;
+}
+body.light textarea {
+  background: #ffffff;
+  color: #000000;
+}
+body.light #output {
+  color: #4b0082;
 }
 </style>
 
@@ -57,13 +77,19 @@ button {
 
 <h1>Tek Dosya Türkçe Düzeltici 😄</h1>
 
+<button onclick="temaDegistir()">🌙 Tema Değiştir</button>
+
 <textarea id="inputText" placeholder="Metni buraya yazın..."></textarea>
 
+<div id="sayac">Karakter: 0</div>
+
 <button onclick="duzelt()">Düzelt</button>
+<button onclick="kopyala()">Kopyala</button>
 
 <div id="output"></div>
 
 <script>
+// Basit kelime ve birleşik kelime sözlüğü
 const sozluk = {
   "msj":"mesaj","larim":"larım","dusuyormu":"düşüyor mu","gondereyim":"göndereyim",
   "tesekkurler":"Teşekkürler","merhaba":"Merhaba","mubarek":"Mübarek",
@@ -77,6 +103,11 @@ const sozluk = {
 const baglaclar = ["ve","ile","ama","fakat","çünkü","ancak","lakin"];
 const soruEkleri = ["mi","mı","mu","mü"];
 
+// Karakter sayacı
+document.getElementById("inputText").addEventListener("input", function(){
+  document.getElementById("sayac").textContent = "Karakter: " + this.value.length;
+});
+
 function duzelt() {
   let text = document.getElementById("inputText").value.trim();
   if (!text) {
@@ -85,7 +116,6 @@ function duzelt() {
   }
 
   text = text.replace(/\s+/g, ' ');
-
   let sentences = text.split(/([.!?]+)/).filter(s => s.trim() !== "");
   let corrected = "";
 
@@ -118,6 +148,19 @@ function duzelt() {
   }
 
   document.getElementById("output").textContent = corrected.trim();
+}
+
+// Kopyala butonu
+function kopyala() {
+  const text = document.getElementById("output").textContent;
+  if (!text) return;
+  navigator.clipboard.writeText(text);
+  alert("Düzeltilmiş metin kopyalandı!");
+}
+
+// Tema değiştir
+function temaDegistir() {
+  document.body.classList.toggle("light");
 }
 </script>
 
