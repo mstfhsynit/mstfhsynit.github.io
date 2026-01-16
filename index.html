@@ -20,7 +20,7 @@ body {
 }
 h1 { font-size: 36px; margin-bottom: 20px; }
 #question { font-size: 24px; margin: 30px 0; min-height: 60px; transition: transform 0.2s, color 0.2s; }
-.btn { padding: 15px 35px; margin: 15px; font-size: 20px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; color: white; transition: transform 0.2s, box-shadow 0.2s, background 0.2s; }
+.btn { padding: 15px 35px; margin: 15px; font-size: 20px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; color: white; transition: transform 0.2s, box-shadow 0.2s, background 0.2s; position: relative; }
 .btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
 .yes { background-color: #06d6a0; }
 .no { background-color: #ef233c; }
@@ -34,6 +34,12 @@ h1 { font-size: 36px; margin-bottom: 20px; }
 @keyframes floatUp {
     0% {transform: translateY(0) rotate(0deg); opacity:1;}
     100% {transform: translateY(-100px) rotate(360deg); opacity:0;}
+}
+/* Buton zıplama animasyonu */
+@keyframes jump {
+    0% {transform: translateY(0);}
+    50% {transform: translateY(-15px);}
+    100% {transform: translateY(0);}
 }
 </style>
 </head>
@@ -62,8 +68,26 @@ const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
 
 // Ses efektleri
-function playButtonSound(){ const ctx = new (window.AudioContext||window.webkitAudioContext)(); const osc=ctx.createOscillator(); osc.type='sine'; osc.frequency.setValueAtTime(400, ctx.currentTime); osc.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime+0.15);}
-function playMelody(){ const ctx=new (window.AudioContext||window.webkitAudioContext)(); const osc=ctx.createOscillator(); osc.type='triangle'; let times=[0,0.2,0.4]; let freqs=[440, 523, 659]; osc.connect(ctx.destination); osc.start(); times.forEach((t,i)=>osc.frequency.setValueAtTime(freqs[i], ctx.currentTime+t)); osc.stop(ctx.currentTime+0.6);}
+function playButtonSound(){ 
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const osc=ctx.createOscillator();
+    osc.type='sine';
+    osc.frequency.setValueAtTime(400, ctx.currentTime);
+    osc.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime+0.15);
+}
+function playMelody(){ 
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    const osc=ctx.createOscillator();
+    osc.type='triangle';
+    let times=[0,0.2,0.4];
+    let freqs=[440,523,659];
+    osc.connect(ctx.destination);
+    osc.start();
+    times.forEach((t,i)=>osc.frequency.setValueAtTime(freqs[i], ctx.currentTime+t));
+    osc.stop(ctx.currentTime+0.6);
+}
 
 // Rastgele karakter animasyonu
 function randomChars(){
@@ -89,7 +113,6 @@ function generateQuestion(){
     const pivot = Math.floor(Math.random()*(max-min+1))+min;
     currentQuestion = {pivot};
     questionDiv.textContent = `Tuttuğunuz sayı ${pivot}’den büyük mü?`;
-    questionDiv.style.transform="scale(1)";
 }
 
 // Tahmin animasyonu
@@ -129,16 +152,18 @@ function confettiEffect(){
     }
 }
 
-// Cevap ver
-function answer(isYes){
+// Buton animasyonu ve cevap
+function buttonAnswer(btn, isYes){
+    btn.style.animation="jump 0.3s ease";
+    setTimeout(()=>btn.style.animation="",300); // animasyonu resetle
     playButtonSound();
     if(isYes) possibleNumbers=possibleNumbers.filter(n=>n>currentQuestion.pivot);
     else possibleNumbers=possibleNumbers.filter(n=>n<=currentQuestion.pivot);
     generateQuestion();
 }
 
-yesBtn.addEventListener("click",()=>answer(true));
-noBtn.addEventListener("click",()=>answer(false));
+yesBtn.addEventListener("click",()=>buttonAnswer(yesBtn,true));
+noBtn.addEventListener("click",()=>buttonAnswer(noBtn,false));
 
 generateQuestion();
 </script>
