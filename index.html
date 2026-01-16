@@ -6,10 +6,18 @@
 <style>
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #ffecd2, #fcb69f);
+    background: linear-gradient(270deg, #ffecd2, #fcb69f);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
     text-align: center;
     padding: 50px;
     color: #1b262c;
+}
+
+@keyframes gradientBG {
+    0% {background-position:0% 50%;}
+    50% {background-position:100% 50%;}
+    100% {background-position:0% 50%;}
 }
 
 h1 {
@@ -47,6 +55,7 @@ h1 {
     margin-top: 40px;
     font-size: 24px;
 }
+
 </style>
 </head>
 <body>
@@ -67,7 +76,7 @@ let possibleNumbers = [];
 for(let i=1; i<=1000; i++) possibleNumbers.push(i);
 
 let questionsAsked = 0;
-const maxQuestions = 15; // Tahmin için yeterli soru sayısı
+const maxQuestions = 15; // tahmin için yeterli
 let currentQuestion = null;
 
 const questionDiv = document.getElementById("question");
@@ -75,20 +84,27 @@ const messageDiv = document.getElementById("message");
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
 
-// Rastgele soru üretme (kullanıcıya görünür ama sayı aralıkları gizli)
+// Basit bip sesi
+function beep(){
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(440, ctx.currentTime);
+    o.connect(ctx.destination);
+    o.start();
+    o.stop(ctx.currentTime + 0.1);
+}
+
+// Rastgele soru üret
 function generateQuestion(){
     if(possibleNumbers.length <= 1 || questionsAsked >= maxQuestions){
-        // Son kalan sayı tahmini
-        questionDiv.style.display = "none";
-        yesBtn.style.display = "none";
-        noBtn.style.display = "none";
-        messageDiv.innerHTML = `🎉 Bilgisayar tahmin ediyor: ${possibleNumbers[0]}`;
+        // Tahmin animasyonu
+        animateGuess(possibleNumbers[0]);
         return;
     }
 
     questionsAsked++;
 
-    // Rastgele soru türü: sayının X’den büyük mü? (X aralığı seçilir)
     const min = Math.min(...possibleNumbers);
     const max = Math.max(...possibleNumbers);
     const randomPivot = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -97,8 +113,28 @@ function generateQuestion(){
     questionDiv.textContent = `Tuttuğunuz sayı ${randomPivot}’den büyük mü?`;
 }
 
-// Cevap verildiğinde arka planda filtreleme
+// Tahmin animasyonu
+function animateGuess(finalNumber){
+    questionDiv.style.display = "none";
+    yesBtn.style.display = "none";
+    noBtn.style.display = "none";
+
+    messageDiv.innerHTML = `Bilgisayar tahmin ediyor...`;
+    let fakeNumber = 1;
+    const interval = setInterval(()=>{
+        messageDiv.textContent = `Bilgisayar tahmin ediyor: ${fakeNumber}`;
+        fakeNumber += Math.floor(Math.random()*20)+1;
+        if(fakeNumber > 1000) fakeNumber = 1;
+    }, 50);
+
+    setTimeout(()=>{
+        clearInterval(interval);
+        messageDiv.textContent = `🎉 Bilgisayar tahmin ediyor: ${finalNumber}`;
+    }, 2000); // 2 saniye animasyon
+}
+
 function answer(isYes){
+    beep();
     if(isYes){
         possibleNumbers = possibleNumbers.filter(n => n > currentQuestion.pivot);
     } else {
@@ -110,7 +146,6 @@ function answer(isYes){
 yesBtn.addEventListener("click", ()=>answer(true));
 noBtn.addEventListener("click", ()=>answer(false));
 
-// Başlangıç
 generateQuestion();
 </script>
 
