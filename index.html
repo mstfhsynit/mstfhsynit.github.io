@@ -28,13 +28,26 @@ h1 { font-size: 36px; margin-bottom: 20px; }
 /* yıldızlar */
 .star { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; opacity: 0.8; animation: twinkle 5s infinite; }
 @keyframes twinkle {0%,100% {opacity:0.5;} 50% {opacity:1;}}
-/* hilal */
-#hilal { position: absolute; top: 20px; right: 20px; width: 80px; height: 80px; border-radius: 50%; background: #f0f0f0; box-shadow: -15px 0 0 #0d1b2a inset; opacity:0.9; z-index:1; }
-/* tarih saat gün */
-#datetime { font-size: 18px; margin-top:10px; z-index:2; position: relative;}
+
+/* tarih, saat, gün */
+#datetime { font-size: 18px; margin-top:10px; z-index:2; position: relative; }
+
+/* MstfHsyn logosu sağ üst */
+#logo {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    z-index: 2;
+    user-select: none;
+}
 </style>
 </head>
 <body>
+
+<div id="logo">MstfHsyn</div>
 
 <h1>Gizli Zihin Oyunu</h1>
 <p>1 ile 1000 arasında bir sayı tut. Bilgisayar sorularla tahmin edecek.</p>
@@ -45,8 +58,6 @@ h1 { font-size: 36px; margin-bottom: 20px; }
 
 <div id="datetime"></div>
 <div id="message"></div>
-
-<div id="hilal"></div>
 
 <script>
 // Dinlendirici melodi başlangıcı
