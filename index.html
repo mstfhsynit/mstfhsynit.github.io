@@ -11,10 +11,11 @@ body {
     padding: 50px;
     color: #ffffff;
     overflow: hidden;
+    position: relative;
 }
 h1 { font-size: 36px; margin-bottom: 20px; }
 #question { font-size: 24px; margin: 30px 0; min-height: 60px; transition: transform 0.2s, color 0.2s; }
-.btn { padding: 15px 35px; margin: 15px; font-size: 20px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; color: white; transition: transform 0.2s, box-shadow 0.2s, background 0.2s; position: relative; }
+.btn { padding: 15px 35px; margin: 15px; font-size: 20px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; color: white; transition: transform 0.2s, box-shadow 0.2s, background 0.2s; position: relative; z-index:2; }
 .btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
 .yes { background-color: #06d6a0; }
 .no { background-color: #ef233c; }
@@ -48,6 +49,26 @@ h1 { font-size: 36px; margin-bottom: 20px; }
     0%,100% {opacity:0.5;}
     50% {opacity:1;}
 }
+/* hilal */
+#hilal {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    box-shadow: -15px 0 0 #0d1b2a inset;
+    opacity:0.9;
+    z-index:1;
+}
+/* tarih saat */
+#datetime {
+    font-size: 18px;
+    margin-top: 10px;
+    z-index:2;
+    position: relative;
+}
 </style>
 </head>
 <body>
@@ -59,7 +80,10 @@ h1 { font-size: 36px; margin-bottom: 20px; }
 <button class="btn yes" id="yesBtn">Evet</button>
 <button class="btn no" id="noBtn">Hayır</button>
 
+<div id="datetime"></div>
 <div id="message"></div>
+
+<div id="hilal"></div>
 
 <script>
 // Yıldızları oluştur
@@ -73,6 +97,16 @@ for(let i=0;i<100;i++){
     star.style.animationDuration = (Math.random()*3+2) + "s";
     document.body.appendChild(star);
 }
+
+// Tarih ve saat
+function updateDateTime(){
+    const now = new Date();
+    const d = now.toLocaleDateString('tr-TR');
+    const t = now.toLocaleTimeString('tr-TR');
+    document.getElementById("datetime").textContent = d + " " + t;
+}
+setInterval(updateDateTime,1000);
+updateDateTime();
 
 // Başlangıç
 let possibleNumbers = [];
@@ -186,4 +220,4 @@ noBtn.addEventListener("click",()=>buttonAnswer(noBtn,false));
 generateQuestion();
 </script>
 </body>
-</html>
+    </html>
