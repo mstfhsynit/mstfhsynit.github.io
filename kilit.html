@@ -3,120 +3,106 @@
 <head>
 <meta charset="UTF-8">
 <title>Sessiz İz</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body{
-    background:#0b0c10;
-    color:#c5c6c7;
-    font-family:Arial, sans-serif;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-    margin:0;
-    text-align:center;
-}
-#kapsayici{max-width:600px;padding:20px}
-input{
-    padding:8px;
-    font-size:16px;
-    margin:6px 0;
-    width:100%;
-}
-button{
-    padding:10px;
-    font-size:16px;
-    margin-top:10px;
-    width:100%;
-    cursor:pointer;
-}
-#metin{
-    font-size:22px;
-    line-height:1.6;
-    opacity:0;
-    transition:opacity 1.5s;
-}
-.fade-in{opacity:1}
-.fade-out{opacity:0}
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+    }
+
+    body {
+        background: #000;
+        color: #fff;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    #container {
+        width: 90%;
+        max-width: 500px;
+    }
+
+    input, button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 10px;
+        background: #111;
+        border: 1px solid #333;
+        color: #fff;
+        font-size: 16px;
+    }
+
+    button {
+        cursor: pointer;
+    }
+
+    #text {
+        font-size: 20px;
+        line-height: 1.6;
+        opacity: 0;
+        transition: opacity 1.5s;
+    }
+
+    .visible {
+        opacity: 1;
+    }
+
+    small {
+        color: #777;
+        font-size: 12px;
+    }
 </style>
 </head>
 <body>
 
-<div id="kapsayici">
+<div id="container">
+
     <div id="form">
-        <p>Sadece tanışalım.</p>
-        <input id="ad" placeholder="Adın">
-        <input id="soyad" placeholder="Soyadın">
-        <input id="dogum" type="date">
-        <button onclick="basla()">Devam et</button>
+        <p>Buraya bir isim bırak.</p>
+        <input id="name" placeholder="İsim">
+
+        <input id="surname" placeholder="Soyisim">
+
+        <input id="birth" type="date">
+
+        <button onclick="start()">Girdim</button>
     </div>
 
-    <div id="metin" style="display:none">Buradasın.</div>
+    <div id="text"></div>
+
 </div>
 
 <script>
-let isim="", soyisim="", yas=0;
-let baslangic, gosterilen=-1;
-let fareHareket=false;
-let sekmeDisi=false;
-
-const alan=document.getElementById("metin");
-const form=document.getElementById("form");
-
-function basla(){
-    isim=ad.value.trim();
-    soyisim=soyad.value.trim();
-    const d=new Date(dogum.value);
-    yas=new Date().getFullYear()-d.getFullYear();
-
-    if(!isim || !soyisim || !dogum.value) return;
-
-    form.style.display="none";
-    alan.style.display="block";
-    alan.classList.add("fade-in");
-
-    baslangic=Date.now();
-    akisiBaslat();
-}
-
-const metinler=[
- {t:0,  f:()=>`Buradasın, ${isim}.`},
- {t:6,  f:()=>`Sessizce bekliyorsun.`},
- {t:14, f:()=>`Hiçbir şey yapman gerekmiyor.`},
- {t:25, f:()=>`Ama kalmayı seçtin.`},
- {t:40, f:()=> fareHareket ? "Hareket ettin." : "Hareketsiz kaldın."},
- {t:55, f:()=> sekmeDisi ? "Bir an gittin." : "Hiç gitmedin."},
- {t:70, f:()=>`Bugün seni tanıdık, ${isim}.`},
- {t:90, f:()=>`Sorular sormadan.`},
- {t:110,f:()=>`Cevaplar verdin.`},
- {t:130,f:()=>`Çıkabilirsin.`},
- {t:150,f:()=>`Ama hâlâ buradasın.`},
- {t:170,f:()=>`Bu yeterliydi.`}
+let name = "";
+let steps = [
+    { time: 30000, text: "Teşekkürler, {name}." },
+    { time: 45000, text: "Bekliyorsun." },
+    { time: 60000, text: "Çoğu kişi burada çıkar." },
+    { time: 80000, text: "Ama sen hâlâ buradasın." },
+    { time: 100000, text: "{name}, bugün seni biraz tanıdık." },
+    { time: 120000, text: "Bu kadarı yeter.<br><small>Çıkabilirsin.</small>" }
 ];
 
-function akisiBaslat(){
-    setInterval(()=>{
-        const gecen=Math.floor((Date.now()-baslangic)/1000);
+function start() {
+    name = document.getElementById("name").value || "Birisi";
+    document.getElementById("form").style.display = "none";
 
-        for(let i=metinler.length-1;i>=0;i--){
-            if(gecen>=metinler[i].t && gosterilen!==i){
-                gosterilen=i;
-                alan.classList.remove("fade-in");
-                alan.classList.add("fade-out");
-                setTimeout(()=>{
-                    alan.innerText=metinler[i].f();
-                    alan.classList.remove("fade-out");
-                    alan.classList.add("fade-in");
-                },1500);
-                break;
-            }
-        }
-    },1000);
+    const textDiv = document.getElementById("text");
+    textDiv.classList.add("visible");
+
+    let startTime = Date.now();
+
+    steps.forEach(step => {
+        setTimeout(() => {
+            textDiv.innerHTML = step.text.replace("{name}", name);
+        }, step.time);
+    });
 }
-
-document.addEventListener("mousemove",()=>fareHareket=true,{once:true});
-document.addEventListener("visibilitychange",()=>{
-    if(document.hidden) sekmeDisi=true;
-});
 </script>
 
 </body>
