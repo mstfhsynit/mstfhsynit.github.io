@@ -42,14 +42,32 @@ p{margin:5px 0 15px 0;color:#ccc;}
 /* Dil seçimi */
 #languageSelector{position:fixed;top:15px;right:15px;z-index:2000;}
 #selectedLang{cursor:pointer;}
-#languageMenu{display:none; margin-top:5px; background:rgba(0,0,0,0.5); border-radius:8px; padding:5px; flex-direction:column;}
+#languageMenu{
+    display:none; /* başlangıçta gizli */
+    flex-direction:column;
+    margin-top:5px;
+    background:rgba(0,0,0,0.5);
+    border-radius:8px;
+    padding:5px;
+}
 .langBtn{display:flex; align-items:center; margin:3px; cursor:pointer; text-align:left; padding:5px; border-radius:5px; transition:0.2s;}
 .langBtn:hover{background:rgba(255,255,255,0.1);}
 .langBtn img{width:30px; height:30px; border-radius:50%; margin-right:8px;}
 
 /* Paylaş butonları */
-#shareBtn{margin-top:30px;padding:12px 20px;font-size:1em;font-weight:bold;border:none;border-radius:10px;color:#fff;cursor:pointer;transition:0.2s;}
-#shareBtn:hover{transform:scale(1.05);}
+#shareBtn{
+    margin-top:30px;
+    padding:12px 20px;
+    font-size:1em;
+    font-weight:bold;
+    border:none;
+    border-radius:10px;
+    color:#fff;
+    cursor:pointer;
+    transition:0.2s;
+    background: linear-gradient(90deg,#ffb74d,#ff9800); /* uyumlu ton */
+}
+#shareBtn:hover{transform:scale(1.05); box-shadow:0 0 15px #ffb74d;}
 #shareMenu{display:flex;justify-content:center;flex-wrap:wrap;margin-top:10px;visibility:hidden;opacity:0;transition:0.3s;}
 #shareMenu.show{visibility:visible;opacity:1;}
 .sharePlatform{display:inline-block;margin:5px;padding:10px 18px;border-radius:8px;font-weight:bold;text-decoration:none;color:#fff;transition:0.2s;}
@@ -145,7 +163,12 @@ const resultEl=document.getElementById('result');
 const selectedLang=document.getElementById('selectedLang');
 const languageMenu=document.getElementById('languageMenu');
 const langBtns=document.querySelectorAll('.langBtn');
-selectedLang.addEventListener('click',()=>{languageMenu.style.display=languageMenu.style.display==='none'?'flex':'none';});
+
+selectedLang.addEventListener('click',()=>{
+    // İlk tıklamada açılmasını düzelt
+    languageMenu.style.display = languageMenu.style.display==='flex'?'none':'flex';
+});
+
 langBtns.forEach(btn=>{
   btn.addEventListener('click',()=>{
     const lang=btn.dataset.lang;
@@ -176,7 +199,7 @@ const totalCards=8;
 let currentCard=0;
 let userNumber=0;
 const cards=[];
-const bip=new Audio('https://www.soundjay.com/button/sounds/button-16.mp3'); // bip sesi
+const bip=new Audio('https://www.soundjay.com/button/sounds/button-16.mp3');
 
 function createCard(numbers, bitValue){
   const card=document.createElement('div');
