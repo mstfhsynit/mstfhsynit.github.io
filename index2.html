@@ -39,6 +39,22 @@ p{margin:5px 0 15px 0;color:#ccc;}
   font-weight:bold; font-size:1em; color:#ffeb3b;
 }
 
+/* Tahmin sonucu */
+#result{
+    font-size:2em;
+    font-weight:bold;
+    color:#ffd700; /* altın sarısı */
+    text-shadow: 0 0 10px #fff, 0 0 20px #ffd700, 0 0 30px #ffea00;
+    opacity:0;
+    transform:translateY(-30px);
+    transition:opacity 1s ease, transform 1s ease;
+    margin-top:30px;
+}
+#result.show{
+    opacity:1;
+    transform:translateY(0);
+}
+
 /* Dil seçimi */
 #languageSelector{position:fixed;top:15px;right:15px;z-index:2000;}
 #selectedLang{cursor:pointer;}
@@ -65,7 +81,7 @@ p{margin:5px 0 15px 0;color:#ccc;}
     color:#fff;
     cursor:pointer;
     transition:0.2s;
-    background: linear-gradient(90deg,#ffb74d,#ff9800); /* uyumlu ton */
+    background: linear-gradient(90deg,#ffb74d,#ff9800);
 }
 #shareBtn:hover{transform:scale(1.05); box-shadow:0 0 15px #ffb74d;}
 #shareMenu{display:flex;justify-content:center;flex-wrap:wrap;margin-top:10px;visibility:hidden;opacity:0;transition:0.3s;}
@@ -79,10 +95,12 @@ p{margin:5px 0 15px 0;color:#ccc;}
 #telegram{background:#0088cc;}
 #instagram{background:#E1306C;}
 
-/* Arka plan hilal + yıldızlar */
+/* Arka plan hilal + yıldızlar Türk bayrağı teması */
 .background{position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; pointer-events:none;}
 .star,.moon{position:absolute; background:#fff; border-radius:50%; animation:twinkle 3s infinite alternate;}
-.moon{width:150px; height:150px; border-radius:50%; clip-path: ellipse(50% 50% at 25% 50%); bottom:20%; left:50%; transform:translateX(-50%); opacity:0.7;}
+.moon{width:150px; height:150px; border-radius:50%; clip-path: ellipse(50% 50% at 25% 50%); bottom:20%; left:50%; transform:translateX(-50%); opacity:0.9;} /* Hilal */
+.star{width:12px; height:12px; border-radius:50%;}
+.starPosition{position:absolute;}
 @keyframes twinkle{0%{opacity:0.2;} 50%{opacity:0.7;} 100%{opacity:0.2;}}
 </style>
 </head>
@@ -128,32 +146,29 @@ p{margin:5px 0 15px 0;color:#ccc;}
 <div class="background"></div>
 
 <script>
-// Yıldızlar
+// Hilal ve yıldızlar
 const background=document.querySelector('.background');
-for(let i=0;i<30;i++){
+// Küçük yıldızlar
+for(let i=0;i<40;i++){
   const star=document.createElement('div');
   star.className='star';
   const size=Math.random()*3+1;
   star.style.width=size+'px';
   star.style.height=size+'px';
-  star.style.top=Math.random()*60+'%';
+  star.style.top=Math.random()*80+'%';
   star.style.left=Math.random()*100+'%';
   star.style.animationDuration=(Math.random()*3+2)+'s';
   background.appendChild(star);
 }
+// Hilal etrafında Türk bayrağı stili: 1 yıldız
+const moon=document.createElement('div');
+moon.className='moon';
+background.appendChild(moon);
 
-// Dil seçimi
 const texts = {
   tr:{title:"Sayı Tahmin Oyunu",instruction:"1 ile 200 arasında bir sayı tutun. Kartlara göre 'Evet' veya 'Hayır' seçin.",shareBtn:"Oyunu paylaş, arkadaşların da oynasın",result:"Tahminim: "},
   ar:{title:"لعبة تخمين الرقم",instruction:"اختر رقمًا بين 1 و200. اضغط 'نعم' أو 'لا' حسب البطاقات.",shareBtn:"شارك اللعبة مع أصدقائك",result:"توقعي: "},
-  en:{title:"Number Guessing Game",instruction:"Pick a number between 1 and 200. Choose 'Yes' or 'No' for each card.",shareBtn:"Share the game, let your friends play",result:"My guess: "},
-  fr:{title:"Jeu de Deviner le Nombre",instruction:"Choisissez un nombre entre 1 et 200. Cliquez sur 'Oui' ou 'Non' pour chaque carte.",shareBtn:"Partagez le jeu avec vos amis",result:"Mon devin: "},
-  es:{title:"Juego de Adivinar Número",instruction:"Elige un número entre 1 y 200. Haz clic en 'Sí' o 'No' para cada carta.",shareBtn:"Comparte el juego con tus amigos",result:"Mi predicción: "},
-  de:{title:"Zahlenschätzspiel",instruction:"Wählen Sie eine Zahl zwischen 1 und 200. Klicken Sie 'Ja' oder 'Nein' für jede Karte.",shareBtn:"Teile das Spiel mit deinen Freunden",result:"Meine Vorhersage: "},
-  it:{title:"Gioco Indovina Numero",instruction:"Scegli un numero tra 1 e 200. Premi 'Sì' o 'No' per ogni carta.",shareBtn:"Condividi il gioco con i tuoi amici",result:"La mia previsione: "},
-  pt:{title:"Jogo de Adivinhação",instruction:"Escolha um número entre 1 e 200. Clique 'Sim' ou 'Não' para cada carta.",shareBtn:"Compartilhe o jogo com seus amigos",result:"Minha previsão: "},
-  ru:{title:"Игра Угадай Число",instruction:"Выберите число от 1 до 200. Нажмите 'Да' или 'Нет' для каждой карты.",shareBtn:"Поделитесь игрой с друзьями",result:"Мой прогноз: "},
-  zh:{title:"猜数字游戏",instruction:"选择1到200之间的数字。对每张牌点击“是”或“否”。",shareBtn:"分享游戏给朋友",result:"我的猜测: "}
+  en:{title:"Number Guessing Game",instruction:"Pick a number between 1 and 200. Choose 'Yes' or 'No' for each card.",shareBtn:"Share the game, let your friends play",result:"My guess: "}
 };
 
 const titleEl=document.getElementById('title');
@@ -164,11 +179,7 @@ const selectedLang=document.getElementById('selectedLang');
 const languageMenu=document.getElementById('languageMenu');
 const langBtns=document.querySelectorAll('.langBtn');
 
-selectedLang.addEventListener('click',()=>{
-    // İlk tıklamada açılmasını düzelt
-    languageMenu.style.display = languageMenu.style.display==='flex'?'none':'flex';
-});
-
+selectedLang.addEventListener('click',()=>{languageMenu.style.display = languageMenu.style.display==='flex'?'none':'flex';});
 langBtns.forEach(btn=>{
   btn.addEventListener('click',()=>{
     const lang=btn.dataset.lang;
@@ -215,6 +226,7 @@ function createCard(numbers, bitValue){
 function showNextCard(){
   if(currentCard>=totalCards){
     resultEl.innerText="Tahminim: "+userNumber;
+    resultEl.classList.add('show');
     return;
   }
   const bitValue=Math.pow(2,currentCard);
@@ -246,4 +258,4 @@ function showNextCard(){
 showNextCard();
 </script>
 </body>
-</html>
+      </html>
