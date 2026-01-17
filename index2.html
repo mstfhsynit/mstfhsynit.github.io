@@ -10,20 +10,17 @@ body{
   font-family:Segoe UI,Arial,sans-serif;
   text-align:center;
   color:#fff;
-  overflow:hidden;
+  overflow-x:hidden;
   background:#0b1d2b;
   position:relative;
 }
-.logo{
-  position:fixed; top:10px; left:20px; width:120px; z-index:1000;
-}
 h1{margin:20px 0 5px 0;}
 p{margin:5px 0 15px 0;color:#ccc;}
-#cardContainer{position:relative;margin-top:80px;}
+#cardContainer{position:relative;margin-top:20px;}
 .card{
   width:220px; padding:20px 20px 30px 20px;
   background:#162447; border-radius:15px; box-shadow:0 6px 20px rgba(0,0,0,0.5);
-  margin:0 auto;
+  margin:0 auto 20px auto;
   opacity:0; transform:translateY(50px);
   transition:transform 0.6s ease,opacity 0.6s ease;
   position:relative;
@@ -72,7 +69,6 @@ p{margin:5px 0 15px 0;color:#ccc;}
 
 /* Paylaş butonları */
 #shareBtn{
-    margin-top:0px;
     padding:12px 20px;
     font-size:1em;
     font-weight:bold;
@@ -102,20 +98,15 @@ p{margin:5px 0 15px 0;color:#ccc;}
 
 /* Yerli üretim */
 #localProduction{
-  display:flex; align-items:center; margin-right:20px;
-  color:#E53935; font-weight:bold; font-size:13px;
+  color:#B71C1C; 
+  font-weight:bold; 
+  font-size:16px; 
+  text-align:center; 
+  margin:20px 0 10px 0;
 }
-#localProduction img{
-  width:25px;
-  vertical-align:middle;
-  margin-right:5px;
-}
-.flexContainer{display:flex; justify-content:center; align-items:center; margin-top:30px;}
 </style>
 </head>
 <body>
-
-<img src="mstfhsyn-logo.png" class="logo" alt="MstfHsyn Logo">
 
 <h1 id="title">Sayı Tahmin Oyunu</h1>
 <p id="instruction">1 ile 200 arasında bir sayı tutun. Kartlara göre "Evet" veya "Hayır" seçin.</p>
@@ -137,27 +128,28 @@ p{margin:5px 0 15px 0;color:#ccc;}
   </div>
 </div>
 
-<!-- Logo + Paylaş -->
-<div class="flexContainer">
-  <div id="localProduction">
-    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjRUVFRUUiLz48L3N2Zz4=" alt="Yerli Üretim">
-    Yerli Üretim – Türkiye
-  </div>
-  <div>
-    <button id="shareBtn">Oyunu paylaş, arkadaşların da oynasın</button>
-    <div id="shareMenu">
-        <a href="#" class="sharePlatform" id="whatsapp">WhatsApp</a>
-        <a href="#" class="sharePlatform" id="facebook">Facebook</a>
-        <a href="#" class="sharePlatform" id="twitter">Twitter</a>
-        <a href="#" class="sharePlatform" id="linkedin">LinkedIn</a>
-        <a href="#" class="sharePlatform" id="telegram">Telegram</a>
-        <a href="#" class="sharePlatform" id="instagram">Instagram</a>
-    </div>
+<!-- Yerli Üretim -->
+<div id="localProduction">
+  Yerli Üretim – Türkiye
+</div>
+
+<!-- Kartlar -->
+<div id="cardContainer"></div>
+
+<!-- Paylaş Butonu Kartların Altına -->
+<div style="text-align:center; margin-top:20px;">
+  <button id="shareBtn">Oyunu paylaş, arkadaşların da oynasın</button>
+  <div id="shareMenu">
+      <a href="#" class="sharePlatform" id="whatsapp">WhatsApp</a>
+      <a href="#" class="sharePlatform" id="facebook">Facebook</a>
+      <a href="#" class="sharePlatform" id="twitter">Twitter</a>
+      <a href="#" class="sharePlatform" id="linkedin">LinkedIn</a>
+      <a href="#" class="sharePlatform" id="telegram">Telegram</a>
+      <a href="#" class="sharePlatform" id="instagram">Instagram</a>
   </div>
 </div>
 
-<div id="cardContainer"></div>
-<p id="result"></p>
+<div id="result"></div>
 
 <div class="background"></div>
 
@@ -275,4 +267,4 @@ function showNextCard(){
 showNextCard();
 </script>
 </body>
-  </html>
+</html>
