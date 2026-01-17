@@ -5,63 +5,98 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sayı Tahmin Oyunu</title>
 <style>
-    body { 
-        font-family: 'Segoe UI', Arial, sans-serif; 
-        text-align: center; padding: 20px; background: #1a1a2e; color: #fff; 
-        margin: 0;
-    }
-    h1 { margin-bottom: 5px; }
-    p { margin-bottom: 20px; color: #ccc; }
+body { 
+    font-family: 'Segoe UI', Arial, sans-serif; 
+    text-align: center; padding: 20px; background: #1a1a2e; color: #fff; 
+    margin: 0;
+}
+h1 { margin-bottom: 5px; }
+p { margin-bottom: 20px; color: #ccc; }
 
-    /* Sabit logo + glow animasyonu */
-    .logo {
-        position: fixed;
-        top: 10px;
-        right: 20px;
-        width: 120px; /* isteğe göre boyut ayarlanabilir */
-        pointer-events: none;
-        z-index: 1000;
-        animation: glow 2s infinite alternate;
-    }
+/* Logo solda + glow */
+.logo {
+    position: fixed;
+    top: 10px;
+    left: 20px;
+    width: 120px;
+    pointer-events: none;
+    z-index: 1000;
+    animation: glow 2s infinite alternate;
+}
+@keyframes glow {
+    0% { filter: drop-shadow(0 0 5px #ffeb3b) drop-shadow(0 0 10px #ffeb3b); }
+    50% { filter: drop-shadow(0 0 15px #fff176) drop-shadow(0 0 30px #fff176); }
+    100% { filter: drop-shadow(0 0 5px #ffeb3b) drop-shadow(0 0 10px #ffeb3b); }
+}
 
-    @keyframes glow {
-        0% { filter: drop-shadow(0 0 5px #ffeb3b) drop-shadow(0 0 10px #ffeb3b); }
-        50% { filter: drop-shadow(0 0 15px #fff176) drop-shadow(0 0 30px #fff176); }
-        100% { filter: drop-shadow(0 0 5px #ffeb3b) drop-shadow(0 0 10px #ffeb3b); }
-    }
+/* Kartlar */
+.card { 
+    width: 220px; padding: 20px; background: #162447; border-radius: 15px; 
+    box-shadow: 0 6px 20px rgba(0,0,0,0.5); margin: 0 auto;
+    transition: transform 0.6s ease, opacity 0.6s ease;
+    opacity: 1;
+}
+.card button { 
+    padding: 10px 20px; margin: 8px; cursor: pointer; border: none; border-radius: 5px;
+    font-weight: bold; font-size: 0.95em; 
+    transition: transform 0.2s ease;
+}
+.card button:hover { transform: scale(1.05); }
 
-    .card { 
-        width: 220px; padding: 20px; background: #162447; border-radius: 15px; 
-        box-shadow: 0 6px 20px rgba(0,0,0,0.5); margin: 0 auto;
-        transition: transform 0.6s ease, opacity 0.6s ease;
-        opacity: 1;
-    }
+.yes { background-color: #00c853; color: #fff; }
+.no { background-color: #d50000; color: #fff; }
 
-    .card button { 
-        padding: 10px 20px; margin: 8px; cursor: pointer; border: none; border-radius: 5px;
-        font-weight: bold; font-size: 0.95em; 
-        transition: transform 0.2s ease;
-    }
-    .card button:hover { transform: scale(1.05); }
+.numbers { 
+    font-size: 0.85em; text-align: left; margin: 12px 0; 
+    max-height: 120px; overflow-y: auto; padding: 8px; border: 1px solid #333; border-radius: 8px; 
+    background: #0f3460; color: #fff;
+}
+.numbers::-webkit-scrollbar { width: 8px; }
+.numbers::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+.numbers::-webkit-scrollbar-thumb:hover { background: #888; }
 
-    .yes { background-color: #00c853; color: #fff; }
-    .no { background-color: #d50000; color: #fff; }
+#result { 
+    font-size: 2em; margin-top: 30px; color: #ffeb3b; font-weight: bold; 
+    text-shadow: 0 0 10px #ffeb3b, 0 0 20px #ffeb3b;
+}
 
-    .numbers { 
-        font-size: 0.85em; text-align: left; margin: 12px 0; 
-        max-height: 120px; overflow-y: auto; padding: 8px; border: 1px solid #333; border-radius: 8px; 
-        background: #0f3460; 
-        color: #fff;
-    }
+/* Paylaş butonu */
+#shareBtn {
+    margin-top: 30px;
+    padding: 12px 20px;
+    font-size: 1em;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #00c853, #64dd17);
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+#shareBtn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px #64dd17;
+}
 
-    .numbers::-webkit-scrollbar { width: 8px; }
-    .numbers::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
-    .numbers::-webkit-scrollbar-thumb:hover { background: #888; }
-
-    #result { 
-        font-size: 2em; margin-top: 30px; color: #ffeb3b; font-weight: bold; 
-        text-shadow: 0 0 10px #ffeb3b, 0 0 20px #ffeb3b;
-    }
+/* Paylaş menüsü platform isimleri */
+#shareMenu { display:none; margin-top:10px; }
+.sharePlatform {
+    display: inline-block;
+    margin: 5px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: bold;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+#whatsapp.sharePlatform { background-color: #25D366; }
+#facebook.sharePlatform { background-color: #3b5998; }
+#twitter.sharePlatform { background-color: #1DA1F2; }
+.sharePlatform:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 12px rgba(255,255,255,0.5);
+}
 </style>
 </head>
 <body>
@@ -73,6 +108,15 @@
 
 <div id="cardContainer"></div>
 <p id="result"></p>
+
+<div>
+    <button id="shareBtn">Oyunu paylaş, arkadaşların da oynasın</button>
+    <div id="shareMenu">
+        <a href="#" id="whatsapp" target="_blank" class="sharePlatform">WhatsApp</a>
+        <a href="#" id="facebook" target="_blank" class="sharePlatform">Facebook</a>
+        <a href="#" id="twitter" target="_blank" class="sharePlatform">Twitter</a>
+    </div>
+</div>
 
 <script>
 const maxNumber = 200;
@@ -92,24 +136,20 @@ for(let i=0; i<numCards; i++) {
     cardNumbers.push(nums);
 }
 
-// Bip sesi çalacak fonksiyon
+// Bip sesi
 function playBeep(frequency = 400, duration = 100) {
     const context = new (window.AudioContext || window.webkitAudioContext)();
     const oscillator = context.createOscillator();
     const gainNode = context.createGain();
-
     oscillator.frequency.value = frequency;
     oscillator.type = 'square';
     oscillator.connect(gainNode);
     gainNode.connect(context.destination);
     oscillator.start();
-
-    setTimeout(() => {
-        oscillator.stop();
-    }, duration);
+    setTimeout(() => { oscillator.stop(); }, duration);
 }
 
-// Kart oluşturma fonksiyonu
+// Kart gösterimi
 function showCard(index) {
     container.innerHTML = '';
     if(index >= numCards) return showResult();
@@ -127,10 +167,7 @@ function showCard(index) {
     `;
     container.appendChild(card);
 
-    setTimeout(() => {
-        card.style.opacity = 1;
-        card.style.transform = 'translateY(0)';
-    }, 50);
+    setTimeout(() => { card.style.opacity = 1; card.style.transform = 'translateY(0)'; }, 50);
 }
 
 // Kullanıcı seçimleri
@@ -138,7 +175,6 @@ function choose(answer, button) {
     playBeep(400, 100);
     userChoices[currentCard] = answer;
     const cardDiv = button.parentElement;
-
     cardDiv.style.transform = "translateY(-60px)";
     cardDiv.style.opacity = "0";
 
@@ -159,9 +195,22 @@ function showResult() {
     document.getElementById('result').innerText = `Tahminim: ${guess}`;
 }
 
+// Paylaş butonu
+const shareBtn = document.getElementById('shareBtn');
+const shareMenu = document.getElementById('shareMenu');
+shareBtn.addEventListener('click', () => {
+    shareMenu.style.display = shareMenu.style.display === 'none' ? 'block' : 'none';
+});
+
+// Sosyal paylaşım linkleri
+const url = encodeURIComponent(window.location.href);
+document.getElementById('whatsapp').href = `https://api.whatsapp.com/send?text=Oyunu%20oyna:%20${url}`;
+document.getElementById('facebook').href = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+document.getElementById('twitter').href = `https://twitter.com/intent/tweet?url=${url}&text=Bu%20eğlenceli%20oyunu%20dene!`;
+
 // İlk kartı göster
 showCard(currentCard);
 </script>
 
 </body>
-</html>
+    </html>
