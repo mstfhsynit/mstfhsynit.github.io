@@ -5,153 +5,127 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sayı Tahmin Oyunu</title>
 <style>
-body{
-  margin:0; padding:0;
-  font-family:Segoe UI,Arial,sans-serif;
-  text-align:center;
-  color:#fff;
-  overflow-x:hidden;
-  background:#000000; /* Siyah arka plan */
-  position:relative;
-}
-h1{margin:20px 0 5px 0;}
-p{margin:5px 0 15px 0;color:#ccc;}
-#cardContainer{position:relative;margin-top:20px;}
-.card{
-  width:220px; padding:20px 20px 30px 20px;
-  background:#162447; border-radius:15px; box-shadow:0 6px 20px rgba(0,0,0,0.5);
-  margin:0 auto 20px auto;
-  opacity:0; transform:translateY(50px);
-  transition:transform 0.6s ease,opacity 0.6s ease;
-  position:relative;
-}
-.card.show{opacity:1; transform:translateY(0);}
-.card button{padding:10px 20px; margin:8px; border:none; border-radius:5px; font-weight:bold; cursor:pointer; transition:transform 0.2s;}
-.card button:hover{transform:scale(1.05);}
-.yes{background:#00c853;color:#fff;}
-.no{background:#d50000;color:#fff;}
-.numbers{font-size:0.85em;text-align:left;margin:12px 0; max-height:120px; overflow-y:auto; padding:8px; border-radius:8px; background:#0f3460; color:#fff;}
-#cardNumber{
-  position:absolute; top:8px; left:50%; transform:translateX(-50%);
-  font-weight:bold; font-size:1em; color:#ffeb3b;
-}
-
-/* Tahmin sonucu */
-#result{
-    font-size:2em;
-    font-weight:bold;
-    color:#7CFC00; /* yumuşak yeşil */
-    text-shadow: 0 0 8px #fff, 0 0 15px #7CFC00;
-    opacity:0;
-    transform:translateY(-30px);
-    transition:opacity 1s ease, transform 1s ease;
-    margin-top:30px;
-}
-#result.show{
-    opacity:1;
-    transform:translateY(0);
-}
-
-/* Dil seçimi */
-#languageSelector{position:fixed;top:15px;right:15px;z-index:2000;}
-#selectedLang{cursor:pointer; background:rgba(0,0,0,0.5); padding:5px 10px; border-radius:5px;}
-#languageMenu{
-    display:none;
-    flex-direction:column;
-    margin-top:5px;
-    background:rgba(0,0,0,0.5);
-    border-radius:8px;
-    padding:5px;
-}
-.langBtn{display:flex; align-items:center; margin:3px; cursor:pointer; text-align:left; padding:5px; border-radius:5px; transition:0.2s;}
-.langBtn:hover{background:rgba(255,255,255,0.1);}
-.langBtn img{width:30px; height:30px; border-radius:50%; margin-right:8px;}
-
-/* Paylaş butonları */
-#shareBtn{
-    padding:12px 20px;
-    font-size:1em;
-    font-weight:bold;
-    border:none;
-    border-radius:10px;
+body {
+    margin:0;
+    padding:0;
+    font-family:Segoe UI,Arial,sans-serif;
+    text-align:center;
     color:#fff;
-    cursor:pointer;
-    transition:0.2s;
-    background: linear-gradient(90deg,#ffb74d,#ff9800);
-}
-#shareBtn:hover{transform:scale(1.05); box-shadow:0 0 15px #ffb74d;}
-#shareMenu{display:flex;justify-content:center;flex-wrap:wrap;margin-top:10px;visibility:hidden;opacity:0;transition:0.3s;}
-#shareMenu.show{visibility:visible;opacity:1;}
-.sharePlatform{display:inline-block;margin:5px;padding:10px 18px;border-radius:8px;font-weight:bold;text-decoration:none;color:#fff;transition:0.2s;}
-.sharePlatform:hover{transform:scale(1.1);box-shadow:0 0 12px rgba(255,255,255,0.5);}
-#whatsapp{background:#25D366;}
-#facebook{background:#3b5998;}
-#twitter{background:#1DA1F2;}
-#linkedin{background:#0077B5;}
-#telegram{background:#0088cc;}
-#instagram{background:#E1306C;}
-
-/* Arka plan yıldızlar */
-.background{position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; pointer-events:none;}
-.star{position:absolute; background:#fff; border-radius:50%; animation:twinkle 3s infinite alternate;}
-@keyframes twinkle{0%{opacity:0.2;} 50%{opacity:0.7;} 100%{opacity:0.2;}}
-
-/* Yerli üretim */
-#localProduction{
-  color:#B71C1C; 
-  font-weight:bold; 
-  font-size:16px; 
-  text-align:center; 
-  margin:20px 0 10px 0;
+    overflow-x:hidden;
+    background:#000000; /* Siyah arka plan */
+    position:relative;
 }
 
 /* Sol üst logo */
 #topLogo {
     position: fixed;
-    top:5px; /* Başlığa çarpmadan biraz yukarı */
-    left: 10px;
-    z-index: 2000;
+    top:5px;
+    left:10px;
+    z-index:2000;
 }
 #topLogo img {
-    height: 140px; /* Daha büyük, harfler okunaklı */
-    width: auto;
+    height:140px;
+    width:auto;
 }
+
+/* Kartlar */
+.card-container {
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin-top:200px; /* Logoyu ve başlığı aşmamak için boşluk */
+}
+.card {
+    background:#222;
+    border-radius:10px;
+    width:120px;
+    height:160px;
+    margin:10px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    color:#fff;
+    font-size:16px;
+    cursor:pointer;
+    transition: all 0.5s ease;
+}
+.card span.cardNumber {
+    font-weight:bold;
+    margin-bottom:10px;
+}
+
+/* Dil Seç */
+#langMenu {
+    position: fixed;
+    top:10px;
+    right:10px;
+    z-index:2000;
+}
+#langMenu select {
+    padding:5px 10px;
+    font-size:14px;
+}
+
+/* Paylaş */
+#shareMenu {
+    display:none;
+    margin-top:10px;
+}
+#shareMenu.show {
+    display:block;
+}
+.sharePlatform {
+    display:block;
+    margin:5px 0;
+    text-decoration:none;
+    font-weight:bold;
+}
+.sharePlatform#whatsapp { color:#25D366; }
+.sharePlatform#facebook { color:#1877F2; }
+.sharePlatform#twitter { color:#1DA1F2; }
+.sharePlatform#linkedin { color:#0A66C2; }
+.sharePlatform#telegram { color:#0088cc; }
+.sharePlatform#instagram { color:#C13584; }
 </style>
 </head>
 <body>
 
-<!-- Sol üst logo -->
+<!-- Logo -->
 <div id="topLogo">
     <img src="mstfhsyn-logo.png" alt="MstfHsyn Logo">
 </div>
 
-<h1 id="title">Sayı Tahmin Oyunu</h1>
-<p id="instruction">1 ile 200 arasında bir sayı tutun. Kartlara göre "Evet" veya "Hayır" seçin.</p>
-
-<!-- Dil Seçimi -->
-<div id="languageSelector">
-  <span id="selectedLang">Dil Seç</span>
-  <div id="languageMenu">
-    <div class="langBtn" data-lang="tr"><img src="https://flagcdn.com/w40/tr.png">Türkçe</div>
-    <div class="langBtn" data-lang="ar"><img src="https://flagcdn.com/w40/sa.png">العربية</div>
-    <div class="langBtn" data-lang="en"><img src="https://flagcdn.com/w40/gb.png">English</div>
-    <div class="langBtn" data-lang="fr"><img src="https://flagcdn.com/w40/fr.png">Français</div>
-    <div class="langBtn" data-lang="es"><img src="https://flagcdn.com/w40/es.png">Español</div>
-    <div class="langBtn" data-lang="de"><img src="https://flagcdn.com/w40/de.png">Deutsch</div>
-    <div class="langBtn" data-lang="it"><img src="https://flagcdn.com/w40/it.png">Italiano</div>
-    <div class="langBtn" data-lang="pt"><img src="https://flagcdn.com/w40/pt.png">Português</div>
-    <div class="langBtn" data-lang="ru"><img src="https://flagcdn.com/w40/ru.png">Русский</div>
-    <div class="langBtn" data-lang="zh"><img src="https://flagcdn.com/w40/cn.png">中文</div>
-  </div>
-</div>
-
-<!-- Yerli Üretim -->
-<div id="localProduction">Yerli Üretim – Türkiye</div>
+<h1>Sayı Tahmin Oyunu</h1>
 
 <!-- Kartlar -->
-<div id="cardContainer"></div>
+<div class="card-container" id="cards">
+    <div class="card"><span class="cardNumber">1/6</span><span class="cardValue">...</span></div>
+    <div class="card"><span class="cardNumber">2/6</span><span class="cardValue">...</span></div>
+    <div class="card"><span class="cardNumber">3/6</span><span class="cardValue">...</span></div>
+    <div class="card"><span class="cardNumber">4/6</span><span class="cardValue">...</span></div>
+    <div class="card"><span class="cardNumber">5/6</span><span class="cardValue">...</span></div>
+    <div class="card"><span class="cardNumber">6/6</span><span class="cardValue">...</span></div>
+</div>
 
-<!-- Paylaş Butonu Kartların Altına -->
+<!-- Dil Seç -->
+<div id="langMenu">
+    <select id="languageSelect">
+        <option value="tr">Dil Seç</option>
+        <option value="tr">Türkçe</option>
+        <option value="en">English</option>
+        <option value="ar">العربية</option>
+        <option value="es">Español</option>
+        <option value="fr">Français</option>
+        <option value="de">Deutsch</option>
+        <option value="it">Italiano</option>
+        <option value="pt">Português</option>
+        <option value="ru">Русский</option>
+        <option value="zh">中文</option>
+    </select>
+</div>
+
+<!-- Paylaş Butonu -->
 <div style="text-align:center; margin-top:20px;">
   <button id="shareBtn">Oyunu paylaş, arkadaşların da oynasın</button>
   <div id="shareMenu">
@@ -160,126 +134,44 @@ p{margin:5px 0 15px 0;color:#ccc;}
       <a href="https://twitter.com/intent/tweet?text=Oyun&url=https://mstfhsynit.github.io/index2.html" class="sharePlatform" id="twitter" target="_blank">Twitter</a>
       <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://mstfhsynit.github.io/index2.html&title=Oyun" class="sharePlatform" id="linkedin" target="_blank">LinkedIn</a>
       <a href="https://t.me/share/url?url=https://mstfhsynit.github.io/index2.html&text=Oyun" class="sharePlatform" id="telegram" target="_blank">Telegram</a>
-      <a href="https://www.instagram.com/" class="sharePlatform" id="instagram" target="_blank">Instagram</a>
+      <a href="#" class="sharePlatform" id="instagram">Instagram</a>
   </div>
 </div>
 
-<div id="result"></div>
-
-<div class="background"></div>
-
 <script>
-// Arka plan yıldızlar
-const background=document.querySelector('.background');
-for(let i=0;i<40;i++){
-  const star=document.createElement('div');
-  star.className='star';
-  const size=Math.random()*3+1;
-  star.style.width=size+'px';
-  star.style.height=size+'px';
-  star.style.top=Math.random()*100+'%';
-  star.style.left=Math.random()*100+'%';
-  star.style.animationDuration=(Math.random()*3+2)+'s';
-  background.appendChild(star);
-}
-
-// Dil seçimi
-const texts = {
-  tr:{title:"Sayı Tahmin Oyunu",instruction:"1 ile 200 arasında bir sayı tutun. Kartlara göre 'Evet' veya 'Hayır' seçin.",shareBtn:"Oyunu paylaş, arkadaşların da oynasın",result:"Tahminim: "},
-  ar:{title:"لعبة تخمين الرقم",instruction:"اختر رقمًا بين 1 و200. اضغط 'نعم' أو 'لا' حسب البطاقات.",shareBtn:"شارك اللعبة مع أصدقائك",result:"توقعي: "},
-  en:{title:"Number Guessing Game",instruction:"Pick a number between 1 and 200. Choose 'Yes' or 'No' for each card.",shareBtn:"Share the game, let your friends play",result:"My guess: "},
-  fr:{title:"Jeu de Deviner le Nombre",instruction:"Choisissez un nombre entre 1 et 200. Cliquez 'Oui' ou 'Non' selon les cartes.",shareBtn:"Partagez le jeu avec vos amis",result:"Mon choix: "},
-  es:{title:"Juego de Adivinar Número",instruction:"Elige un número entre 1 y 200. Haz clic en 'Sí' o 'No' según las cartas.",shareBtn:"Comparte el juego con tus amigos",result:"Mi suposición: "},
-  de:{title:"Zahlenraten Spiel",instruction:"Wähle eine Zahl zwischen 1 und 200. Klicke 'Ja' oder 'Nein' für jede Karte.",shareBtn:"Teile das Spiel mit deinen Freunden",result:"Meine Vermutung: "},
-  it:{title:"Gioco Indovina Numero",instruction:"Scegli un numero tra 1 e 200. Clicca 'Sì' o 'No' per ogni carta.",shareBtn:"Condividi il gioco con i tuoi amici",result:"La mia scelta: "},
-  pt:{title:"Jogo de Adivinhação de Números",instruction:"Escolha um número entre 1 e 200. Clique 'Sim' ou 'Não' para cada carta.",shareBtn:"Compartilhe o jogo com seus amigos",result:"Meu palpite: "},
-  ru:{title:"Игра Угадай Число",instruction:"Выберите число от 1 до 200. Нажмите 'Да' или 'Нет' для каждой карты.",shareBtn:"Поделитесь игрой с друзьями",result:"Мой выбор: "},
-  zh:{title:"数字猜测游戏",instruction:"选择1到200之间的数字。根据卡片点击'是'或'否'。",shareBtn:"与朋友分享游戏",result:"我的猜测: "}
-};
-const titleEl=document.getElementById('title');
-const instructionEl=document.getElementById('instruction');
-const shareBtnEl=document.getElementById('shareBtn');
-const resultEl=document.getElementById('result');
-const selectedLang=document.getElementById('selectedLang');
-const languageMenu=document.getElementById('languageMenu');
-const langBtns=document.querySelectorAll('.langBtn');
-selectedLang.addEventListener('click',()=>{languageMenu.style.display = languageMenu.style.display==='flex'?'none':'flex';});
-langBtns.forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    const lang=btn.dataset.lang;
-    const langName=btn.textContent;
-    const flagSrc=btn.querySelector('img').src;
-    if(texts[lang]){
-      titleEl.innerText=texts[lang].title;
-      instructionEl.innerText=texts[lang].instruction;
-      shareBtnEl.innerText=texts[lang].shareBtn;
-      if(resultEl.innerText.includes(":")){
-        const guess=resultEl.innerText.split(":")[1].trim();
-        resultEl.innerText=texts[lang].result+guess;
-      }
-    }
-    selectedLang.innerHTML=`<img src="${flagSrc}" style="width:25px;height:25px;border-radius:50%; vertical-align:middle;"> ${langName}`;
-    languageMenu.style.display='none';
-  });
-});
-
 // Paylaş menüsü
 const shareBtn=document.getElementById('shareBtn');
 const shareMenu=document.getElementById('shareMenu');
 shareBtn.addEventListener('click',()=>{shareMenu.classList.toggle('show');});
 
-// Kartlar
-const cardContainer=document.getElementById('cardContainer');
-const totalCards=8;
-let currentCard=0;
-let userNumber=0;
-const cards=[];
-const bip=new Audio('https://www.soundjay.com/button/sounds/button-16.mp3');
+// Instagram linki kopyalama
+const insta=document.getElementById('instagram');
+insta.addEventListener('click',()=>{
+    const link="https://mstfhsynit.github.io/index2.html";
+    navigator.clipboard.writeText(link).then(()=>{
+        alert("Oyun linki kopyalandı! Instagram’da paylaşmak için linki yapıştırın.");
+    });
+});
 
-function createCard(numbers, bitValue){
-  const card=document.createElement('div');
-  card.className='card';
-  card.dataset.bit=bitValue;
-  card.innerHTML=`<div id="cardNumber">Kart ${currentCard+1} / ${totalCards}</div>
-                  <p class="numbers">${numbers.join(', ')}</p>
-                  <button class="yes">Evet</button>
-                  <button class="no">Hayır</button>`;
-  return card;
-}
+// Dil değişimi
+const languageSelect=document.getElementById('languageSelect');
+languageSelect.addEventListener('change',()=>{
+    const lang=languageSelect.value;
+    alert("Dil değiştirildi: "+lang);
+});
 
-function showNextCard(){
-  if(currentCard>=totalCards){
-    resultEl.innerText="Tahminim: "+userNumber;
-    resultEl.classList.add('show');
-    return;
-  }
-  const bitValue=Math.pow(2,currentCard);
-  const numbers=[];
-  for(let i=1;i<=200;i++){
-    if(i & bitValue) numbers.push(i);
-  }
-  const card=createCard(numbers,bitValue);
-  cardContainer.appendChild(card);
-  setTimeout(()=>{card.classList.add('show');},50);
-
-  card.querySelector('.yes').addEventListener('click',()=>{
-    bip.currentTime=0; bip.play();
-    userNumber += bitValue;
-    card.style.transform='translateY(-150px) rotate(15deg)';
-    card.style.opacity='0';
-    setTimeout(()=>{ card.remove(); currentCard++; showNextCard(); },600);
-  });
-  card.querySelector('.no').addEventListener('click',()=>{
-    bip.currentTime=0; bip.play();
-    card.style.transform='translateY(-150px) rotate(-15deg)';
-    card.style.opacity='0';
-    setTimeout(()=>{ card.remove(); currentCard++; showNextCard(); },600);
-  });
-  cards.push(card);
-}
-
-// Başlangıç
-showNextCard();
+// Kartlar (basit örnek)
+const cards=document.querySelectorAll('.card');
+cards.forEach(card=>{
+    card.addEventListener('click',()=>{
+        card.style.transform="translateY(-50px) rotateY(180deg)";
+        setTimeout(()=>{ card.style.display="none"; },500);
+        // Bip sesi
+        const audio=new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YYQAAACAgICAgICAgICAgICAg'); 
+        audio.play();
+    });
+});
 </script>
+
 </body>
-  </html>
+</html>
