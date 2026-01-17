@@ -116,6 +116,18 @@ p{margin:5px 0 15px 0;color:#ccc;}
     height: 140px; /* Daha büyük, harfler okunaklı */
     width: auto;
 }
+
+/* Yeni alt logo (yerli.png) */
+#subLogo {
+    position: fixed;
+    top: 150px; /* MSTFSN logosunun hemen altına hizalandı */
+    left: 10px;
+    z-index: 2000;
+}
+#subLogo img {
+    height: 140px; /* MSTFSN logosu ile aynı boyut */
+    width: auto;
+}
 </style>
 </head>
 <body>
@@ -123,6 +135,11 @@ p{margin:5px 0 15px 0;color:#ccc;}
 <!-- Sol üst logo -->
 <div id="topLogo">
     <img src="mstfhsyn-logo.png" alt="MstfHsyn Logo">
+</div>
+
+<!-- Yeni logo hemen altına -->
+<div id="subLogo">
+    <img src="yerli.png" alt="Yerli Logo">
 </div>
 
 <h1 id="title">Sayı Tahmin Oyunu</h1>
@@ -282,4 +299,4 @@ function showNextCard(){
 showNextCard();
 </script>
 </body>
-</html>
+  </html>
