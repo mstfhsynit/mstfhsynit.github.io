@@ -1,1 +1,149 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sayı Tahmin Oyunu</title>
+<style>
+    body { 
+        font-family: 'Segoe UI', Arial, sans-serif; 
+        text-align: center; padding: 20px; background: #1a1a2e; color: #fff; 
+    }
+    h1 { margin-bottom: 5px; }
+    p { margin-bottom: 20px; color: #ccc; }
 
+    .card { 
+        width: 220px; padding: 20px; background: #162447; border-radius: 15px; 
+        box-shadow: 0 6px 20px rgba(0,0,0,0.5); margin: 0 auto;
+        transition: transform 0.6s ease, opacity 0.6s ease;
+        opacity: 1;
+    }
+
+    .card button { 
+        padding: 10px 20px; margin: 8px; cursor: pointer; border: none; border-radius: 5px;
+        font-weight: bold; font-size: 0.95em; 
+        transition: transform 0.2s ease;
+    }
+    .card button:hover { transform: scale(1.05); }
+
+    .yes { background-color: #00c853; color: #fff; }
+    .no { background-color: #d50000; color: #fff; }
+
+    .numbers { 
+        font-size: 0.85em; text-align: left; margin: 12px 0; 
+        max-height: 120px; overflow-y: auto; padding: 8px; border: 1px solid #333; border-radius: 8px; 
+        background: #0f3460; 
+        color: #fff;
+    }
+
+    .numbers::-webkit-scrollbar { width: 8px; }
+    .numbers::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+    .numbers::-webkit-scrollbar-thumb:hover { background: #888; }
+
+    #result { 
+        font-size: 2em; margin-top: 30px; color: #ffeb3b; font-weight: bold; 
+        text-shadow: 0 0 10px #ffeb3b, 0 0 20px #ffeb3b;
+    }
+</style>
+</head>
+<body>
+
+<h1>Sayı Tahmin Oyunu</h1>
+<p>1 ile 200 arasında bir sayı tutun. Kartlara göre "Evet" veya "Hayır" seçin.</p>
+
+<div id="cardContainer"></div>
+<p id="result"></p>
+
+<script>
+const maxNumber = 200;
+const numCards = 8;
+let userChoices = [];
+let currentCard = 0;
+
+const container = document.getElementById('cardContainer');
+
+// Kartların sayılarını oluştur (binary mantığı)
+const cardNumbers = [];
+for(let i=0; i<numCards; i++) {
+    let nums = [];
+    for(let n=1; n<=maxNumber; n++) {
+        if(n & (1 << i)) nums.push(n);
+    }
+    cardNumbers.push(nums);
+}
+
+// Bip sesi çalacak fonksiyon
+function playBeep(frequency = 400, duration = 100) {
+    const context = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = context.createOscillator();
+    const gainNode = context.createGain();
+
+    oscillator.frequency.value = frequency;
+    oscillator.type = 'square'; // bip sesi
+    oscillator.connect(gainNode);
+    gainNode.connect(context.destination);
+    oscillator.start();
+
+    setTimeout(() => {
+        oscillator.stop();
+    }, duration);
+}
+
+// Kart oluşturma fonksiyonu
+function showCard(index) {
+    container.innerHTML = '';
+    if(index >= numCards) return showResult();
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.opacity = 0;        // Başlangıç opaklığı 0
+    card.style.transform = 'translateY(30px)'; // Hafif aşağıdan
+
+    card.innerHTML = `
+        <p><strong>Kart ${index+1}</strong></p>
+        <div class="numbers">${cardNumbers[index].join(', ')}</div>
+        <button class="yes" onclick="choose(true, this)">Evet</button>
+        <button class="no" onclick="choose(false, this)">Hayır</button>
+    `;
+    container.appendChild(card);
+
+    // Küçük gecikme ile animasyon
+    setTimeout(() => {
+        card.style.opacity = 1;
+        card.style.transform = 'translateY(0)';
+    }, 50);
+}
+
+// Kullanıcı seçimleri
+function choose(answer, button) {
+    playBeep(400, 100);
+    userChoices[currentCard] = answer;
+    const cardDiv = button.parentElement;
+
+    // Kart animasyonu: yukarı kayıp kaybolma
+    cardDiv.style.transform = "translateY(-60px)";
+    cardDiv.style.opacity = "0";
+
+    setTimeout(() => {
+        currentCard++;
+        showCard(currentCard);
+    }, 600);
+}
+
+// Sonuç göster
+function showResult() {
+    let guess = 0;
+    for(let i=0; i<numCards; i++) {
+        if(userChoices[i]) guess += Math.pow(2, i);
+    }
+    if(guess > maxNumber) guess = maxNumber;
+    container.innerHTML = '';
+    document.getElementById('result').innerText = `Tahminim: ${guess}`;
+}
+
+// İlk kartı göster
+showCard(currentCard);
+</script>
+
+</body>
+  </html>
