@@ -32,7 +32,7 @@
         padding: 12px;
         margin-top: 10px;
         background: #111;
-        border: 1px solid #333;
+        border: 1px solid #444;
         color: #fff;
         font-size: 16px;
     }
@@ -42,18 +42,15 @@
     }
 
     #text {
-        font-size: 20px;
-        line-height: 1.6;
-        opacity: 0;
+        font-size: 22px;
+        line-height: 1.7;
+        opacity: 1; /* 👈 artık gizli değil */
         transition: opacity 1.5s;
-    }
-
-    .visible {
-        opacity: 1;
+        min-height: 80px; /* 👈 boş sanılmasın */
     }
 
     small {
-        color: #777;
+        color: #aaa;
         font-size: 12px;
     }
 </style>
@@ -65,11 +62,8 @@
     <div id="form">
         <p>Buraya bir isim bırak.</p>
         <input id="name" placeholder="İsim">
-
         <input id="surname" placeholder="Soyisim">
-
         <input id="birth" type="date">
-
         <button onclick="start()">Girdim</button>
     </div>
 
@@ -79,7 +73,8 @@
 
 <script>
 let name = "";
-let steps = [
+
+const steps = [
     { time: 30000, text: "Teşekkürler, {name}." },
     { time: 45000, text: "Bekliyorsun." },
     { time: 60000, text: "Çoğu kişi burada çıkar." },
@@ -93,9 +88,7 @@ function start() {
     document.getElementById("form").style.display = "none";
 
     const textDiv = document.getElementById("text");
-    textDiv.classList.add("visible");
-
-    let startTime = Date.now();
+    textDiv.innerHTML = "…"; // 👈 kullanıcı yalnız hissetmesin
 
     steps.forEach(step => {
         setTimeout(() => {
