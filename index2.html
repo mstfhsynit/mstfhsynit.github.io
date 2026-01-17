@@ -57,7 +57,7 @@ p{margin:5px 0 15px 0;color:#ccc;}
 
 /* Dil seçimi */
 #languageSelector{position:fixed;top:15px;right:15px;z-index:2000;}
-#selectedLang{cursor:pointer;}
+#selectedLang{cursor:pointer; background:rgba(0,0,0,0.5); padding:5px 10px; border-radius:5px;}
 #languageMenu{
     display:none;
     flex-direction:column;
@@ -143,7 +143,7 @@ p{margin:5px 0 15px 0;color:#ccc;}
 <div class="background"></div>
 
 <script>
-// Hilal kaldırıldı, sadece yıldızlar
+// Arka plan yıldızlar
 const background=document.querySelector('.background');
 for(let i=0;i<40;i++){
   const star=document.createElement('div');
@@ -161,7 +161,14 @@ for(let i=0;i<40;i++){
 const texts = {
   tr:{title:"Sayı Tahmin Oyunu",instruction:"1 ile 200 arasında bir sayı tutun. Kartlara göre 'Evet' veya 'Hayır' seçin.",shareBtn:"Oyunu paylaş, arkadaşların da oynasın",result:"Tahminim: "},
   ar:{title:"لعبة تخمين الرقم",instruction:"اختر رقمًا بين 1 و200. اضغط 'نعم' أو 'لا' حسب البطاقات.",shareBtn:"شارك اللعبة مع أصدقائك",result:"توقعي: "},
-  en:{title:"Number Guessing Game",instruction:"Pick a number between 1 and 200. Choose 'Yes' or 'No' for each card.",shareBtn:"Share the game, let your friends play",result:"My guess: "}
+  en:{title:"Number Guessing Game",instruction:"Pick a number between 1 and 200. Choose 'Yes' or 'No' for each card.",shareBtn:"Share the game, let your friends play",result:"My guess: "},
+  fr:{title:"Jeu de Deviner le Nombre",instruction:"Choisissez un nombre entre 1 et 200. Cliquez 'Oui' ou 'Non' selon les cartes.",shareBtn:"Partagez le jeu avec vos amis",result:"Mon choix: "},
+  es:{title:"Juego de Adivinar Número",instruction:"Elige un número entre 1 y 200. Haz clic en 'Sí' o 'No' según las cartas.",shareBtn:"Comparte el juego con tus amigos",result:"Mi suposición: "},
+  de:{title:"Zahlenraten Spiel",instruction:"Wähle eine Zahl zwischen 1 und 200. Klicke 'Ja' oder 'Nein' für jede Karte.",shareBtn:"Teile das Spiel mit deinen Freunden",result:"Meine Vermutung: "},
+  it:{title:"Gioco Indovina Numero",instruction:"Scegli un numero tra 1 e 200. Clicca 'Sì' o 'No' per ogni carta.",shareBtn:"Condividi il gioco con i tuoi amici",result:"La mia scelta: "},
+  pt:{title:"Jogo de Adivinhação de Números",instruction:"Escolha um número entre 1 e 200. Clique 'Sim' ou 'Não' para cada carta.",shareBtn:"Compartilhe o jogo com seus amigos",result:"Meu palpite: "},
+  ru:{title:"Игра Угадай Число",instruction:"Выберите число от 1 до 200. Нажмите 'Да' или 'Нет' для каждой карты.",shareBtn:"Поделитесь игрой с друзьями",result:"Мой выбор: "},
+  zh:{title:"数字猜测游戏",instruction:"选择1到200之间的数字。根据卡片点击'是'或'否'。",shareBtn:"与朋友分享游戏",result:"我的猜测: "}
 };
 const titleEl=document.getElementById('title');
 const instructionEl=document.getElementById('instruction');
@@ -249,4 +256,4 @@ function showNextCard(){
 showNextCard();
 </script>
 </body>
-      </html>
+</html>
