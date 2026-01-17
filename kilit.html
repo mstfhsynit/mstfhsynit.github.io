@@ -2,161 +2,122 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>MSTFHSYN Zihin Kilidi</title>
+<title>Sessiz İz</title>
 <style>
 body{
-    background:#0f1220;
-    color:#fff;
+    background:#0b0c10;
+    color:#c5c6c7;
     font-family:Arial, sans-serif;
-    text-align:center;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
     margin:0;
-}
-.kutu{margin-top:60px}
-.ipucu{font-size:20px;margin-bottom:10px}
-.sure{font-size:22px;margin:10px 0}
-input{
-    font-size:20px;
-    padding:8px;
-    width:130px;
     text-align:center;
+}
+#kapsayici{max-width:600px;padding:20px}
+input{
+    padding:8px;
+    font-size:16px;
+    margin:6px 0;
+    width:100%;
 }
 button{
-    font-size:18px;
-    padding:8px 16px;
-    margin-left:5px;
+    padding:10px;
+    font-size:16px;
+    margin-top:10px;
+    width:100%;
+    cursor:pointer;
 }
-.mesaj{margin-top:15px;font-size:20px;min-height:26px}
-.kilit{
-    width:80px;
-    height:80px;
-    border:4px solid #fff;
-    border-radius:10px;
-    margin:20px auto;
-    transition:0.3s;
+#metin{
+    font-size:22px;
+    line-height:1.6;
+    opacity:0;
+    transition:opacity 1.5s;
 }
-.acik{border-color:#0f0; transform:rotate(10deg)}
-.kilitli{border-color:#f00; animation:salla 0.4s}
-@keyframes salla{
-    0%{transform:translateX(0)}
-    25%{transform:translateX(-5px)}
-    50%{transform:translateX(5px)}
-    75%{transform:translateX(-5px)}
-    100%{transform:translateX(0)}
-}
-.skor{margin-top:10px;font-size:18px}
+.fade-in{opacity:1}
+.fade-out{opacity:0}
 </style>
 </head>
 <body>
 
-<div class="kutu">
-    <h1>MSTFHSYN Zihin Kilidi</h1>
+<div id="kapsayici">
+    <div id="form">
+        <p>Sadece tanışalım.</p>
+        <input id="ad" placeholder="Adın">
+        <input id="soyad" placeholder="Soyadın">
+        <input id="dogum" type="date">
+        <button onclick="basla()">Devam et</button>
+    </div>
 
-    <div class="kilit" id="kilit"></div>
-
-    <div class="ipucu" id="ipucu"></div>
-    <div class="sure">⏱️ <span id="sure">30</span> sn</div>
-
-    <input id="cevap" placeholder="Şifre">
-    <button onclick="kontrolEt()">Aç</button>
-
-    <div class="mesaj" id="mesaj"></div>
-    <div class="skor">🏆 Skor: <span id="skor">0</span></div>
+    <div id="metin" style="display:none">Buradasın.</div>
 </div>
 
 <script>
-/* ========= SES (DOSYASIZ) ========= */
-const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-document.body.addEventListener("click",()=>{
- if(audioCtx.state==="suspended") audioCtx.resume();
-},{once:true});
+let isim="", soyisim="", yas=0;
+let baslangic, gosterilen=-1;
+let fareHareket=false;
+let sekmeDisi=false;
 
-function ses(f,s=0.2,t="sine"){
- const o=audioCtx.createOscillator(),g=audioCtx.createGain();
- o.type=t;o.frequency.value=f;o.connect(g);g.connect(audioCtx.destination);
- g.gain.setValueAtTime(0.25,audioCtx.currentTime);
- g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+s);
- o.start();o.stop(audioCtx.currentTime+s);
+const alan=document.getElementById("metin");
+const form=document.getElementById("form");
+
+function basla(){
+    isim=ad.value.trim();
+    soyisim=soyad.value.trim();
+    const d=new Date(dogum.value);
+    yas=new Date().getFullYear()-d.getFullYear();
+
+    if(!isim || !soyisim || !dogum.value) return;
+
+    form.style.display="none";
+    alan.style.display="block";
+    alan.classList.add("fade-in");
+
+    baslangic=Date.now();
+    akisiBaslat();
 }
-const sesDogru=()=>{ses(600,.15);setTimeout(()=>ses(900,.15),150);}
-const sesYanlis=()=>ses(160,.3,"square");
-const sesSure=()=>ses(300,.4,"triangle");
-const sesKilit=()=>ses(90,.6,"sawtooth");
 
-/* ========= TİTREŞİM ========= */
-const vib=p=>{ if(navigator.vibrate) navigator.vibrate(p); };
-
-/* ========= OYUN VERİSİ ========= */
-const sorular=[
- {ipucu:"İlk iki rakam aynıdır",cevap:"4454",sure:30},
- {ipucu:"Son iki rakamın toplamı 9",cevap:"3396",sure:25},
- {ipucu:"İlk iki rakam aynı, toplam 17",cevap:"4454",sure:20}
+const metinler=[
+ {t:0,  f:()=>`Buradasın, ${isim}.`},
+ {t:6,  f:()=>`Sessizce bekliyorsun.`},
+ {t:14, f:()=>`Hiçbir şey yapman gerekmiyor.`},
+ {t:25, f:()=>`Ama kalmayı seçtin.`},
+ {t:40, f:()=> fareHareket ? "Hareket ettin." : "Hareketsiz kaldın."},
+ {t:55, f:()=> sekmeDisi ? "Bir an gittin." : "Hiç gitmedin."},
+ {t:70, f:()=>`Bugün seni tanıdık, ${isim}.`},
+ {t:90, f:()=>`Sorular sormadan.`},
+ {t:110,f:()=>`Cevaplar verdin.`},
+ {t:130,f:()=>`Çıkabilirsin.`},
+ {t:150,f:()=>`Ama hâlâ buradasın.`},
+ {t:170,f:()=>`Bu yeterliydi.`}
 ];
 
-let i=0, sure=30, timer, cevapVerildi=false;
-let yanlisHak=0, skor=0;
+function akisiBaslat(){
+    setInterval(()=>{
+        const gecen=Math.floor((Date.now()-baslangic)/1000);
 
-/* ========= ELEMANLAR ========= */
-const ipucu=document.getElementById("ipucu");
-const sureEl=document.getElementById("sure");
-const cevap=document.getElementById("cevap");
-const mesaj=document.getElementById("mesaj");
-const kilit=document.getElementById("kilit");
-const skorEl=document.getElementById("skor");
-
-/* ========= OYUN ========= */
-function yukle(){
- if(i>=sorular.length){
-  document.body.innerHTML="<h1>🎉 Oyun Bitti</h1><h2>Skor: "+skor+"</h2>";
-  return;
- }
- cevapVerildi=false;
- yanlisHak=0;
- kilit.className="kilit";
- sure=sorular[i].sure;
- ipucu.innerText=sorular[i].ipucu;
- sureEl.innerText=sure;
- cevap.value=""; mesaj.innerText="";
- timer=setInterval(()=>{
-  sure--; sureEl.innerText=sure;
-  if(sure<=0){
-   clearInterval(timer);
-   if(!cevapVerildi){
-    sesSure(); vib(600);
-    mesaj.innerText="⏰ Süre doldu!";
-    setTimeout(()=>{ i++; yukle(); },1500);
-   }
-  }
- },1000);
+        for(let i=metinler.length-1;i>=0;i--){
+            if(gecen>=metinler[i].t && gosterilen!==i){
+                gosterilen=i;
+                alan.classList.remove("fade-in");
+                alan.classList.add("fade-out");
+                setTimeout(()=>{
+                    alan.innerText=metinler[i].f();
+                    alan.classList.remove("fade-out");
+                    alan.classList.add("fade-in");
+                },1500);
+                break;
+            }
+        }
+    },1000);
 }
 
-function kontrolEt(){
- if(cevapVerildi) return;
-
- if(cevap.value===sorular[i].cevap){
-  cevapVerildi=true;
-  clearInterval(timer);
-  kilit.classList.add("acik");
-  sesDogru(); vib(120);
-  skor+=10; skorEl.innerText=skor;
-  mesaj.innerText="🔓 Kilit açıldı!";
-  setTimeout(()=>{ i++; yukle(); },1200);
- }else{
-  yanlisHak++;
-  kilit.classList.add("kilitli");
-  setTimeout(()=>kilit.classList.remove("kilitli"),400);
-  sesYanlis(); vib([80,80]);
-  mesaj.innerText="❌ Yanlış ("+yanlisHak+"/3)";
-  if(yanlisHak>=3){
-    clearInterval(timer);
-    sesKilit(); vib(700);
-    skor-=5; skorEl.innerText=skor;
-    mesaj.innerText="🔒 Kilit kalıcı olarak kapandı!";
-    setTimeout(()=>{ i++; yukle(); },1500);
-  }
- }
-}
-
-yukle();
+document.addEventListener("mousemove",()=>fareHareket=true,{once:true});
+document.addEventListener("visibilitychange",()=>{
+    if(document.hidden) sekmeDisi=true;
+});
 </script>
+
 </body>
 </html>
