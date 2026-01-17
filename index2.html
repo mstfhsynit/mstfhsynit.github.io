@@ -5,9 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sayı Tahmin Oyunu</title>
 <style>
-body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; padding: 20px; background: #1a1a2e; color: #fff; margin:0; }
-h1 { margin-bottom: 5px; }
-p { margin-bottom: 20px; color: #ccc; }
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  text-align: center;
+  padding: 20px;
+  margin: 0;
+  background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);
+  overflow: hidden;
+  position: relative;
+  color: #fff;
+}
+h1 { margin-bottom:5px; }
+p { margin-bottom:20px; color:#ccc; }
 
 /* Logo */
 .logo { position: fixed; top:10px; left:20px; width:120px; pointer-events:none; z-index:1000; animation: glow 2s infinite alternate; }
@@ -38,13 +47,15 @@ p { margin-bottom: 20px; color: #ccc; }
 #whatsapp.sharePlatform{background-color:#25D366;} #facebook.sharePlatform{background-color:#3b5998;} #twitter.sharePlatform{background-color:#1DA1F2;} #linkedin.sharePlatform{background-color:#0077B5;} #telegram.sharePlatform{background-color:#0088cc;} #instagram.sharePlatform{background-color:#E1306C;}
 .sharePlatform:hover { transform: scale(1.1); box-shadow:0 0 12px rgba(255,255,255,0.5); }
 
-/* Dil seçimi şık */
-#languageContainer { position:fixed; top:15px; right:20px; z-index:1000; }
-#selectedLang { background:#0f3460; color:#fff; padding:6px 12px; border-radius:8px; cursor:pointer; font-weight:bold; transition:background 0.3s, transform 0.2s; }
-#selectedLang:hover { background:#162447; transform:scale(1.05);}
-#langOptions { display:none; flex-direction: column; margin-top:5px; gap:3px; }
-.langBtn { background:#0f3460; color:#fff; border:none; border-radius:6px; padding:5px 8px; font-weight:bold; cursor:pointer; transition:transform 0.2s, background 0.3s; margin:2px 0; }
-.langBtn:hover { transform:scale(1.05); background:#162447; }
+/* Dil seçimi bayrak */
+#languageContainer { position:fixed; top:15px; right:20px; display:flex; gap:5px; flex-wrap:wrap; z-index:1000; }
+.langBtn { cursor:pointer; border-radius:50%; transition: transform 0.2s, box-shadow 0.2s; }
+.langBtn img { width:30px; height:30px; border-radius:50%; }
+.langBtn:hover { transform: scale(1.2); box-shadow:0 0 8px #fff; }
+
+/* Yıldızlar */
+.star { position:absolute; width:2px; height:2px; background:#fff; border-radius:50%; animation: twinkle 2s infinite; }
+@keyframes twinkle { 0%,100% {opacity:0.3;} 50% {opacity:1;} }
 </style>
 </head>
 <body>
@@ -54,26 +65,23 @@ p { margin-bottom: 20px; color: #ccc; }
 <h1 id="title">Sayı Tahmin Oyunu</h1>
 <p id="instruction">1 ile 200 arasında bir sayı tutun. Kartlara göre "Evet" veya "Hayır" seçin.</p>
 
-<!-- Dil Seçimi -->
+<!-- Dil Seçimi Bayrak CDN -->
 <div id="languageContainer">
-  <div id="selectedLang">Dil Seç</div>
-  <div id="langOptions">
-    <button class="langBtn" data-lang="tr">Türkçe</button>
-    <button class="langBtn" data-lang="ar">العربية</button>
-    <button class="langBtn" data-lang="en">English</button>
-    <button class="langBtn" data-lang="es">Español</button>
-    <button class="langBtn" data-lang="fr">Français</button>
-    <button class="langBtn" data-lang="de">Deutsch</button>
-    <button class="langBtn" data-lang="it">Italiano</button>
-    <button class="langBtn" data-lang="pt">Português</button>
-    <button class="langBtn" data-lang="ru">Русский</button>
-    <button class="langBtn" data-lang="zh">中文</button>
-    <button class="langBtn" data-lang="ja">日本語</button>
-    <button class="langBtn" data-lang="ko">한국어</button>
-    <button class="langBtn" data-lang="hi">हिन्दी</button>
-    <button class="langBtn" data-lang="id">Bahasa Indonesia</button>
-    <button class="langBtn" data-lang="bn">বাংলা</button>
-  </div>
+  <div class="langBtn" data-lang="tr" title="Türkçe"><img src="https://flagcdn.com/w40/tr.png" alt="TR"></div>
+  <div class="langBtn" data-lang="ar" title="العربية"><img src="https://flagcdn.com/w40/sa.png" alt="AR"></div>
+  <div class="langBtn" data-lang="en" title="English"><img src="https://flagcdn.com/w40/gb.png" alt="EN"></div>
+  <div class="langBtn" data-lang="es" title="Español"><img src="https://flagcdn.com/w40/es.png" alt="ES"></div>
+  <div class="langBtn" data-lang="fr" title="Français"><img src="https://flagcdn.com/w40/fr.png" alt="FR"></div>
+  <div class="langBtn" data-lang="de" title="Deutsch"><img src="https://flagcdn.com/w40/de.png" alt="DE"></div>
+  <div class="langBtn" data-lang="it" title="Italiano"><img src="https://flagcdn.com/w40/it.png" alt="IT"></div>
+  <div class="langBtn" data-lang="pt" title="Português"><img src="https://flagcdn.com/w40/pt.png" alt="PT"></div>
+  <div class="langBtn" data-lang="ru" title="Русский"><img src="https://flagcdn.com/w40/ru.png" alt="RU"></div>
+  <div class="langBtn" data-lang="zh" title="中文"><img src="https://flagcdn.com/w40/cn.png" alt="ZH"></div>
+  <div class="langBtn" data-lang="ja" title="日本語"><img src="https://flagcdn.com/w40/jp.png" alt="JA"></div>
+  <div class="langBtn" data-lang="ko" title="한국어"><img src="https://flagcdn.com/w40/kr.png" alt="KO"></div>
+  <div class="langBtn" data-lang="hi" title="हिन्दी"><img src="https://flagcdn.com/w40/in.png" alt="HI"></div>
+  <div class="langBtn" data-lang="id" title="Bahasa Indonesia"><img src="https://flagcdn.com/w40/id.png" alt="ID"></div>
+  <div class="langBtn" data-lang="bn" title="বাংলা"><img src="https://flagcdn.com/w40/bd.png" alt="BN"></div>
 </div>
 
 <div id="cardContainer"></div>
@@ -92,7 +100,17 @@ p { margin-bottom: 20px; color: #ccc; }
 </div>
 
 <script>
-// --------------- 15 Dil Sözlüğü ---------------
+// Yıldızları oluştur
+for(let i=0;i<100;i++){
+  const star=document.createElement('div');
+  star.className='star';
+  star.style.top=Math.random()*100+'%';
+  star.style.left=Math.random()*100+'%';
+  star.style.width=star.style.height=(Math.random()*2+1)+'px';
+  document.body.appendChild(star);
+}
+
+// 15 dil sözlüğü
 const texts = {
   tr:{title:"Sayı Tahmin Oyunu",instruction:"1 ile 200 arasında bir sayı tutun. Kartlara göre 'Evet' veya 'Hayır' seçin.",shareBtn:"Oyunu paylaş, arkadaşların da oynasın",result:"Tahminim: "},
   ar:{title:"لعبة تخمين الرقم",instruction:"اختر رقمًا بين 1 و200. اضغط 'نعم' أو 'لا' حسب البطاقات.",shareBtn:"شارك اللعبة مع أصدقائك",result:"توقعي: "},
@@ -111,24 +129,15 @@ const texts = {
   bn:{title:"সংখ্যা অনুমান খেলা",instruction:"1 থেকে 200 এর মধ্যে একটি সংখ্যা নির্বাচন করুন। প্রতিটি কার্ডের জন্য 'হ্যাঁ' বা 'না' নির্বাচন করুন।",shareBtn:"গেমটি শেয়ার করুন, আপনার বন্ধুরাও খেলুক",result:"আমার অনুমান: "}
 };
 
-// --------------- Elements ---------------
+// Elements
 const titleEl=document.getElementById('title');
 const instructionEl=document.getElementById('instruction');
 const shareBtnEl=document.getElementById('shareBtn');
 const resultEl=document.getElementById('result');
 
-const selectedLang=document.getElementById('selectedLang');
-const langOptions=document.getElementById('langOptions');
-
-// Dil seçimi aç/kapa
-selectedLang.addEventListener('click',()=>{ langOptions.style.display = langOptions.style.display==='flex'?'none':'flex'; });
-
-// Dil butonları
 document.querySelectorAll('.langBtn').forEach(btn=>{
   btn.addEventListener('click',()=>{
     const lang=btn.dataset.lang;
-    selectedLang.innerText = btn.innerText;
-    langOptions.style.display='none';
     if(texts[lang]){
         titleEl.innerText=texts[lang].title;
         instructionEl.innerText=texts[lang].instruction;
@@ -141,60 +150,10 @@ document.querySelectorAll('.langBtn').forEach(btn=>{
   });
 });
 
-// --------------- Kart oyunu ---------------
-const maxNumber=200;
-const numCards=8;
-let userChoices=[];
-let currentCard=0;
-const container=document.getElementById('cardContainer');
-
-const cardNumbers=[];
-for(let i=0;i<numCards;i++){let nums=[];for(let n=1;n<=maxNumber;n++){if(n & (1<<i)) nums.push(n);} cardNumbers.push(nums);}
-
-function playBeep(freq=400,dur=100){const ctx=new (window.AudioContext||window.webkitAudioContext)();const osc=ctx.createOscillator();const gain=ctx.createGain();osc.frequency.value=freq;osc.type='square';osc.connect(gain);gain.connect(ctx.destination);osc.start();setTimeout(()=>osc.stop(),dur);}
-
-function showCard(index){
-    container.innerHTML='';
-    if(index>=numCards) return showResult();
-    const card=document.createElement('div'); card.className='card'; card.style.opacity=0; card.style.transform='translateY(30px)';
-    card.innerHTML=`<p><strong>Kart ${index+1}</strong></p><div class="numbers">${cardNumbers[index].join(', ')}</div>
-    <button class="yes" onclick="choose(true,this)">Evet</button>
-    <button class="no" onclick="choose(false,this)">Hayır</button>`;
-    container.appendChild(card);
-    setTimeout(()=>{card.style.opacity=1; card.style.transform='translateY(0)';},50);
-}
-
-function choose(answer,button){
-    playBeep(400,100);
-    userChoices[currentCard]=answer;
-    const cardDiv=button.parentElement;
-    cardDiv.style.transform="translateY(-60px)"; cardDiv.style.opacity="0";
-    setTimeout(()=>{currentCard++; showCard(currentCard);},600);
-}
-
-function showResult(){
-    let guess=0;
-    for(let i=0;i<numCards;i++){if(userChoices[i]) guess+=Math.pow(2,i);}
-    if(guess>maxNumber) guess=maxNumber;
-    container.innerHTML='';
-    const lang=selectedLang.innerText;
-    const key=Object.keys(texts).find(k=>texts[k].title===titleEl.innerText) || 'tr';
-    resultEl.innerText = texts[key].result + guess;
-}
-
-// --------------- Paylaş ---------------
+// Paylaş menüsü
 const shareBtn=document.getElementById('shareBtn');
 const shareMenu=document.getElementById('shareMenu');
-shareBtn.addEventListener('click',()=>{shareMenu.classList.toggle('show');});
-const url=encodeURIComponent(window.location.href);
-document.getElementById('whatsapp').href=`https://api.whatsapp.com/send?text=Oyunu%20oyna:%20${url}`;
-document.getElementById('facebook').href=`https://www.facebook.com/sharer/sharer.php?u=${url}`;
-document.getElementById('twitter').href=`https://twitter.com/intent/tweet?url=${url}&text=Bu%20eğlenceli%20oyunu%20dene!`;
-document.getElementById('linkedin').href=`https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
-document.getElementById('telegram').href=`https://t.me/share/url?url=${url}&text=Bu%20eğlenceli%20oyunu%20dene!`;
-document.getElementById('instagram').href=`https://www.instagram.com/?url=${url}`;
-
-showCard(currentCard);
+shareBtn.addEventListener('click',()=>{ shareMenu.classList.toggle('show'); });
 </script>
 </body>
-    </html>
+  </html>
