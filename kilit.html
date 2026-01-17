@@ -3,112 +3,209 @@
 <head>
 <meta charset="UTF-8">
 <title>Kilit Kombinasyonu</title>
+
 <style>
-    body {
-        margin: 0;
-        height: 100vh;
-        background: linear-gradient(135deg, #141e30, #243b55);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: Arial, sans-serif;
-        color: white;
-    }
+body{
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:Arial, sans-serif;
+    color:white;
+    transition:background 0.6s;
+}
 
-    .box {
-        background: rgba(0,0,0,0.45);
-        padding: 25px;
-        border-radius: 15px;
-        width: 330px;
-        text-align: center;
-        box-shadow: 0 0 20px rgba(0,0,0,0.6);
-    }
+.bg0{background:radial-gradient(circle,#1c2b3a,#05080d);}
+.bg1{background:radial-gradient(circle,#2b1c3a,#0d0508);}
+.bg2{background:radial-gradient(circle,#1c3a2b,#050d08);}
 
-    h1 {
-        margin-bottom: 10px;
-    }
+.box{
+    width:360px;
+    background:rgba(0,0,0,0.65);
+    padding:22px;
+    border-radius:18px;
+    text-align:center;
+    box-shadow:0 0 30px rgba(0,0,0,.9);
+}
 
-    .hint {
-        text-align: left;
-        font-size: 14px;
-        margin-bottom: 15px;
-    }
+.logo{
+    width:90px;
+    margin-bottom:8px;
+}
 
-    input {
-        width: 60px;
-        padding: 10px;
-        margin: 5px;
-        font-size: 18px;
-        text-align: center;
-        border-radius: 8px;
-        border: none;
-        outline: none;
-    }
+.lock{
+    font-size:46px;
+    margin:8px 0;
+    transition:transform 0.2s;
+}
 
-    button {
-        margin-top: 15px;
-        padding: 10px 25px;
-        border: none;
-        border-radius: 10px;
-        background: #00c6ff;
-        color: black;
-        font-size: 16px;
-        cursor: pointer;
-    }
+.shake{
+    animation:shake 0.3s;
+}
 
-    button:hover {
-        background: #00e5ff;
-    }
+@keyframes shake{
+    0%{transform:translateX(0)}
+    25%{transform:translateX(-6px)}
+    50%{transform:translateX(6px)}
+    75%{transform:translateX(-6px)}
+    100%{transform:translateX(0)}
+}
 
-    .msg {
-        margin-top: 15px;
-        min-height: 22px;
-    }
+.top{
+    display:flex;
+    justify-content:space-between;
+    font-size:14px;
+    color:#ffcc00;
+}
+
+.hint{
+    text-align:left;
+    font-size:14px;
+    margin:12px 0;
+}
+
+.inputs input{
+    width:55px;
+    padding:10px;
+    margin:4px;
+    font-size:18px;
+    text-align:center;
+    border-radius:8px;
+    border:none;
+}
+
+button{
+    margin-top:12px;
+    padding:10px 25px;
+    border:none;
+    border-radius:12px;
+    background:#00c6ff;
+    font-size:16px;
+    cursor:pointer;
+}
+
+button:hover{background:#00e5ff;}
+
+.msg{
+    margin-top:10px;
+    min-height:24px;
+    font-size:15px;
+}
 </style>
 </head>
-<body>
+
+<body class="bg0">
 
 <div class="box">
-    <h1>🔐 Kilit Kombinasyonu</h1>
+    <img src="mstfhsyn-logo.png" class="logo">
 
-    <div class="hint">
-        • İlk rakam <b>çift</b><br>
-        • İkinci rakam <b>ilkinden büyük</b><br>
-        • Üç rakamın toplamı <b>12</b>
+    <div class="top">
+        <div id="timer">⏱ 30</div>
+        <div id="score">🏆 0</div>
+        <div id="tries">❌ 0</div>
     </div>
 
-    <input type="number" id="a" min="0" max="9">
-    <input type="number" id="b" min="0" max="9">
-    <input type="number" id="c" min="0" max="9">
+    <div class="lock" id="lockIcon">🔒</div>
 
-    <br>
+    <div class="hint" id="hint"></div>
+
+    <div class="inputs">
+        <input type="number" id="a" min="0" max="9">
+        <input type="number" id="b" min="0" max="9">
+        <input type="number" id="c" min="0" max="9">
+        <input type="number" id="d" min="0" max="9" style="display:none">
+    </div>
+
     <button onclick="kontrol()">Kilidi Aç</button>
-
-    <div class="msg" id="mesaj"></div>
+    <div class="msg" id="msg"></div>
 </div>
 
 <script>
-function kontrol() {
-    const a = Number(document.getElementById("a").value);
-    const b = Number(document.getElementById("b").value);
-    const c = Number(document.getElementById("c").value);
+let seviye=0, sure=30, score=0, tries=0, timerInt;
 
-    const mesaj = document.getElementById("mesaj");
+const aEl=a, bEl=b, cEl=c, dEl=d;
+const lockIcon=document.getElementById("lockIcon");
+const hintEl=document.getElementById("hint");
+const msgEl=document.getElementById("msg");
+const timerEl=document.getElementById("timer");
+const scoreEl=document.getElementById("score");
+const triesEl=document.getElementById("tries");
 
-    if (isNaN(a) || isNaN(b) || isNaN(c)) {
-        mesaj.style.color = "#ffcc00";
-        mesaj.innerText = "Tüm rakamları gir";
+const levels=[
+{
+    hane:3,
+    ipucu:["İlk rakam çifttir","İkinci rakam ilkinden büyük","Toplam 12"],
+    kontrol:(a,b,c)=>a%2===0 && b>a && a+b+c===12
+},
+{
+    hane:3,
+    ipucu:["İlk rakam tek","Son rakam en büyüktür","Toplam 15"],
+    kontrol:(a,b,c)=>a%2===1 && c>a && c>b && a+b+c===15
+},
+{
+    hane:4,
+    ipucu:["İlk iki rakam aynıdır","Son iki rakam toplamı 9","Toplam 18"],
+    kontrol:(a,b,c,d)=>a===b && c+d===9 && a+b+c+d===18
+}
+];
+
+function start(){
+    document.body.className="bg"+seviye;
+    const l=levels[seviye];
+    hintEl.innerHTML=l.ipucu.join("<br>");
+    dEl.style.display=l.hane===4?"inline-block":"none";
+    aEl.value=bEl.value=cEl.value=dEl.value="";
+    lockIcon.textContent="🔒";
+    msgEl.textContent="";
+    sure=30;
+
+    clearInterval(timerInt);
+    timerInt=setInterval(()=>{
+        timerEl.textContent="⏱ "+sure;
+        if(--sure<0){
+            clearInterval(timerInt);
+            msgEl.textContent="⏰ Süre doldu!";
+        }
+    },1000);
+}
+
+function kontrol(){
+    const a=+aEl.value,b=+bEl.value,c=+cEl.value,d=+dEl.value;
+    if(isNaN(a)||isNaN(b)||isNaN(c)||(levels[seviye].hane===4&&isNaN(d))){
+        msgEl.textContent="Tüm rakamları gir";
         return;
     }
 
-    if (a % 2 === 0 && b > a && (a + b + c) === 12) {
-        mesaj.style.color = "#00ffcc";
-        mesaj.innerText = "🔓 Kilit açıldı! Tebrikler";
-    } else {
-        mesaj.style.color = "#ff6b6b";
-        mesaj.innerText = "❌ Yanlış kombinasyon";
+    if(levels[seviye].kontrol(a,b,c,d)){
+        navigator.vibrate?.(200);
+        clearInterval(timerInt);
+        lockIcon.textContent="🔓";
+        score+=100;
+        scoreEl.textContent="🏆 "+score;
+        msgEl.textContent="✔ Kilit Açıldı";
+
+        setTimeout(()=>{
+            seviye++;
+            if(seviye<levels.length){
+                start();
+            }else{
+                hintEl.innerHTML="🎉 TÜM KİLİTLER AÇILDI";
+                msgEl.innerHTML="mstfhsyn başarılı 🔥<br>Puan: "+score;
+                timerEl.textContent="";
+            }
+        },800);
+    }else{
+        navigator.vibrate?.(100);
+        tries++;
+        triesEl.textContent="❌ "+tries;
+        lockIcon.classList.add("shake");
+        setTimeout(()=>lockIcon.classList.remove("shake"),300);
+        msgEl.textContent="Yanlış kombinasyon";
     }
 }
+
+start();
 </script>
 
 </body>
