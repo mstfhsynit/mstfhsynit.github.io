@@ -2,100 +2,154 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Sessiz İz</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Çağı Atlatan Deneyim</title>
 <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: Arial, sans-serif;
-    }
-
-    body {
-        background: #000;
-        color: #fff;
-        height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-    }
-
-    #container {
-        width: 90%;
-        max-width: 500px;
-    }
-
-    input, button {
-        width: 100%;
-        padding: 12px;
-        margin-top: 10px;
-        background: #111;
-        border: 1px solid #444;
-        color: #fff;
-        font-size: 16px;
-    }
-
-    button {
-        cursor: pointer;
-    }
-
-    #text {
-        font-size: 22px;
-        line-height: 1.7;
-        opacity: 1; /* 👈 artık gizli değil */
-        transition: opacity 1.5s;
-        min-height: 80px; /* 👈 boş sanılmasın */
-    }
-
-    small {
-        color: #aaa;
-        font-size: 12px;
-    }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+    font-family: sans-serif;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  #canvas {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+  #nameForm {
+    position: absolute;
+    z-index: 10;
+    text-align: center;
+  }
+  #nameForm input {
+    padding: 0.5em;
+    font-size: 1em;
+  }
+  #message {
+    position: absolute;
+    text-align: center;
+    font-size: 1.2em;
+    opacity: 0;
+    transition: opacity 1s;
+  }
 </style>
 </head>
 <body>
 
-<div id="container">
-
-    <div id="form">
-        <p>Buraya bir isim bırak.</p>
-        <input id="name" placeholder="İsim">
-        <input id="surname" placeholder="Soyisim">
-        <input id="birth" type="date">
-        <button onclick="start()">Girdim</button>
-    </div>
-
-    <div id="text"></div>
-
+<div id="nameForm">
+  <p>İsminizi girin:</p>
+  <input type="text" id="username" placeholder="Adınız">
+  <button id="startBtn">Başla</button>
 </div>
 
+<div id="message"></div>
+<canvas id="canvas"></canvas>
+
 <script>
-let name = "";
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-const steps = [
-    { time: 30000, text: "Teşekkürler, {name}." },
-    { time: 45000, text: "Bekliyorsun." },
-    { time: 60000, text: "Çoğu kişi burada çıkar." },
-    { time: 80000, text: "Ama sen hâlâ buradasın." },
-    { time: 100000, text: "{name}, bugün seni biraz tanıdık." },
-    { time: 120000, text: "Bu kadarı yeter.<br><small>Çıkabilirsin.</small>" }
-];
+let username = '';
+let started = false;
+let points = [];
 
-function start() {
-    name = document.getElementById("name").value || "Birisi";
-    document.getElementById("form").style.display = "none";
-
-    const textDiv = document.getElementById("text");
-    textDiv.innerHTML = "…"; // 👈 kullanıcı yalnız hissetmesin
-
-    steps.forEach(step => {
-        setTimeout(() => {
-            textDiv.innerHTML = step.text.replace("{name}", name);
-        }, step.time);
-    });
+// Tekil deneyimi kontrol
+if(localStorage.getItem('experienceSeen')){
+  document.getElementById('nameForm').innerHTML = "<p>Bu deneyimi zaten yaşadınız. Tekrar edilemez.</p>";
 }
+
+// Kullanıcı adı alındığında başlat
+document.getElementById('startBtn').addEventListener('click', ()=>{
+  username = document.getElementById('username').value.trim() || 'Ziyaretçi';
+  started = true;
+  document.getElementById('nameForm').style.display = 'none';
+  localStorage.setItem('experienceSeen', 'true');
+  showMessage(`Hoşgeldin, ${username}. Bunu anlatamazsın.`);
+
+  // Noktaları oluştur
+  for(let i=0; i<50; i++){
+    points.push({
+      x: Math.random()*canvas.width,
+      y: Math.random()*canvas.height,
+      radius: Math.random()*3 + 2,
+      dx: (Math.random()-0.5)*1.5,
+      dy: (Math.random()-0.5)*1.5,
+      alpha: Math.random()*0.5 + 0.1
+    });
+  }
+});
+
+// Mesaj gösterme
+function showMessage(text){
+  const msg = document.getElementById('message');
+  msg.innerText = text;
+  msg.style.opacity = 1;
+}
+
+// Nokta çizimi
+function drawPoints(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  points.forEach(p=>{
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.radius, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(255,255,255,${p.alpha})`;
+    ctx.fill();
+  });
+}
+
+// Animasyon
+function animate(){
+  if(!started) return;
+  points.forEach(p=>{
+    p.x += p.dx;
+    p.y += p.dy;
+    p.alpha += (Math.random()-0.5)*0.02;
+    if(p.alpha < 0.05) p.alpha = 0.05;
+    if(p.alpha > 0.6) p.alpha = 0.6;
+    if(p.x<0 || p.x>canvas.width) p.dx *= -1;
+    if(p.y<0 || p.y>canvas.height) p.dy *= -1;
+  });
+  drawPoints();
+  requestAnimationFrame(animate);
+}
+animate();
+
+// Fare hareketi ile ekstra fark ettirme
+window.addEventListener('mousemove', e=>{
+  if(started){
+    points.forEach(p=>{
+      let dist = Math.hypot(p.x - e.clientX, p.y - e.clientY);
+      if(dist < 50) p.alpha = 1;
+    });
+  }
+});
+
+// Süreyi rastgele belirle: 60-120 saniye
+let duration = 60000 + Math.random()*60000;
+setTimeout(()=>{
+  if(started){
+    started = false;
+    points = [];
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    // Kışkırtıcı, kudurtucu bitiş mesajı
+    showMessage(`Deneyim sona erdi, ${username}. Bunu bir daha yaşayamazsınız. İsterseniz de boşuna uğraşmayın.`);
+  }
+}, duration);
+
+// Pencere boyutu değişirse canvas güncelle
+window.addEventListener('resize', ()=>{
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
 </script>
 
 </body>
