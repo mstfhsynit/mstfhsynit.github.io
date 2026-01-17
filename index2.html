@@ -40,8 +40,8 @@ p{margin:5px 0 15px 0;color:#ccc;}
 #result{
     font-size:2em;
     font-weight:bold;
-    color:#32CD32; /* yumuşak yeşil */
-    text-shadow: 0 0 8px #fff, 0 0 15px #32CD32;
+    color:#7CFC00; /* yumuşak yeşil */
+    text-shadow: 0 0 8px #fff, 0 0 15px #7CFC00;
     opacity:0;
     transform:translateY(-30px);
     transition:opacity 1s ease, transform 1s ease;
@@ -106,9 +106,15 @@ p{margin:5px 0 15px 0;color:#ccc;}
 }
 
 /* Sol üst logo */
-#topLogo img{
-    height:40px;
-    width:auto;
+#topLogo {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 2000;
+}
+#topLogo img {
+    height: 40px;
+    width: auto;
 }
 </style>
 </head>
@@ -276,4 +282,4 @@ function showNextCard(){
 showNextCard();
 </script>
 </body>
-  </html>
+</html>
