@@ -72,7 +72,7 @@ p{margin:5px 0 15px 0;color:#ccc;}
 
 /* Paylaş butonları */
 #shareBtn{
-    margin-top:30px;
+    margin-top:0px;
     padding:12px 20px;
     font-size:1em;
     font-weight:bold;
@@ -102,21 +102,15 @@ p{margin:5px 0 15px 0;color:#ccc;}
 
 /* Yerli üretim */
 #localProduction{
-  position:absolute;
-  top:30px; /* paylaş butonunun hizasına göre ayar */
-  left:calc(50% - 170px); /* paylaş butonunun sol karşısına */
-  font-size:13px;
-  font-weight:bold;
-  color:#E53935; /* dudak kırmızısı */
-  display:flex;
-  align-items:center;
-  z-index:1000;
+  display:flex; align-items:center; margin-right:20px;
+  color:#E53935; font-weight:bold; font-size:13px;
 }
 #localProduction img{
   width:25px;
   vertical-align:middle;
   margin-right:5px;
 }
+.flexContainer{display:flex; justify-content:center; align-items:center; margin-top:30px;}
 </style>
 </head>
 <body>
@@ -143,16 +137,13 @@ p{margin:5px 0 15px 0;color:#ccc;}
   </div>
 </div>
 
-<!-- Yerli Üretim Logo + Yazı -->
-<div id="localProduction">
-  <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjRUVFRUUiLz48L3N2Zz4=" alt="Yerli Üretim">
-  Yerli Üretim – Türkiye
-</div>
-
-<div id="cardContainer"></div>
-<p id="result"></p>
-
-<div>
+<!-- Logo + Paylaş -->
+<div class="flexContainer">
+  <div id="localProduction">
+    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjRUVFRUUiLz48L3N2Zz4=" alt="Yerli Üretim">
+    Yerli Üretim – Türkiye
+  </div>
+  <div>
     <button id="shareBtn">Oyunu paylaş, arkadaşların da oynasın</button>
     <div id="shareMenu">
         <a href="#" class="sharePlatform" id="whatsapp">WhatsApp</a>
@@ -162,7 +153,11 @@ p{margin:5px 0 15px 0;color:#ccc;}
         <a href="#" class="sharePlatform" id="telegram">Telegram</a>
         <a href="#" class="sharePlatform" id="instagram">Instagram</a>
     </div>
+  </div>
 </div>
+
+<div id="cardContainer"></div>
+<p id="result"></p>
 
 <div class="background"></div>
 
@@ -280,4 +275,4 @@ function showNextCard(){
 showNextCard();
 </script>
 </body>
-          </html>
+  </html>
