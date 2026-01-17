@@ -5,14 +5,50 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sayı Tahmin Oyunu</title>
 <style>
-body{margin:0;padding:0;font-family:Segoe UI,Arial,sans-serif;text-align:center;background:#0b1d2b;color:#fff;overflow:hidden;position:relative;}
-.logo{position:fixed;top:10px;left:20px;width:120px;z-index:1000;}
+body{
+  margin:0;
+  padding:0;
+  font-family:Segoe UI,Arial,sans-serif;
+  text-align:center;
+  color:#fff;
+  overflow:hidden;
+  position:relative;
+  background:#0b1d2b;
+}
+.logo{
+  position:fixed;
+  top:10px;
+  left:20px;
+  width:120px;
+  z-index:1000;
+}
 h1{margin:20px 0 5px 0;}
 p{margin:5px 0 15px 0;color:#ccc;}
-#cardContainer{position:relative;margin-top:100px;}
-.card{width:220px;padding:20px;background:#162447;border-radius:15px;box-shadow:0 6px 20px rgba(0,0,0,0.5);margin:0 auto;opacity:0;transform:translateY(50px);transition:transform 0.6s ease,opacity 0.6s ease;}
-.card.show{opacity:1;transform:translateY(0);}
-.card button{padding:10px 20px;margin:8px;border:none;border-radius:5px;font-weight:bold;cursor:pointer;transition:transform 0.2s;}
+#cardContainer{position:relative;margin-top:120px;}
+.card{
+  width:220px;
+  padding:20px;
+  background:#162447;
+  border-radius:15px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.5);
+  margin:0 auto;
+  opacity:0;
+  transform:translateY(50px);
+  transition:transform 0.6s ease,opacity 0.6s ease;
+}
+.card.show{
+  opacity:1;
+  transform:translateY(0);
+}
+.card button{
+  padding:10px 20px;
+  margin:8px;
+  border:none;
+  border-radius:5px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:transform 0.2s;
+}
 .card button:hover{transform:scale(1.05);}
 .yes{background:#00c853;color:#fff;}
 .no{background:#d50000;color:#fff;}
@@ -35,16 +71,33 @@ p{margin:5px 0 15px 0;color:#ccc;}
 .langBtn{display:block;margin:3px;cursor:pointer;text-align:left;}
 .langBtn img{width:30px;height:30px;border-radius:50%;margin-right:8px;vertical-align:middle;transition:transform 0.2s;}
 .langBtn img:hover{transform:scale(1.1);}
-.star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:twinkle 2s infinite;}
-.moon{position:absolute;top:50px;left:50%;transform:translateX(-50%);width:60px;height:60px;background:#fff;border-radius:50%;}
-@keyframes twinkle{0%,100%{opacity:0.3;}50%{opacity:1;}}
+
+/* Arka plan yıldız ve aylar */
+.background{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  z-index:-1;
+  pointer-events:none;
+}
+.star,.moon{
+  position:absolute;
+  border-radius:50%;
+  background:#fff;
+  animation:twinkle 3s infinite alternate;
+}
+@keyframes twinkle{
+  0%{opacity:0.2;}
+  50%{opacity:0.7;}
+  100%{opacity:0.2;}
+}
 </style>
 </head>
 <body>
 
 <img src="mstfhsyn-logo.png" class="logo" alt="MstfHsyn Logo">
-
-<div class="moon"></div>
 
 <h1 id="title">Sayı Tahmin Oyunu</h1>
 <p id="instruction">1 ile 200 arasında bir sayı tutun. Kartlara göre "Evet" veya "Hayır" seçin.</p>
@@ -81,15 +134,34 @@ p{margin:5px 0 15px 0;color:#ccc;}
     </div>
 </div>
 
+<!-- Arka plan layer -->
+<div class="background"></div>
+
 <script>
-// Yıldızlar
-for(let i=0;i<100;i++){
+// Yıldız ve aylar
+const background=document.querySelector('.background');
+for(let i=0;i<50;i++){
   const star=document.createElement('div');
   star.className='star';
+  const size=Math.random()*3+1;
+  star.style.width=size+'px';
+  star.style.height=size+'px';
   star.style.top=Math.random()*100+'%';
   star.style.left=Math.random()*100+'%';
-  star.style.width=star.style.height=(Math.random()*2+1)+'px';
-  document.body.appendChild(star);
+  star.style.animationDuration=(Math.random()*3+2)+'s';
+  background.appendChild(star);
+}
+for(let i=0;i<10;i++){
+  const moon=document.createElement('div');
+  moon.className='moon';
+  const size=Math.random()*20+20;
+  moon.style.width=size+'px';
+  moon.style.height=size+'px';
+  moon.style.top=Math.random()*100+'%';
+  moon.style.left=Math.random()*100+'%';
+  moon.style.opacity=0.4;
+  moon.style.animationDuration=(Math.random()*4+2)+'s';
+  background.appendChild(moon);
 }
 
 // Dil seçimi
@@ -109,7 +181,6 @@ const titleEl=document.getElementById('title');
 const instructionEl=document.getElementById('instruction');
 const shareBtnEl=document.getElementById('shareBtn');
 const resultEl=document.getElementById('result');
-
 const selectedLang=document.getElementById('selectedLang');
 const languageMenu=document.getElementById('languageMenu');
 const langBtns=document.querySelectorAll('.langBtn');
