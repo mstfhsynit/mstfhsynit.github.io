@@ -22,6 +22,7 @@ p { margin-bottom:20px; color:#ccc; }
 .logo { position: fixed; top:10px; left:20px; width:120px; pointer-events:none; z-index:1000; }
 
 /* Kart */
+#cardContainer { margin-top:100px; }
 .card { width:220px; padding:20px; background:#162447; border-radius:15px; box-shadow:0 6px 20px rgba(0,0,0,0.5); margin:20px auto; transition: transform 0.6s ease, opacity 0.6s ease; opacity:1; }
 .card button { padding:10px 20px; margin:8px; cursor:pointer; border:none; border-radius:5px; font-weight:bold; font-size:0.95em; transition: transform 0.2s ease; }
 .card button:hover { transform: scale(1.05); }
@@ -36,7 +37,7 @@ p { margin-bottom:20px; color:#ccc; }
 #shareBtn { margin-top:30px; padding:12px 20px; font-size:1em; font-weight:bold; border:none; border-radius:10px; background:linear-gradient(90deg,#00c853,#64dd17); color:#fff; cursor:pointer; transition: transform 0.2s, box-shadow 0.2s; }
 #shareBtn:hover { transform: scale(1.05); box-shadow:0 0 15px #64dd17; }
 
-/* Paylaş menüsü platform isimleri */
+/* Paylaş menüsü */
 #shareMenu { display:flex; justify-content:center; flex-wrap:wrap; margin-top:10px; visibility:hidden; opacity:0; transition: opacity 0.3s ease; }
 #shareMenu.show { visibility:visible; opacity:1; }
 .sharePlatform { display:inline-block; margin:5px; padding:10px 18px; border-radius:8px; color:#fff; font-weight:bold; text-decoration:none; transition: transform 0.2s, box-shadow 0.2s; }
@@ -74,7 +75,7 @@ p { margin-bottom:20px; color:#ccc; }
     <div class="langBtn" data-lang="tr" title="Türkçe"><img src="https://flagcdn.com/w40/tr.png" alt="TR"></div>
     <div class="langBtn" data-lang="ar" title="العربية"><img src="https://flagcdn.com/w40/sa.png" alt="AR"></div>
     <div class="langBtn" data-lang="en" title="English"><img src="https://flagcdn.com/w40/gb.png" alt="EN"></div>
-    <!-- diğer diller -->
+    <!-- diğer diller burada eklenebilir -->
   </div>
 </div>
 
@@ -104,7 +105,7 @@ for(let i=0;i<100;i++){
   document.body.appendChild(star);
 }
 
-// 15 dil sözlüğü
+// 3 Dil örnek
 const texts = {
   tr:{title:"Sayı Tahmin Oyunu",instruction:"1 ile 200 arasında bir sayı tutun. Kartlara göre 'Evet' veya 'Hayır' seçin.",shareBtn:"Oyunu paylaş, arkadaşların da oynasın",result:"Tahminim: "},
   ar:{title:"لعبة تخمين الرقم",instruction:"اختر رقمًا بين 1 و200. اضغط 'نعم' أو 'لا' حسب البطاقات.",shareBtn:"شارك اللعبة مع أصدقائك",result:"توقعي: "},
@@ -154,8 +155,39 @@ const shareBtn=document.getElementById('shareBtn');
 const shareMenu=document.getElementById('shareMenu');
 shareBtn.addEventListener('click',()=>{ shareMenu.classList.toggle('show'); });
 
-// Buraya orijinal kart oyun JS kodlarını ekle, animasyon ve bip ile
-// Örneğin: kartContainer.innerHTML = ...; bip sesi = new Audio('bip.mp3'); vb.
+// --------------------
+// Kart oyunu JS (örnek animasyonlu ve bip)
+// --------------------
+const cardContainer = document.getElementById('cardContainer');
+const cards = [];
+for(let i=0;i<6;i++){
+  const card = document.createElement('div');
+  card.className='card';
+  card.innerHTML = `<p class="numbers">${Array.from({length:10},()=>Math.floor(Math.random()*200+1)).join(', ')}</p>
+                    <button class="yes">Evet</button>
+                    <button class="no">Hayır</button>`;
+  cardContainer.appendChild(card);
+  cards.push(card);
+}
+
+// Bip sesi
+const bip = new Audio('https://www.soundjay.com/button/beep-07.mp3');
+
+// Buton olayları
+cards.forEach((card,i)=>{
+  card.querySelector('.yes').addEventListener('click',()=>{
+    bip.play();
+    card.style.transform='translateY(-150px) rotate(15deg)';
+    card.style.opacity='0';
+    setTimeout(()=>{ card.style.display='none'; if(i===cards.length-1) resultEl.innerText = "Tahminim: 123"; },600);
+  });
+  card.querySelector('.no').addEventListener('click',()=>{
+    bip.play();
+    card.style.transform='translateY(-150px) rotate(-15deg)';
+    card.style.opacity='0';
+    setTimeout(()=>{ card.style.display='none'; if(i===cards.length-1) resultEl.innerText = "Tahminim: 123"; },600);
+  });
+});
 </script>
 </body>
 </html>
