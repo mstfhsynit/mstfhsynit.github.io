@@ -24,10 +24,10 @@ body{
 }
 h1{margin:20px 0 5px 0;}
 p{margin:5px 0 15px 0;color:#ccc;}
-#cardContainer{position:relative;margin-top:120px;}
+#cardContainer{position:relative;margin-top:80px;}
 .card{
   width:220px;
-  padding:20px;
+  padding:20px 20px 30px 20px;
   background:#162447;
   border-radius:15px;
   box-shadow:0 6px 20px rgba(0,0,0,0.5);
@@ -35,6 +35,7 @@ p{margin:5px 0 15px 0;color:#ccc;}
   opacity:0;
   transform:translateY(50px);
   transition:transform 0.6s ease,opacity 0.6s ease;
+  position:relative;
 }
 .card.show{
   opacity:1;
@@ -53,7 +54,17 @@ p{margin:5px 0 15px 0;color:#ccc;}
 .yes{background:#00c853;color:#fff;}
 .no{background:#d50000;color:#fff;}
 .numbers{font-size:0.85em;text-align:left;margin:12px 0;max-height:120px;overflow-y:auto;padding:8px;border-radius:8px;background:#0f3460;color:#fff;}
-#cardNumber{margin-bottom:10px;font-size:1em;font-weight:bold;}
+#cardNumber{
+  position:absolute;
+  top:8px;
+  left:50%;
+  transform:translateX(-50%);
+  font-weight:bold;
+  font-size:1em;
+  color:#ffeb3b;
+}
+
+/* Paylaş butonları ve dil seçimi */
 #result{font-size:2em;margin-top:30px;color:#ffeb3b;font-weight:bold;text-shadow:0 0 10px #ffeb3b,0 0 20px #ffeb3b;}
 #shareBtn{margin-top:30px;padding:12px 20px;font-size:1em;font-weight:bold;border:none;border-radius:10px;background:linear-gradient(90deg,#00c853,#64dd17);color:#fff;cursor:pointer;transition:0.2s;}
 #shareBtn:hover{transform:scale(1.05);box-shadow:0 0 15px #64dd17;}
@@ -120,17 +131,9 @@ p{margin:5px 0 15px 0;color:#ccc;}
     <div class="langBtn" data-lang="tr" title="Türkçe"><img src="https://flagcdn.com/w40/tr.png">Türkçe</div>
     <div class="langBtn" data-lang="ar" title="العربية"><img src="https://flagcdn.com/w40/sa.png">العربية</div>
     <div class="langBtn" data-lang="en" title="English"><img src="https://flagcdn.com/w40/gb.png">English</div>
-    <div class="langBtn" data-lang="fr" title="Français"><img src="https://flagcdn.com/w40/fr.png">Français</div>
-    <div class="langBtn" data-lang="es" title="Español"><img src="https://flagcdn.com/w40/es.png">Español</div>
-    <div class="langBtn" data-lang="de" title="Deutsch"><img src="https://flagcdn.com/w40/de.png">Deutsch</div>
-    <div class="langBtn" data-lang="it" title="Italiano"><img src="https://flagcdn.com/w40/it.png">Italiano</div>
-    <div class="langBtn" data-lang="pt" title="Português"><img src="https://flagcdn.com/w40/pt.png">Português</div>
-    <div class="langBtn" data-lang="ru" title="Русский"><img src="https://flagcdn.com/w40/ru.png">Русский</div>
-    <div class="langBtn" data-lang="zh" title="中文"><img src="https://flagcdn.com/w40/cn.png">中文</div>
   </div>
 </div>
 
-<div id="cardNumber"></div>
 <div id="cardContainer"></div>
 <p id="result"></p>
 
@@ -140,9 +143,6 @@ p{margin:5px 0 15px 0;color:#ccc;}
         <a href="#" class="sharePlatform" id="whatsapp">WhatsApp</a>
         <a href="#" class="sharePlatform" id="facebook">Facebook</a>
         <a href="#" class="sharePlatform" id="twitter">Twitter</a>
-        <a href="#" class="sharePlatform" id="linkedin">LinkedIn</a>
-        <a href="#" class="sharePlatform" id="telegram">Telegram</a>
-        <a href="#" class="sharePlatform" id="instagram">Instagram</a>
     </div>
 </div>
 
@@ -151,7 +151,7 @@ p{margin:5px 0 15px 0;color:#ccc;}
 <script>
 // Yıldızlar
 const background=document.querySelector('.background');
-for(let i=0;i<50;i++){
+for(let i=0;i<30;i++){
   const star=document.createElement('div');
   star.className='star';
   const size=Math.random()*3+1;
@@ -203,7 +203,6 @@ shareBtn.addEventListener('click',()=>{shareMenu.classList.toggle('show');});
 
 // Kartlar
 const cardContainer=document.getElementById('cardContainer');
-const cardNumberEl=document.getElementById('cardNumber');
 const totalCards=8;
 let currentCard=0;
 let userNumber=0;
@@ -214,7 +213,8 @@ function createCard(numbers, bitValue){
   const card=document.createElement('div');
   card.className='card';
   card.dataset.bit=bitValue;
-  card.innerHTML=`<p class="numbers">${numbers.join(', ')}</p>
+  card.innerHTML=`<div id="cardNumber">Kart ${currentCard+1} / ${totalCards}</div>
+                  <p class="numbers">${numbers.join(', ')}</p>
                   <button class="yes">Evet</button>
                   <button class="no">Hayır</button>`;
   return card;
@@ -223,10 +223,8 @@ function createCard(numbers, bitValue){
 function showNextCard(){
   if(currentCard>=totalCards){
     resultEl.innerText="Tahminim: "+userNumber;
-    cardNumberEl.innerText="";
     return;
   }
-  cardNumberEl.innerText=`Kart ${currentCard+1} / ${totalCards}`;
   const bitValue=Math.pow(2,currentCard);
   const numbers=[];
   for(let i=1;i<=200;i++){
