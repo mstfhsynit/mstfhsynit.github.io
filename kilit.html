@@ -2,211 +2,161 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Kilit Kombinasyonu</title>
-
+<title>MSTFHSYN Zihin Kilidi</title>
 <style>
 body{
-    margin:0;
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    background:#0f1220;
+    color:#fff;
     font-family:Arial, sans-serif;
-    color:white;
-    transition:background 0.6s;
-}
-
-.bg0{background:radial-gradient(circle,#1c2b3a,#05080d);}
-.bg1{background:radial-gradient(circle,#2b1c3a,#0d0508);}
-.bg2{background:radial-gradient(circle,#1c3a2b,#050d08);}
-
-.box{
-    width:360px;
-    background:rgba(0,0,0,0.65);
-    padding:22px;
-    border-radius:18px;
     text-align:center;
-    box-shadow:0 0 30px rgba(0,0,0,.9);
+    margin:0;
 }
-
-.logo{
-    width:90px;
-    margin-bottom:8px;
+.kutu{margin-top:60px}
+.ipucu{font-size:20px;margin-bottom:10px}
+.sure{font-size:22px;margin:10px 0}
+input{
+    font-size:20px;
+    padding:8px;
+    width:130px;
+    text-align:center;
 }
-
-.lock{
-    font-size:46px;
-    margin:8px 0;
-    transition:transform 0.2s;
+button{
+    font-size:18px;
+    padding:8px 16px;
+    margin-left:5px;
 }
-
-.shake{
-    animation:shake 0.3s;
+.mesaj{margin-top:15px;font-size:20px;min-height:26px}
+.kilit{
+    width:80px;
+    height:80px;
+    border:4px solid #fff;
+    border-radius:10px;
+    margin:20px auto;
+    transition:0.3s;
 }
-
-@keyframes shake{
+.acik{border-color:#0f0; transform:rotate(10deg)}
+.kilitli{border-color:#f00; animation:salla 0.4s}
+@keyframes salla{
     0%{transform:translateX(0)}
-    25%{transform:translateX(-6px)}
-    50%{transform:translateX(6px)}
-    75%{transform:translateX(-6px)}
+    25%{transform:translateX(-5px)}
+    50%{transform:translateX(5px)}
+    75%{transform:translateX(-5px)}
     100%{transform:translateX(0)}
 }
-
-.top{
-    display:flex;
-    justify-content:space-between;
-    font-size:14px;
-    color:#ffcc00;
-}
-
-.hint{
-    text-align:left;
-    font-size:14px;
-    margin:12px 0;
-}
-
-.inputs input{
-    width:55px;
-    padding:10px;
-    margin:4px;
-    font-size:18px;
-    text-align:center;
-    border-radius:8px;
-    border:none;
-}
-
-button{
-    margin-top:12px;
-    padding:10px 25px;
-    border:none;
-    border-radius:12px;
-    background:#00c6ff;
-    font-size:16px;
-    cursor:pointer;
-}
-
-button:hover{background:#00e5ff;}
-
-.msg{
-    margin-top:10px;
-    min-height:24px;
-    font-size:15px;
-}
+.skor{margin-top:10px;font-size:18px}
 </style>
 </head>
+<body>
 
-<body class="bg0">
+<div class="kutu">
+    <h1>MSTFHSYN Zihin Kilidi</h1>
 
-<div class="box">
-    <img src="mstfhsyn-logo.png" class="logo">
+    <div class="kilit" id="kilit"></div>
 
-    <div class="top">
-        <div id="timer">⏱ 30</div>
-        <div id="score">🏆 0</div>
-        <div id="tries">❌ 0</div>
-    </div>
+    <div class="ipucu" id="ipucu"></div>
+    <div class="sure">⏱️ <span id="sure">30</span> sn</div>
 
-    <div class="lock" id="lockIcon">🔒</div>
+    <input id="cevap" placeholder="Şifre">
+    <button onclick="kontrolEt()">Aç</button>
 
-    <div class="hint" id="hint"></div>
-
-    <div class="inputs">
-        <input type="number" id="a" min="0" max="9">
-        <input type="number" id="b" min="0" max="9">
-        <input type="number" id="c" min="0" max="9">
-        <input type="number" id="d" min="0" max="9" style="display:none">
-    </div>
-
-    <button onclick="kontrol()">Kilidi Aç</button>
-    <div class="msg" id="msg"></div>
+    <div class="mesaj" id="mesaj"></div>
+    <div class="skor">🏆 Skor: <span id="skor">0</span></div>
 </div>
 
 <script>
-let seviye=0, sure=30, score=0, tries=0, timerInt;
+/* ========= SES (DOSYASIZ) ========= */
+const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+document.body.addEventListener("click",()=>{
+ if(audioCtx.state==="suspended") audioCtx.resume();
+},{once:true});
 
-const aEl=a, bEl=b, cEl=c, dEl=d;
-const lockIcon=document.getElementById("lockIcon");
-const hintEl=document.getElementById("hint");
-const msgEl=document.getElementById("msg");
-const timerEl=document.getElementById("timer");
-const scoreEl=document.getElementById("score");
-const triesEl=document.getElementById("tries");
-
-const levels=[
-{
-    hane:3,
-    ipucu:["İlk rakam çifttir","İkinci rakam ilkinden büyük","Toplam 12"],
-    kontrol:(a,b,c)=>a%2===0 && b>a && a+b+c===12
-},
-{
-    hane:3,
-    ipucu:["İlk rakam tek","Son rakam en büyüktür","Toplam 15"],
-    kontrol:(a,b,c)=>a%2===1 && c>a && c>b && a+b+c===15
-},
-{
-    hane:4,
-    ipucu:["İlk iki rakam aynıdır","Son iki rakam toplamı 9","Toplam 18"],
-    kontrol:(a,b,c,d)=>a===b && c+d===9 && a+b+c+d===18
+function ses(f,s=0.2,t="sine"){
+ const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+ o.type=t;o.frequency.value=f;o.connect(g);g.connect(audioCtx.destination);
+ g.gain.setValueAtTime(0.25,audioCtx.currentTime);
+ g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+s);
+ o.start();o.stop(audioCtx.currentTime+s);
 }
+const sesDogru=()=>{ses(600,.15);setTimeout(()=>ses(900,.15),150);}
+const sesYanlis=()=>ses(160,.3,"square");
+const sesSure=()=>ses(300,.4,"triangle");
+const sesKilit=()=>ses(90,.6,"sawtooth");
+
+/* ========= TİTREŞİM ========= */
+const vib=p=>{ if(navigator.vibrate) navigator.vibrate(p); };
+
+/* ========= OYUN VERİSİ ========= */
+const sorular=[
+ {ipucu:"İlk iki rakam aynıdır",cevap:"4454",sure:30},
+ {ipucu:"Son iki rakamın toplamı 9",cevap:"3396",sure:25},
+ {ipucu:"İlk iki rakam aynı, toplam 17",cevap:"4454",sure:20}
 ];
 
-function start(){
-    document.body.className="bg"+seviye;
-    const l=levels[seviye];
-    hintEl.innerHTML=l.ipucu.join("<br>");
-    dEl.style.display=l.hane===4?"inline-block":"none";
-    aEl.value=bEl.value=cEl.value=dEl.value="";
-    lockIcon.textContent="🔒";
-    msgEl.textContent="";
-    sure=30;
+let i=0, sure=30, timer, cevapVerildi=false;
+let yanlisHak=0, skor=0;
 
-    clearInterval(timerInt);
-    timerInt=setInterval(()=>{
-        timerEl.textContent="⏱ "+sure;
-        if(--sure<0){
-            clearInterval(timerInt);
-            msgEl.textContent="⏰ Süre doldu!";
-        }
-    },1000);
+/* ========= ELEMANLAR ========= */
+const ipucu=document.getElementById("ipucu");
+const sureEl=document.getElementById("sure");
+const cevap=document.getElementById("cevap");
+const mesaj=document.getElementById("mesaj");
+const kilit=document.getElementById("kilit");
+const skorEl=document.getElementById("skor");
+
+/* ========= OYUN ========= */
+function yukle(){
+ if(i>=sorular.length){
+  document.body.innerHTML="<h1>🎉 Oyun Bitti</h1><h2>Skor: "+skor+"</h2>";
+  return;
+ }
+ cevapVerildi=false;
+ yanlisHak=0;
+ kilit.className="kilit";
+ sure=sorular[i].sure;
+ ipucu.innerText=sorular[i].ipucu;
+ sureEl.innerText=sure;
+ cevap.value=""; mesaj.innerText="";
+ timer=setInterval(()=>{
+  sure--; sureEl.innerText=sure;
+  if(sure<=0){
+   clearInterval(timer);
+   if(!cevapVerildi){
+    sesSure(); vib(600);
+    mesaj.innerText="⏰ Süre doldu!";
+    setTimeout(()=>{ i++; yukle(); },1500);
+   }
+  }
+ },1000);
 }
 
-function kontrol(){
-    const a=+aEl.value,b=+bEl.value,c=+cEl.value,d=+dEl.value;
-    if(isNaN(a)||isNaN(b)||isNaN(c)||(levels[seviye].hane===4&&isNaN(d))){
-        msgEl.textContent="Tüm rakamları gir";
-        return;
-    }
+function kontrolEt(){
+ if(cevapVerildi) return;
 
-    if(levels[seviye].kontrol(a,b,c,d)){
-        navigator.vibrate?.(200);
-        clearInterval(timerInt);
-        lockIcon.textContent="🔓";
-        score+=100;
-        scoreEl.textContent="🏆 "+score;
-        msgEl.textContent="✔ Kilit Açıldı";
-
-        setTimeout(()=>{
-            seviye++;
-            if(seviye<levels.length){
-                start();
-            }else{
-                hintEl.innerHTML="🎉 TÜM KİLİTLER AÇILDI";
-                msgEl.innerHTML="mstfhsyn başarılı 🔥<br>Puan: "+score;
-                timerEl.textContent="";
-            }
-        },800);
-    }else{
-        navigator.vibrate?.(100);
-        tries++;
-        triesEl.textContent="❌ "+tries;
-        lockIcon.classList.add("shake");
-        setTimeout(()=>lockIcon.classList.remove("shake"),300);
-        msgEl.textContent="Yanlış kombinasyon";
-    }
+ if(cevap.value===sorular[i].cevap){
+  cevapVerildi=true;
+  clearInterval(timer);
+  kilit.classList.add("acik");
+  sesDogru(); vib(120);
+  skor+=10; skorEl.innerText=skor;
+  mesaj.innerText="🔓 Kilit açıldı!";
+  setTimeout(()=>{ i++; yukle(); },1200);
+ }else{
+  yanlisHak++;
+  kilit.classList.add("kilitli");
+  setTimeout(()=>kilit.classList.remove("kilitli"),400);
+  sesYanlis(); vib([80,80]);
+  mesaj.innerText="❌ Yanlış ("+yanlisHak+"/3)";
+  if(yanlisHak>=3){
+    clearInterval(timer);
+    sesKilit(); vib(700);
+    skor-=5; skorEl.innerText=skor;
+    mesaj.innerText="🔒 Kilit kalıcı olarak kapandı!";
+    setTimeout(()=>{ i++; yukle(); },1500);
+  }
+ }
 }
 
-start();
+yukle();
 </script>
-
 </body>
 </html>
