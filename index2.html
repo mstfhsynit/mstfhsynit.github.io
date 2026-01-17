@@ -6,8 +6,7 @@
 <title>Sayı Tahmin Oyunu</title>
 <style>
 body{
-  margin:0;
-  padding:0;
+  margin:0; padding:0;
   font-family:Segoe UI,Arial,sans-serif;
   text-align:center;
   color:#fff;
@@ -16,105 +15,57 @@ body{
   position:relative;
 }
 .logo{
-  position:fixed;
-  top:10px;
-  left:20px;
-  width:120px;
-  z-index:1000;
+  position:fixed; top:10px; left:20px; width:120px; z-index:1000;
 }
 h1{margin:20px 0 5px 0;}
 p{margin:5px 0 15px 0;color:#ccc;}
 #cardContainer{position:relative;margin-top:80px;}
 .card{
-  width:220px;
-  padding:20px 20px 30px 20px;
-  background:#162447;
-  border-radius:15px;
-  box-shadow:0 6px 20px rgba(0,0,0,0.5);
+  width:220px; padding:20px 20px 30px 20px;
+  background:#162447; border-radius:15px; box-shadow:0 6px 20px rgba(0,0,0,0.5);
   margin:0 auto;
-  opacity:0;
-  transform:translateY(50px);
+  opacity:0; transform:translateY(50px);
   transition:transform 0.6s ease,opacity 0.6s ease;
   position:relative;
 }
-.card.show{
-  opacity:1;
-  transform:translateY(0);
-}
-.card button{
-  padding:10px 20px;
-  margin:8px;
-  border:none;
-  border-radius:5px;
-  font-weight:bold;
-  cursor:pointer;
-  transition:transform 0.2s;
-}
+.card.show{opacity:1; transform:translateY(0);}
+.card button{padding:10px 20px; margin:8px; border:none; border-radius:5px; font-weight:bold; cursor:pointer; transition:transform 0.2s;}
 .card button:hover{transform:scale(1.05);}
 .yes{background:#00c853;color:#fff;}
 .no{background:#d50000;color:#fff;}
-.numbers{font-size:0.85em;text-align:left;margin:12px 0;max-height:120px;overflow-y:auto;padding:8px;border-radius:8px;background:#0f3460;color:#fff;}
+.numbers{font-size:0.85em;text-align:left;margin:12px 0; max-height:120px; overflow-y:auto; padding:8px; border-radius:8px; background:#0f3460; color:#fff;}
 #cardNumber{
-  position:absolute;
-  top:8px;
-  left:50%;
-  transform:translateX(-50%);
-  font-weight:bold;
-  font-size:1em;
-  color:#ffeb3b;
+  position:absolute; top:8px; left:50%; transform:translateX(-50%);
+  font-weight:bold; font-size:1em; color:#ffeb3b;
 }
 
-/* Paylaş butonları ve dil seçimi */
-#result{font-size:2em;margin-top:30px;color:#ffeb3b;font-weight:bold;text-shadow:0 0 10px #ffeb3b,0 0 20px #ffeb3b;}
-#shareBtn{margin-top:30px;padding:12px 20px;font-size:1em;font-weight:bold;border:none;border-radius:10px;background:linear-gradient(90deg,#00c853,#64dd17);color:#fff;cursor:pointer;transition:0.2s;}
-#shareBtn:hover{transform:scale(1.05);box-shadow:0 0 15px #64dd17;}
+/* Dil seçimi */
+#languageSelector{position:fixed;top:15px;right:15px;z-index:2000;}
+#selectedLang{cursor:pointer;}
+#languageMenu{display:none; margin-top:5px; background:rgba(0,0,0,0.5); border-radius:8px; padding:5px; flex-direction:column;}
+.langBtn{display:flex; align-items:center; margin:3px; cursor:pointer; text-align:left; padding:5px; border-radius:5px; transition:0.2s;}
+.langBtn:hover{background:rgba(255,255,255,0.1);}
+.langBtn img{width:30px; height:30px; border-radius:50%; margin-right:8px;}
+
+/* Paylaş butonları */
+#shareBtn{margin-top:30px;padding:12px 20px;font-size:1em;font-weight:bold;border:none;border-radius:10px;color:#fff;cursor:pointer;transition:0.2s;}
+#shareBtn:hover{transform:scale(1.05);}
 #shareMenu{display:flex;justify-content:center;flex-wrap:wrap;margin-top:10px;visibility:hidden;opacity:0;transition:0.3s;}
 #shareMenu.show{visibility:visible;opacity:1;}
-.sharePlatform{display:inline-block;margin:5px;padding:10px 18px;border-radius:8px;color:#fff;font-weight:bold;text-decoration:none;transition:0.2s;}
-#whatsapp.sharePlatform{background:#25D366;}
-#facebook.sharePlatform{background:#3b5998;}
-#twitter.sharePlatform{background:#1DA1F2;}
-#linkedin.sharePlatform{background:#0077B5;}
-#telegram.sharePlatform{background:#0088cc;}
-#instagram.sharePlatform{background:#E1306C;}
+.sharePlatform{display:inline-block;margin:5px;padding:10px 18px;border-radius:8px;font-weight:bold;text-decoration:none;color:#fff;transition:0.2s;}
 .sharePlatform:hover{transform:scale(1.1);box-shadow:0 0 12px rgba(255,255,255,0.5);}
-#languageSelector{position:fixed;top:15px;right:15px;z-index:2000;}
-#languageMenu{display:none;margin-top:5px;background:rgba(0,0,0,0.5);border-radius:8px;padding:5px;flex-direction:column;}
-.langBtn{display:block;margin:3px;cursor:pointer;text-align:left;}
-.langBtn img{width:30px;height:30px;border-radius:50%;margin-right:8px;vertical-align:middle;transition:transform 0.2s;}
-.langBtn img:hover{transform:scale(1.1);}
+#whatsapp{background:#25D366;}
+#facebook{background:#3b5998;}
+#twitter{background:#1DA1F2;}
+#linkedin{background:#0077B5;}
+#telegram{background:#0088cc;}
+#instagram{background:#E1306C;}
 
 /* Arka plan hilal + yıldızlar */
-.background{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  z-index:-1;
-  pointer-events:none;
-}
-.star,.moon{
-  position:absolute;
-  background:#fff;
-  border-radius:50%;
-  animation:twinkle 3s infinite alternate;
-}
-.moon{
-  width:150px;
-  height:150px;
-  border-radius:50%;
-  clip-path: ellipse(50% 50% at 25% 50%);
-  bottom:20%;
-  left:50%;
-  transform:translateX(-50%);
-  opacity:0.7;
-}
-@keyframes twinkle{
-  0%{opacity:0.2;}
-  50%{opacity:0.7;}
-  100%{opacity:0.2;}
-}
+.background{position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; pointer-events:none;}
+.star,.moon{position:absolute; background:#fff; border-radius:50%; animation:twinkle 3s infinite alternate;}
+.moon{width:150px; height:150px; border-radius:50%; clip-path: ellipse(50% 50% at 25% 50%); bottom:20%; left:50%; transform:translateX(-50%); opacity:0.7;}
+@keyframes twinkle{0%{opacity:0.2;} 50%{opacity:0.7;} 100%{opacity:0.2;}}
 </style>
 </head>
 <body>
@@ -126,11 +77,18 @@ p{margin:5px 0 15px 0;color:#ccc;}
 
 <!-- Dil Seçimi -->
 <div id="languageSelector">
-  <span id="selectedLang" style="cursor:pointer;">Dil Seç</span>
+  <span id="selectedLang">Dil Seç</span>
   <div id="languageMenu">
-    <div class="langBtn" data-lang="tr" title="Türkçe"><img src="https://flagcdn.com/w40/tr.png">Türkçe</div>
-    <div class="langBtn" data-lang="ar" title="العربية"><img src="https://flagcdn.com/w40/sa.png">العربية</div>
-    <div class="langBtn" data-lang="en" title="English"><img src="https://flagcdn.com/w40/gb.png">English</div>
+    <div class="langBtn" data-lang="tr"><img src="https://flagcdn.com/w40/tr.png">Türkçe</div>
+    <div class="langBtn" data-lang="ar"><img src="https://flagcdn.com/w40/sa.png">العربية</div>
+    <div class="langBtn" data-lang="en"><img src="https://flagcdn.com/w40/gb.png">English</div>
+    <div class="langBtn" data-lang="fr"><img src="https://flagcdn.com/w40/fr.png">Français</div>
+    <div class="langBtn" data-lang="es"><img src="https://flagcdn.com/w40/es.png">Español</div>
+    <div class="langBtn" data-lang="de"><img src="https://flagcdn.com/w40/de.png">Deutsch</div>
+    <div class="langBtn" data-lang="it"><img src="https://flagcdn.com/w40/it.png">Italiano</div>
+    <div class="langBtn" data-lang="pt"><img src="https://flagcdn.com/w40/pt.png">Português</div>
+    <div class="langBtn" data-lang="ru"><img src="https://flagcdn.com/w40/ru.png">Русский</div>
+    <div class="langBtn" data-lang="zh"><img src="https://flagcdn.com/w40/cn.png">中文</div>
   </div>
 </div>
 
@@ -143,6 +101,9 @@ p{margin:5px 0 15px 0;color:#ccc;}
         <a href="#" class="sharePlatform" id="whatsapp">WhatsApp</a>
         <a href="#" class="sharePlatform" id="facebook">Facebook</a>
         <a href="#" class="sharePlatform" id="twitter">Twitter</a>
+        <a href="#" class="sharePlatform" id="linkedin">LinkedIn</a>
+        <a href="#" class="sharePlatform" id="telegram">Telegram</a>
+        <a href="#" class="sharePlatform" id="instagram">Instagram</a>
     </div>
 </div>
 
@@ -167,8 +128,16 @@ for(let i=0;i<30;i++){
 const texts = {
   tr:{title:"Sayı Tahmin Oyunu",instruction:"1 ile 200 arasında bir sayı tutun. Kartlara göre 'Evet' veya 'Hayır' seçin.",shareBtn:"Oyunu paylaş, arkadaşların da oynasın",result:"Tahminim: "},
   ar:{title:"لعبة تخمين الرقم",instruction:"اختر رقمًا بين 1 و200. اضغط 'نعم' أو 'لا' حسب البطاقات.",shareBtn:"شارك اللعبة مع أصدقائك",result:"توقعي: "},
-  en:{title:"Number Guessing Game",instruction:"Pick a number between 1 and 200. Choose 'Yes' or 'No' for each card.",shareBtn:"Share the game, let your friends play",result:"My guess: "}
+  en:{title:"Number Guessing Game",instruction:"Pick a number between 1 and 200. Choose 'Yes' or 'No' for each card.",shareBtn:"Share the game, let your friends play",result:"My guess: "},
+  fr:{title:"Jeu de Deviner le Nombre",instruction:"Choisissez un nombre entre 1 et 200. Cliquez sur 'Oui' ou 'Non' pour chaque carte.",shareBtn:"Partagez le jeu avec vos amis",result:"Mon devin: "},
+  es:{title:"Juego de Adivinar Número",instruction:"Elige un número entre 1 y 200. Haz clic en 'Sí' o 'No' para cada carta.",shareBtn:"Comparte el juego con tus amigos",result:"Mi predicción: "},
+  de:{title:"Zahlenschätzspiel",instruction:"Wählen Sie eine Zahl zwischen 1 und 200. Klicken Sie 'Ja' oder 'Nein' für jede Karte.",shareBtn:"Teile das Spiel mit deinen Freunden",result:"Meine Vorhersage: "},
+  it:{title:"Gioco Indovina Numero",instruction:"Scegli un numero tra 1 e 200. Premi 'Sì' o 'No' per ogni carta.",shareBtn:"Condividi il gioco con i tuoi amici",result:"La mia previsione: "},
+  pt:{title:"Jogo de Adivinhação",instruction:"Escolha um número entre 1 e 200. Clique 'Sim' ou 'Não' para cada carta.",shareBtn:"Compartilhe o jogo com seus amigos",result:"Minha previsão: "},
+  ru:{title:"Игра Угадай Число",instruction:"Выберите число от 1 до 200. Нажмите 'Да' или 'Нет' для каждой карты.",shareBtn:"Поделитесь игрой с друзьями",result:"Мой прогноз: "},
+  zh:{title:"猜数字游戏",instruction:"选择1到200之间的数字。对每张牌点击“是”或“否”。",shareBtn:"分享游戏给朋友",result:"我的猜测: "}
 };
+
 const titleEl=document.getElementById('title');
 const instructionEl=document.getElementById('instruction');
 const shareBtnEl=document.getElementById('shareBtn');
@@ -180,7 +149,7 @@ selectedLang.addEventListener('click',()=>{languageMenu.style.display=languageMe
 langBtns.forEach(btn=>{
   btn.addEventListener('click',()=>{
     const lang=btn.dataset.lang;
-    const langName=btn.title;
+    const langName=btn.textContent;
     const flagSrc=btn.querySelector('img').src;
     if(texts[lang]){
       titleEl.innerText=texts[lang].title;
@@ -207,7 +176,7 @@ const totalCards=8;
 let currentCard=0;
 let userNumber=0;
 const cards=[];
-const bip=new Audio('https://www.soundjay.com/button/sounds/button-16.mp3');
+const bip=new Audio('https://www.soundjay.com/button/sounds/button-16.mp3'); // bip sesi
 
 function createCard(numbers, bitValue){
   const card=document.createElement('div');
