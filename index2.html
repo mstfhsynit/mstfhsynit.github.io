@@ -8,9 +8,30 @@
     body { 
         font-family: 'Segoe UI', Arial, sans-serif; 
         text-align: center; padding: 20px; background: #1a1a2e; color: #fff; 
+        margin: 0;
     }
     h1 { margin-bottom: 5px; }
     p { margin-bottom: 20px; color: #ccc; }
+
+    /* Sabit logo + ışık animasyonu */
+    .logo {
+        position: fixed;
+        top: 10px;
+        right: 20px;
+        font-weight: bold;
+        font-size: 1.3em;
+        color: #ffeb3b;
+        text-shadow: 0 0 5px #ffeb3b, 0 0 10px #ffeb3b;
+        pointer-events: none;
+        z-index: 1000;
+        animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+        0% { text-shadow: 0 0 5px #ffeb3b, 0 0 10px #ffeb3b; }
+        50% { text-shadow: 0 0 15px #fff176, 0 0 30px #fff176; }
+        100% { text-shadow: 0 0 5px #ffeb3b, 0 0 10px #ffeb3b; }
+    }
 
     .card { 
         width: 220px; padding: 20px; background: #162447; border-radius: 15px; 
@@ -48,6 +69,8 @@
 </head>
 <body>
 
+<div class="logo">MstfHsyn</div>
+
 <h1>Sayı Tahmin Oyunu</h1>
 <p>1 ile 200 arasında bir sayı tutun. Kartlara göre "Evet" veya "Hayır" seçin.</p>
 
@@ -79,7 +102,7 @@ function playBeep(frequency = 400, duration = 100) {
     const gainNode = context.createGain();
 
     oscillator.frequency.value = frequency;
-    oscillator.type = 'square'; // bip sesi
+    oscillator.type = 'square';
     oscillator.connect(gainNode);
     gainNode.connect(context.destination);
     oscillator.start();
@@ -96,8 +119,8 @@ function showCard(index) {
 
     const card = document.createElement('div');
     card.className = 'card';
-    card.style.opacity = 0;        // Başlangıç opaklığı 0
-    card.style.transform = 'translateY(30px)'; // Hafif aşağıdan
+    card.style.opacity = 0;
+    card.style.transform = 'translateY(30px)';
 
     card.innerHTML = `
         <p><strong>Kart ${index+1}</strong></p>
@@ -107,7 +130,6 @@ function showCard(index) {
     `;
     container.appendChild(card);
 
-    // Küçük gecikme ile animasyon
     setTimeout(() => {
         card.style.opacity = 1;
         card.style.transform = 'translateY(0)';
@@ -120,7 +142,6 @@ function choose(answer, button) {
     userChoices[currentCard] = answer;
     const cardDiv = button.parentElement;
 
-    // Kart animasyonu: yukarı kayıp kaybolma
     cardDiv.style.transform = "translateY(-60px)";
     cardDiv.style.opacity = "0";
 
@@ -146,4 +167,4 @@ showCard(currentCard);
 </script>
 
 </body>
-  </html>
+</html>
