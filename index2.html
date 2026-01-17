@@ -79,7 +79,19 @@ p { margin-bottom: 20px; color: #ccc; }
 }
 
 /* Paylaş menüsü platform isimleri */
-#shareMenu { display:none; margin-top:10px; }
+#shareMenu { 
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top:10px;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+#shareMenu.show {
+    visibility: visible;
+    opacity: 1;
+}
 .sharePlatform {
     display: inline-block;
     margin: 5px;
@@ -93,6 +105,10 @@ p { margin-bottom: 20px; color: #ccc; }
 #whatsapp.sharePlatform { background-color: #25D366; }
 #facebook.sharePlatform { background-color: #3b5998; }
 #twitter.sharePlatform { background-color: #1DA1F2; }
+#linkedin.sharePlatform { background-color: #0077B5; }
+#telegram.sharePlatform { background-color: #0088cc; }
+#instagram.sharePlatform { background-color: #E1306C; }
+
 .sharePlatform:hover {
     transform: scale(1.1);
     box-shadow: 0 0 12px rgba(255,255,255,0.5);
@@ -115,6 +131,9 @@ p { margin-bottom: 20px; color: #ccc; }
         <a href="#" id="whatsapp" target="_blank" class="sharePlatform">WhatsApp</a>
         <a href="#" id="facebook" target="_blank" class="sharePlatform">Facebook</a>
         <a href="#" id="twitter" target="_blank" class="sharePlatform">Twitter</a>
+        <a href="#" id="linkedin" target="_blank" class="sharePlatform">LinkedIn</a>
+        <a href="#" id="telegram" target="_blank" class="sharePlatform">Telegram</a>
+        <a href="#" id="instagram" target="_blank" class="sharePlatform">Instagram</a>
     </div>
 </div>
 
@@ -199,14 +218,18 @@ function showResult() {
 const shareBtn = document.getElementById('shareBtn');
 const shareMenu = document.getElementById('shareMenu');
 shareBtn.addEventListener('click', () => {
-    shareMenu.style.display = shareMenu.style.display === 'none' ? 'block' : 'none';
+    shareMenu.classList.toggle('show');
 });
 
 // Sosyal paylaşım linkleri
 const url = encodeURIComponent(window.location.href);
+
 document.getElementById('whatsapp').href = `https://api.whatsapp.com/send?text=Oyunu%20oyna:%20${url}`;
 document.getElementById('facebook').href = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
 document.getElementById('twitter').href = `https://twitter.com/intent/tweet?url=${url}&text=Bu%20eğlenceli%20oyunu%20dene!`;
+document.getElementById('linkedin').href = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+document.getElementById('telegram').href = `https://t.me/share/url?url=${url}&text=Bu%20eğlenceli%20oyunu%20dene!`;
+document.getElementById('instagram').href = `https://www.instagram.com/?url=${url}`; // Instagram web ile sınırlı
 
 // İlk kartı göster
 showCard(currentCard);
