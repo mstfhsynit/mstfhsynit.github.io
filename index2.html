@@ -13,24 +13,21 @@
     h1 { margin-bottom: 5px; }
     p { margin-bottom: 20px; color: #ccc; }
 
-    /* Sabit logo + ışık animasyonu */
+    /* Sabit logo + glow animasyonu */
     .logo {
         position: fixed;
         top: 10px;
         right: 20px;
-        font-weight: bold;
-        font-size: 1.3em;
-        color: #ffeb3b;
-        text-shadow: 0 0 5px #ffeb3b, 0 0 10px #ffeb3b;
+        width: 120px; /* isteğe göre boyut ayarlanabilir */
         pointer-events: none;
         z-index: 1000;
         animation: glow 2s infinite alternate;
     }
 
     @keyframes glow {
-        0% { text-shadow: 0 0 5px #ffeb3b, 0 0 10px #ffeb3b; }
-        50% { text-shadow: 0 0 15px #fff176, 0 0 30px #fff176; }
-        100% { text-shadow: 0 0 5px #ffeb3b, 0 0 10px #ffeb3b; }
+        0% { filter: drop-shadow(0 0 5px #ffeb3b) drop-shadow(0 0 10px #ffeb3b); }
+        50% { filter: drop-shadow(0 0 15px #fff176) drop-shadow(0 0 30px #fff176); }
+        100% { filter: drop-shadow(0 0 5px #ffeb3b) drop-shadow(0 0 10px #ffeb3b); }
     }
 
     .card { 
@@ -69,7 +66,7 @@
 </head>
 <body>
 
-<div class="logo">MstfHsyn</div>
+<img src="mstfhsyn-logo.png" class="logo" alt="MstfHsyn Logo">
 
 <h1>Sayı Tahmin Oyunu</h1>
 <p>1 ile 200 arasında bir sayı tutun. Kartlara göre "Evet" veya "Hayır" seçin.</p>
