@@ -168,7 +168,45 @@ p { margin-bottom: 20px; color: #ccc; }
 </div>
 
 <script>
-/* Kart oyunu mantığı */
+// --------------------
+// Dil çeviri sözlüğü
+// --------------------
+const texts = {
+  tr: { title: "Sayı Tahmin Oyunu", instruction: "1 ile 200 arasında bir sayı tutun. Kartlara göre 'Evet' veya 'Hayır' seçin.", shareBtn: "Oyunu paylaş, arkadaşların da oynasın", result: "Tahminim: " },
+  ar: { title: "لعبة تخمين الرقم", instruction: "اختر رقمًا بين 1 و200. اضغط 'نعم' أو 'لا' حسب البطاقات.", shareBtn: "شارك اللعبة مع أصدقائك", result: "توقعي: " },
+  en: { title: "Number Guessing Game", instruction: "Pick a number between 1 and 200. Choose 'Yes' or 'No' for each card.", shareBtn: "Share the game, let your friends play", result: "My guess: " }
+  // Diğer diller eklenebilir
+};
+
+// --------------------
+// Elementler
+// --------------------
+const titleEl = document.getElementById('title');
+const instructionEl = document.getElementById('instruction');
+const shareBtnEl = document.getElementById('shareBtn');
+const resultEl = document.getElementById('result');
+const languageSelect = document.getElementById('languageSelect');
+
+// --------------------
+// Dil değiştirme
+// --------------------
+languageSelect.addEventListener('change', ()=>{
+    const lang = languageSelect.value;
+    if(texts[lang]){
+        titleEl.innerText = texts[lang].title;
+        instructionEl.innerText = texts[lang].instruction;
+        shareBtnEl.innerText = texts[lang].shareBtn;
+        // Sonuç çevirisi
+        if(resultEl.innerText.includes(":")){
+            const guess = resultEl.innerText.split(":")[1].trim();
+            resultEl.innerText = texts[lang].result + guess;
+        }
+    }
+});
+
+// --------------------
+// Kart oyunu
+// --------------------
 const maxNumber = 200;
 const numCards = 8;
 let userChoices = [];
@@ -176,49 +214,49 @@ let currentCard = 0;
 const container = document.getElementById('cardContainer');
 
 const cardNumbers = [];
-for(let i=0; i<numCards; i++){
+for(let i=0;i<numCards;i++){
     let nums = [];
-    for(let n=1; n<=maxNumber; n++){
-        if(n & (1 << i)) nums.push(n);
+    for(let n=1;n<=maxNumber;n++){
+        if(n & (1<<i)) nums.push(n);
     }
     cardNumbers.push(nums);
 }
 
-function playBeep(frequency = 400, duration = 100){
-    const context = new (window.AudioContext || window.webkitAudioContext)();
+function playBeep(frequency=400,duration=100){
+    const context = new (window.AudioContext||window.webkitAudioContext)();
     const oscillator = context.createOscillator();
     const gainNode = context.createGain();
-    oscillator.frequency.value = frequency;
-    oscillator.type = 'square';
+    oscillator.frequency.value=frequency;
+    oscillator.type='square';
     oscillator.connect(gainNode);
     gainNode.connect(context.destination);
     oscillator.start();
-    setTimeout(()=>{oscillator.stop();}, duration);
+    setTimeout(()=>{oscillator.stop();},duration);
 }
 
 function showCard(index){
-    container.innerHTML = '';
-    if(index >= numCards) return showResult();
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.style.opacity = 0;
-    card.style.transform = 'translateY(30px)';
-    card.innerHTML = `
+    container.innerHTML='';
+    if(index>=numCards) return showResult();
+    const card=document.createElement('div');
+    card.className='card';
+    card.style.opacity=0;
+    card.style.transform='translateY(30px)';
+    card.innerHTML=`
         <p><strong>Kart ${index+1}</strong></p>
         <div class="numbers">${cardNumbers[index].join(', ')}</div>
-        <button class="yes" onclick="choose(true, this)">Evet</button>
-        <button class="no" onclick="choose(false, this)">Hayır</button>
+        <button class="yes" onclick="choose(true,this)">Evet</button>
+        <button class="no" onclick="choose(false,this)">Hayır</button>
     `;
     container.appendChild(card);
-    setTimeout(()=>{card.style.opacity = 1; card.style.transform='translateY(0)';},50);
+    setTimeout(()=>{card.style.opacity=1; card.style.transform='translateY(0)';},50);
 }
 
-function choose(answer, button){
+function choose(answer,button){
     playBeep(400,100);
     userChoices[currentCard]=answer;
     const cardDiv = button.parentElement;
-    cardDiv.style.transform = "translateY(-60px)";
-    cardDiv.style.opacity = "0";
+    cardDiv.style.transform="translateY(-60px)";
+    cardDiv.style.opacity="0";
     setTimeout(()=>{currentCard++; showCard(currentCard);},600);
 }
 
@@ -229,34 +267,29 @@ function showResult(){
     }
     if(guess>maxNumber) guess=maxNumber;
     container.innerHTML='';
-    document.getElementById('result').innerText=`Tahminim: ${guess}`;
+    const lang = languageSelect.value;
+    const resText = texts[lang] ? texts[lang].result : texts['tr'].result;
+    resultEl.innerText = resText + guess;
 }
 
-/* Paylaş butonu */
+// --------------------
+// Paylaş butonu
+// --------------------
 const shareBtn = document.getElementById('shareBtn');
 const shareMenu = document.getElementById('shareMenu');
 shareBtn.addEventListener('click',()=>{shareMenu.classList.toggle('show');});
 
-/* Sosyal paylaşım linkleri */
 const url = encodeURIComponent(window.location.href);
-document.getElementById('whatsapp').href = `https://api.whatsapp.com/send?text=Oyunu%20oyna:%20${url}`;
-document.getElementById('facebook').href = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-document.getElementById('twitter').href = `https://twitter.com/intent/tweet?url=${url}&text=Bu%20eğlenceli%20oyunu%20dene!`;
-document.getElementById('linkedin').href = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
-document.getElementById('telegram').href = `https://t.me/share/url?url=${url}&text=Bu%20eğlenceli%20oyunu%20dene!`;
-document.getElementById('instagram').href = `https://www.instagram.com/?url=${url}`;
+document.getElementById('whatsapp').href=`https://api.whatsapp.com/send?text=Oyunu%20oyna:%20${url}`;
+document.getElementById('facebook').href=`https://www.facebook.com/sharer/sharer.php?u=${url}`;
+document.getElementById('twitter').href=`https://twitter.com/intent/tweet?url=${url}&text=Bu%20eğlenceli%20oyunu%20dene!`;
+document.getElementById('linkedin').href=`https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+document.getElementById('telegram').href=`https://t.me/share/url?url=${url}&text=Bu%20eğlenceli%20oyunu%20dene!`;
+document.getElementById('instagram').href=`https://www.instagram.com/?url=${url}`;
 
-/* Dil seçimi */
-const languageSelect = document.getElementById('languageSelect');
-languageSelect.addEventListener('change', ()=>{
-    const lang = languageSelect.value;
-    console.log('Seçilen dil:', lang);
-    // Buraya ileride metinleri değiştirme kodu ekleyebilirsin
-});
-
-/* İlk kartı göster */
+// Başlangıçta ilk kartı göster
 showCard(currentCard);
 </script>
 
 </body>
-    </html>
+</html>
