@@ -155,12 +155,12 @@ p{margin:5px 0 15px 0;color:#ccc;}
 <div style="text-align:center; margin-top:20px;">
   <button id="shareBtn">Oyunu paylaş, arkadaşların da oynasın</button>
   <div id="shareMenu">
-      <a href="#" class="sharePlatform" id="whatsapp">WhatsApp</a>
-      <a href="#" class="sharePlatform" id="facebook">Facebook</a>
-      <a href="#" class="sharePlatform" id="twitter">Twitter</a>
-      <a href="#" class="sharePlatform" id="linkedin">LinkedIn</a>
-      <a href="#" class="sharePlatform" id="telegram">Telegram</a>
-      <a href="#" class="sharePlatform" id="instagram">Instagram</a>
+      <a href="https://api.whatsapp.com/send?text=Oyun+https://mstfhsynit.github.io/index2.html" class="sharePlatform" id="whatsapp" target="_blank">WhatsApp</a>
+      <a href="https://www.facebook.com/sharer/sharer.php?u=https://mstfhsynit.github.io/index2.html" class="sharePlatform" id="facebook" target="_blank">Facebook</a>
+      <a href="https://twitter.com/intent/tweet?text=Oyun&url=https://mstfhsynit.github.io/index2.html" class="sharePlatform" id="twitter" target="_blank">Twitter</a>
+      <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://mstfhsynit.github.io/index2.html&title=Oyun" class="sharePlatform" id="linkedin" target="_blank">LinkedIn</a>
+      <a href="https://t.me/share/url?url=https://mstfhsynit.github.io/index2.html&text=Oyun" class="sharePlatform" id="telegram" target="_blank">Telegram</a>
+      <a href="https://www.instagram.com/" class="sharePlatform" id="instagram" target="_blank">Instagram</a>
   </div>
 </div>
 
@@ -223,7 +223,7 @@ langBtns.forEach(btn=>{
   });
 });
 
-// Paylaş
+// Paylaş menüsü
 const shareBtn=document.getElementById('shareBtn');
 const shareMenu=document.getElementById('shareMenu');
 shareBtn.addEventListener('click',()=>{shareMenu.classList.toggle('show');});
@@ -282,4 +282,4 @@ function showNextCard(){
 showNextCard();
 </script>
 </body>
-</html>
+  </html>
