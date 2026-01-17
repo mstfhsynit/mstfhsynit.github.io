@@ -113,14 +113,44 @@ p { margin-bottom: 20px; color: #ccc; }
     transform: scale(1.1);
     box-shadow: 0 0 12px rgba(255,255,255,0.5);
 }
+
+/* Dil seçimi */
+#languageSelect {
+    padding: 5px 8px;
+    border-radius: 6px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
 </style>
 </head>
 <body>
 
 <img src="mstfhsyn-logo.png" class="logo" alt="MstfHsyn Logo">
 
-<h1>Sayı Tahmin Oyunu</h1>
-<p>1 ile 200 arasında bir sayı tutun. Kartlara göre "Evet" veya "Hayır" seçin.</p>
+<h1 id="title">Sayı Tahmin Oyunu</h1>
+<p id="instruction">1 ile 200 arasında bir sayı tutun. Kartlara göre "Evet" veya "Hayır" seçin.</p>
+
+<!-- Dil Seçimi Dropdown -->
+<div style="position: fixed; top: 15px; right: 20px;">
+  <select id="languageSelect">
+    <option value="tr">Türkçe</option>
+    <option value="ar">العربية</option>
+    <option value="en">English</option>
+    <option value="es">Español</option>
+    <option value="fr">Français</option>
+    <option value="de">Deutsch</option>
+    <option value="it">Italiano</option>
+    <option value="pt">Português</option>
+    <option value="ru">Русский</option>
+    <option value="zh">中文</option>
+    <option value="ja">日本語</option>
+    <option value="ko">한국어</option>
+    <option value="hi">हिन्दी</option>
+    <option value="id">Bahasa Indonesia</option>
+    <option value="bn">বাংলা</option>
+  </select>
+</div>
 
 <div id="cardContainer"></div>
 <p id="result"></p>
@@ -138,25 +168,23 @@ p { margin-bottom: 20px; color: #ccc; }
 </div>
 
 <script>
+/* Kart oyunu mantığı */
 const maxNumber = 200;
 const numCards = 8;
 let userChoices = [];
 let currentCard = 0;
-
 const container = document.getElementById('cardContainer');
 
-// Kartların sayılarını oluştur (binary mantığı)
 const cardNumbers = [];
-for(let i=0; i<numCards; i++) {
+for(let i=0; i<numCards; i++){
     let nums = [];
-    for(let n=1; n<=maxNumber; n++) {
+    for(let n=1; n<=maxNumber; n++){
         if(n & (1 << i)) nums.push(n);
     }
     cardNumbers.push(nums);
 }
 
-// Bip sesi
-function playBeep(frequency = 400, duration = 100) {
+function playBeep(frequency = 400, duration = 100){
     const context = new (window.AudioContext || window.webkitAudioContext)();
     const oscillator = context.createOscillator();
     const gainNode = context.createGain();
@@ -165,19 +193,16 @@ function playBeep(frequency = 400, duration = 100) {
     oscillator.connect(gainNode);
     gainNode.connect(context.destination);
     oscillator.start();
-    setTimeout(() => { oscillator.stop(); }, duration);
+    setTimeout(()=>{oscillator.stop();}, duration);
 }
 
-// Kart gösterimi
-function showCard(index) {
+function showCard(index){
     container.innerHTML = '';
     if(index >= numCards) return showResult();
-
     const card = document.createElement('div');
     card.className = 'card';
     card.style.opacity = 0;
     card.style.transform = 'translateY(30px)';
-
     card.innerHTML = `
         <p><strong>Kart ${index+1}</strong></p>
         <div class="numbers">${cardNumbers[index].join(', ')}</div>
@@ -185,53 +210,51 @@ function showCard(index) {
         <button class="no" onclick="choose(false, this)">Hayır</button>
     `;
     container.appendChild(card);
-
-    setTimeout(() => { card.style.opacity = 1; card.style.transform = 'translateY(0)'; }, 50);
+    setTimeout(()=>{card.style.opacity = 1; card.style.transform='translateY(0)';},50);
 }
 
-// Kullanıcı seçimleri
-function choose(answer, button) {
-    playBeep(400, 100);
-    userChoices[currentCard] = answer;
+function choose(answer, button){
+    playBeep(400,100);
+    userChoices[currentCard]=answer;
     const cardDiv = button.parentElement;
     cardDiv.style.transform = "translateY(-60px)";
     cardDiv.style.opacity = "0";
-
-    setTimeout(() => {
-        currentCard++;
-        showCard(currentCard);
-    }, 600);
+    setTimeout(()=>{currentCard++; showCard(currentCard);},600);
 }
 
-// Sonuç göster
-function showResult() {
-    let guess = 0;
-    for(let i=0; i<numCards; i++) {
-        if(userChoices[i]) guess += Math.pow(2, i);
+function showResult(){
+    let guess=0;
+    for(let i=0;i<numCards;i++){
+        if(userChoices[i]) guess+=Math.pow(2,i);
     }
-    if(guess > maxNumber) guess = maxNumber;
-    container.innerHTML = '';
-    document.getElementById('result').innerText = `Tahminim: ${guess}`;
+    if(guess>maxNumber) guess=maxNumber;
+    container.innerHTML='';
+    document.getElementById('result').innerText=`Tahminim: ${guess}`;
 }
 
-// Paylaş butonu
+/* Paylaş butonu */
 const shareBtn = document.getElementById('shareBtn');
 const shareMenu = document.getElementById('shareMenu');
-shareBtn.addEventListener('click', () => {
-    shareMenu.classList.toggle('show');
-});
+shareBtn.addEventListener('click',()=>{shareMenu.classList.toggle('show');});
 
-// Sosyal paylaşım linkleri
+/* Sosyal paylaşım linkleri */
 const url = encodeURIComponent(window.location.href);
-
 document.getElementById('whatsapp').href = `https://api.whatsapp.com/send?text=Oyunu%20oyna:%20${url}`;
 document.getElementById('facebook').href = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
 document.getElementById('twitter').href = `https://twitter.com/intent/tweet?url=${url}&text=Bu%20eğlenceli%20oyunu%20dene!`;
 document.getElementById('linkedin').href = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
 document.getElementById('telegram').href = `https://t.me/share/url?url=${url}&text=Bu%20eğlenceli%20oyunu%20dene!`;
-document.getElementById('instagram').href = `https://www.instagram.com/?url=${url}`; // Instagram web ile sınırlı
+document.getElementById('instagram').href = `https://www.instagram.com/?url=${url}`;
 
-// İlk kartı göster
+/* Dil seçimi */
+const languageSelect = document.getElementById('languageSelect');
+languageSelect.addEventListener('change', ()=>{
+    const lang = languageSelect.value;
+    console.log('Seçilen dil:', lang);
+    // Buraya ileride metinleri değiştirme kodu ekleyebilirsin
+});
+
+/* İlk kartı göster */
 showCard(currentCard);
 </script>
 
