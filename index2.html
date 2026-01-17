@@ -99,6 +99,24 @@ p{margin:5px 0 15px 0;color:#ccc;}
 .background{position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; pointer-events:none;}
 .star{position:absolute; background:#fff; border-radius:50%; animation:twinkle 3s infinite alternate;}
 @keyframes twinkle{0%{opacity:0.2;} 50%{opacity:0.7;} 100%{opacity:0.2;}}
+
+/* Yerli üretim */
+#localProduction{
+  position:absolute;
+  top:30px; /* paylaş butonunun hizasına göre ayar */
+  left:calc(50% - 170px); /* paylaş butonunun sol karşısına */
+  font-size:13px;
+  font-weight:bold;
+  color:#E53935; /* dudak kırmızısı */
+  display:flex;
+  align-items:center;
+  z-index:1000;
+}
+#localProduction img{
+  width:25px;
+  vertical-align:middle;
+  margin-right:5px;
+}
 </style>
 </head>
 <body>
@@ -123,6 +141,12 @@ p{margin:5px 0 15px 0;color:#ccc;}
     <div class="langBtn" data-lang="ru"><img src="https://flagcdn.com/w40/ru.png">Русский</div>
     <div class="langBtn" data-lang="zh"><img src="https://flagcdn.com/w40/cn.png">中文</div>
   </div>
+</div>
+
+<!-- Yerli Üretim Logo + Yazı -->
+<div id="localProduction">
+  <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHJlY3Qgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjRUVFRUUiLz48L3N2Zz4=" alt="Yerli Üretim">
+  Yerli Üretim – Türkiye
 </div>
 
 <div id="cardContainer"></div>
@@ -256,4 +280,4 @@ function showNextCard(){
 showNextCard();
 </script>
 </body>
-</html>
+          </html>
