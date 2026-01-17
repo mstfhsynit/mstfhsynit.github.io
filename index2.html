@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sayı Tahmin Oyunu</title>
 <style>
-body{margin:0;padding:0;font-family:Segoe UI,Arial,sans-serif;text-align:center;background:linear-gradient(to bottom,#0f2027,#203a43,#2c5364);color:#fff;overflow:hidden;position:relative;}
+body{margin:0;padding:0;font-family:Segoe UI,Arial,sans-serif;text-align:center;background:#0b1d2b;color:#fff;overflow:hidden;position:relative;}
 .logo{position:fixed;top:10px;left:20px;width:120px;z-index:1000;}
 h1{margin:20px 0 5px 0;}
 p{margin:5px 0 15px 0;color:#ccc;}
@@ -31,17 +31,20 @@ p{margin:5px 0 15px 0;color:#ccc;}
 #instagram.sharePlatform{background:#E1306C;}
 .sharePlatform:hover{transform:scale(1.1);box-shadow:0 0 12px rgba(255,255,255,0.5);}
 #languageSelector{position:fixed;top:15px;right:15px;z-index:2000;}
-#languageMenu{display:none;margin-top:5px;background:rgba(0,0,0,0.5);border-radius:8px;padding:5px;}
-.langBtn{display:inline-block;margin:3px;cursor:pointer;}
-.langBtn img{width:30px;height:30px;border-radius:50%;transition:transform 0.2s;}
+#languageMenu{display:none;margin-top:5px;background:rgba(0,0,0,0.5);border-radius:8px;padding:5px;flex-direction:column;}
+.langBtn{display:block;margin:3px;cursor:pointer;text-align:left;}
+.langBtn img{width:30px;height:30px;border-radius:50%;margin-right:8px;vertical-align:middle;transition:transform 0.2s;}
 .langBtn img:hover{transform:scale(1.1);}
 .star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:twinkle 2s infinite;}
+.moon{position:absolute;top:50px;left:50%;transform:translateX(-50%);width:60px;height:60px;background:#fff;border-radius:50%;}
 @keyframes twinkle{0%,100%{opacity:0.3;}50%{opacity:1;}}
 </style>
 </head>
 <body>
 
 <img src="mstfhsyn-logo.png" class="logo" alt="MstfHsyn Logo">
+
+<div class="moon"></div>
 
 <h1 id="title">Sayı Tahmin Oyunu</h1>
 <p id="instruction">1 ile 200 arasında bir sayı tutun. Kartlara göre "Evet" veya "Hayır" seçin.</p>
@@ -50,10 +53,16 @@ p{margin:5px 0 15px 0;color:#ccc;}
 <div id="languageSelector">
   <span id="selectedLang" style="cursor:pointer;">Dil Seç</span>
   <div id="languageMenu">
-    <div class="langBtn" data-lang="tr" title="Türkçe"><img src="https://flagcdn.com/w40/tr.png"></div>
-    <div class="langBtn" data-lang="ar" title="العربية"><img src="https://flagcdn.com/w40/sa.png"></div>
-    <div class="langBtn" data-lang="en" title="English"><img src="https://flagcdn.com/w40/gb.png"></div>
-    <!-- Diğer diller buraya -->
+    <div class="langBtn" data-lang="tr" title="Türkçe"><img src="https://flagcdn.com/w40/tr.png">Türkçe</div>
+    <div class="langBtn" data-lang="ar" title="العربية"><img src="https://flagcdn.com/w40/sa.png">العربية</div>
+    <div class="langBtn" data-lang="en" title="English"><img src="https://flagcdn.com/w40/gb.png">English</div>
+    <div class="langBtn" data-lang="fr" title="Français"><img src="https://flagcdn.com/w40/fr.png">Français</div>
+    <div class="langBtn" data-lang="es" title="Español"><img src="https://flagcdn.com/w40/es.png">Español</div>
+    <div class="langBtn" data-lang="de" title="Deutsch"><img src="https://flagcdn.com/w40/de.png">Deutsch</div>
+    <div class="langBtn" data-lang="it" title="Italiano"><img src="https://flagcdn.com/w40/it.png">Italiano</div>
+    <div class="langBtn" data-lang="pt" title="Português"><img src="https://flagcdn.com/w40/pt.png">Português</div>
+    <div class="langBtn" data-lang="ru" title="Русский"><img src="https://flagcdn.com/w40/ru.png">Русский</div>
+    <div class="langBtn" data-lang="zh" title="中文"><img src="https://flagcdn.com/w40/cn.png">中文</div>
   </div>
 </div>
 
@@ -87,7 +96,14 @@ for(let i=0;i<100;i++){
 const texts = {
   tr:{title:"Sayı Tahmin Oyunu",instruction:"1 ile 200 arasında bir sayı tutun. Kartlara göre 'Evet' veya 'Hayır' seçin.",shareBtn:"Oyunu paylaş, arkadaşların da oynasın",result:"Tahminim: "},
   ar:{title:"لعبة تخمين الرقم",instruction:"اختر رقمًا بين 1 و200. اضغط 'نعم' أو 'لا' حسب البطاقات.",shareBtn:"شارك اللعبة مع أصدقائك",result:"توقعي: "},
-  en:{title:"Number Guessing Game",instruction:"Pick a number between 1 and 200. Choose 'Yes' or 'No' for each card.",shareBtn:"Share the game, let your friends play",result:"My guess: "}
+  en:{title:"Number Guessing Game",instruction:"Pick a number between 1 and 200. Choose 'Yes' or 'No' for each card.",shareBtn:"Share the game, let your friends play",result:"My guess: "},
+  fr:{title:"Jeu de devinette",instruction:"Choisissez un nombre entre 1 et 200. Cliquez sur 'Oui' ou 'Non' pour chaque carte.",shareBtn:"Partagez le jeu avec vos amis",result:"Ma prédiction: "},
+  es:{title:"Juego de adivinanza",instruction:"Elige un número entre 1 y 200. Haz clic en 'Sí' o 'No' para cada carta.",shareBtn:"Comparte el juego con tus amigos",result:"Mi predicción: "},
+  de:{title:"Zahlenspiel",instruction:"Wähle eine Zahl zwischen 1 und 200. Klicke für jede Karte auf 'Ja' oder 'Nein'.",shareBtn:"Teile das Spiel mit deinen Freunden",result:"Meine Vermutung: "},
+  it:{title:"Gioco di indovinare",instruction:"Scegli un numero tra 1 e 200. Clicca 'Sì' o 'No' per ogni carta.",shareBtn:"Condividi il gioco con i tuoi amici",result:"La mia previsione: "},
+  pt:{title:"Jogo de adivinhação",instruction:"Escolha um número entre 1 e 200. Clique em 'Sim' ou 'Não' para cada carta.",shareBtn:"Compartilhe o jogo com seus amigos",result:"Minha previsão: "},
+  ru:{title:"Игра в угадайку",instruction:"Выберите число от 1 до 200. Нажмите 'Да' или 'Нет' для каждой карты.",shareBtn:"Поделитесь игрой с друзьями",result:"Мое предположение: "},
+  zh:{title:"数字猜测游戏",instruction:"选择一个1到200之间的数字。对每张卡点击“是”或“否”。",shareBtn:"与朋友分享游戏",result:"我的猜测: "}
 };
 const titleEl=document.getElementById('title');
 const instructionEl=document.getElementById('instruction');
@@ -97,7 +113,7 @@ const resultEl=document.getElementById('result');
 const selectedLang=document.getElementById('selectedLang');
 const languageMenu=document.getElementById('languageMenu');
 const langBtns=document.querySelectorAll('.langBtn');
-selectedLang.addEventListener('click',()=>{languageMenu.style.display=languageMenu.style.display==='none'?'block':'none';});
+selectedLang.addEventListener('click',()=>{languageMenu.style.display=languageMenu.style.display==='none'?'flex':'none';});
 langBtns.forEach(btn=>{
   btn.addEventListener('click',()=>{
     const lang=btn.dataset.lang;
@@ -122,16 +138,12 @@ const shareBtn=document.getElementById('shareBtn');
 const shareMenu=document.getElementById('shareMenu');
 shareBtn.addEventListener('click',()=>{shareMenu.classList.toggle('show');});
 
-// -------------------
 // Kartlar ve tahmin sistemi
-// -------------------
 const cardContainer=document.getElementById('cardContainer');
-const totalCards=8; // 1-200 için 8 kart yeter
+const totalCards=8;
 let currentCard=0;
-let userNumber=0; // tahmin için
+let userNumber=0;
 const cards=[];
-
-// Bip sesi
 const bip=new Audio('https://www.soundjay.com/button/beep-07.mp3');
 
 function createCard(numbers, bitValue){
