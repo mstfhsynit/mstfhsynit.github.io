@@ -53,6 +53,7 @@ p{margin:5px 0 15px 0;color:#ccc;}
 .yes{background:#00c853;color:#fff;}
 .no{background:#d50000;color:#fff;}
 .numbers{font-size:0.85em;text-align:left;margin:12px 0;max-height:120px;overflow-y:auto;padding:8px;border-radius:8px;background:#0f3460;color:#fff;}
+#cardNumber{margin-bottom:10px;font-size:1em;font-weight:bold;}
 #result{font-size:2em;margin-top:30px;color:#ffeb3b;font-weight:bold;text-shadow:0 0 10px #ffeb3b,0 0 20px #ffeb3b;}
 #shareBtn{margin-top:30px;padding:12px 20px;font-size:1em;font-weight:bold;border:none;border-radius:10px;background:linear-gradient(90deg,#00c853,#64dd17);color:#fff;cursor:pointer;transition:0.2s;}
 #shareBtn:hover{transform:scale(1.05);box-shadow:0 0 15px #64dd17;}
@@ -72,7 +73,7 @@ p{margin:5px 0 15px 0;color:#ccc;}
 .langBtn img{width:30px;height:30px;border-radius:50%;margin-right:8px;vertical-align:middle;transition:transform 0.2s;}
 .langBtn img:hover{transform:scale(1.1);}
 
-/* Arka plan yıldız ve hilal aylar */
+/* Arka plan hilal + yıldızlar */
 .background{
   position:fixed;
   top:0;
@@ -89,7 +90,14 @@ p{margin:5px 0 15px 0;color:#ccc;}
   animation:twinkle 3s infinite alternate;
 }
 .moon{
-  clip-path: ellipse(50% 50% at 40% 50%);
+  width:150px;
+  height:150px;
+  border-radius:50%;
+  clip-path: ellipse(50% 50% at 25% 50%);
+  bottom:20%;
+  left:50%;
+  transform:translateX(-50%);
+  opacity:0.7;
 }
 @keyframes twinkle{
   0%{opacity:0.2;}
@@ -122,6 +130,7 @@ p{margin:5px 0 15px 0;color:#ccc;}
   </div>
 </div>
 
+<div id="cardNumber"></div>
 <div id="cardContainer"></div>
 <p id="result"></p>
 
@@ -137,11 +146,10 @@ p{margin:5px 0 15px 0;color:#ccc;}
     </div>
 </div>
 
-<!-- Arka plan layer -->
 <div class="background"></div>
 
 <script>
-// Yıldız ve hilal aylar
+// Yıldızlar
 const background=document.querySelector('.background');
 for(let i=0;i<50;i++){
   const star=document.createElement('div');
@@ -149,36 +157,17 @@ for(let i=0;i<50;i++){
   const size=Math.random()*3+1;
   star.style.width=size+'px';
   star.style.height=size+'px';
-  star.style.top=Math.random()*100+'%';
+  star.style.top=Math.random()*60+'%';
   star.style.left=Math.random()*100+'%';
   star.style.animationDuration=(Math.random()*3+2)+'s';
   background.appendChild(star);
-}
-for(let i=0;i<10;i++){
-  const moon=document.createElement('div');
-  moon.className='moon';
-  const size=Math.random()*20+20;
-  moon.style.width=size+'px';
-  moon.style.height=size+'px';
-  moon.style.top=Math.random()*100+'%';
-  moon.style.left=Math.random()*100+'%';
-  moon.style.opacity=0.4;
-  moon.style.animationDuration=(Math.random()*4+2)+'s';
-  background.appendChild(moon);
 }
 
 // Dil seçimi
 const texts = {
   tr:{title:"Sayı Tahmin Oyunu",instruction:"1 ile 200 arasında bir sayı tutun. Kartlara göre 'Evet' veya 'Hayır' seçin.",shareBtn:"Oyunu paylaş, arkadaşların da oynasın",result:"Tahminim: "},
   ar:{title:"لعبة تخمين الرقم",instruction:"اختر رقمًا بين 1 و200. اضغط 'نعم' أو 'لا' حسب البطاقات.",shareBtn:"شارك اللعبة مع أصدقائك",result:"توقعي: "},
-  en:{title:"Number Guessing Game",instruction:"Pick a number between 1 and 200. Choose 'Yes' or 'No' for each card.",shareBtn:"Share the game, let your friends play",result:"My guess: "},
-  fr:{title:"Jeu de devinette",instruction:"Choisissez un nombre entre 1 et 200. Cliquez sur 'Oui' ou 'Non' pour chaque carte.",shareBtn:"Partagez le jeu avec vos amis",result:"Ma prédiction: "},
-  es:{title:"Juego de adivinanza",instruction:"Elige un número entre 1 y 200. Haz clic en 'Sí' o 'No' para cada carta.",shareBtn:"Comparte el juego con tus amigos",result:"Mi predicción: "},
-  de:{title:"Zahlenspiel",instruction:"Wähle eine Zahl zwischen 1 und 200. Klicke für jede Karte auf 'Ja' oder 'Nein'.",shareBtn:"Teile das Spiel mit deinen Freunden",result:"Meine Vermutung: "},
-  it:{title:"Gioco di indovinare",instruction:"Scegli un numero tra 1 e 200. Clicca 'Sì' o 'No' per ogni carta.",shareBtn:"Condividi il gioco con i tuoi amici",result:"La mia previsione: "},
-  pt:{title:"Jogo de adivinhação",instruction:"Escolha um número entre 1 e 200. Clique em 'Sim' ou 'Não' para cada carta.",shareBtn:"Compartilhe o jogo com seus amigos",result:"Minha previsão: "},
-  ru:{title:"Игра в угадайку",instruction:"Выберите число от 1 до 200. Нажмите 'Да' или 'Нет' для каждой карты.",shareBtn:"Поделитесь игрой с друзьями",result:"Мое предположение: "},
-  zh:{title:"数字猜测游戏",instruction:"选择一个1到200之间的数字。对每张卡点击“是”或“否”。",shareBtn:"与朋友分享游戏",result:"我的猜测: "}
+  en:{title:"Number Guessing Game",instruction:"Pick a number between 1 and 200. Choose 'Yes' or 'No' for each card.",shareBtn:"Share the game, let your friends play",result:"My guess: "}
 };
 const titleEl=document.getElementById('title');
 const instructionEl=document.getElementById('instruction');
@@ -212,13 +201,14 @@ const shareBtn=document.getElementById('shareBtn');
 const shareMenu=document.getElementById('shareMenu');
 shareBtn.addEventListener('click',()=>{shareMenu.classList.toggle('show');});
 
-// Kartlar ve tahmin sistemi
+// Kartlar
 const cardContainer=document.getElementById('cardContainer');
+const cardNumberEl=document.getElementById('cardNumber');
 const totalCards=8;
 let currentCard=0;
 let userNumber=0;
 const cards=[];
-const bip=new Audio('https://www.soundjay.com/button/beep-07.mp3');
+const bip=new Audio('https://www.soundjay.com/button/sounds/button-16.mp3');
 
 function createCard(numbers, bitValue){
   const card=document.createElement('div');
@@ -233,8 +223,10 @@ function createCard(numbers, bitValue){
 function showNextCard(){
   if(currentCard>=totalCards){
     resultEl.innerText="Tahminim: "+userNumber;
+    cardNumberEl.innerText="";
     return;
   }
+  cardNumberEl.innerText=`Kart ${currentCard+1} / ${totalCards}`;
   const bitValue=Math.pow(2,currentCard);
   const numbers=[];
   for(let i=1;i<=200;i++){
