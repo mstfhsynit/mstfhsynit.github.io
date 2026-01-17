@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Kilit Kombinasyonu</title>
+<style>
+    body {
+        margin: 0;
+        height: 100vh;
+        background: linear-gradient(135deg, #141e30, #243b55);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: Arial, sans-serif;
+        color: white;
+    }
+
+    .box {
+        background: rgba(0,0,0,0.45);
+        padding: 25px;
+        border-radius: 15px;
+        width: 330px;
+        text-align: center;
+        box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+
+    h1 {
+        margin-bottom: 10px;
+    }
+
+    .hint {
+        text-align: left;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+
+    input {
+        width: 60px;
+        padding: 10px;
+        margin: 5px;
+        font-size: 18px;
+        text-align: center;
+        border-radius: 8px;
+        border: none;
+        outline: none;
+    }
+
+    button {
+        margin-top: 15px;
+        padding: 10px 25px;
+        border: none;
+        border-radius: 10px;
+        background: #00c6ff;
+        color: black;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #00e5ff;
+    }
+
+    .msg {
+        margin-top: 15px;
+        min-height: 22px;
+    }
+</style>
+</head>
+<body>
+
+<div class="box">
+    <h1>🔐 Kilit Kombinasyonu</h1>
+
+    <div class="hint">
+        • İlk rakam <b>çift</b><br>
+        • İkinci rakam <b>ilkinden büyük</b><br>
+        • Üç rakamın toplamı <b>12</b>
+    </div>
+
+    <input type="number" id="a" min="0" max="9">
+    <input type="number" id="b" min="0" max="9">
+    <input type="number" id="c" min="0" max="9">
+
+    <br>
+    <button onclick="kontrol()">Kilidi Aç</button>
+
+    <div class="msg" id="mesaj"></div>
+</div>
+
+<script>
+function kontrol() {
+    const a = Number(document.getElementById("a").value);
+    const b = Number(document.getElementById("b").value);
+    const c = Number(document.getElementById("c").value);
+
+    const mesaj = document.getElementById("mesaj");
+
+    if (isNaN(a) || isNaN(b) || isNaN(c)) {
+        mesaj.style.color = "#ffcc00";
+        mesaj.innerText = "Tüm rakamları gir";
+        return;
+    }
+
+    if (a % 2 === 0 && b > a && (a + b + c) === 12) {
+        mesaj.style.color = "#00ffcc";
+        mesaj.innerText = "🔓 Kilit açıldı! Tebrikler";
+    } else {
+        mesaj.style.color = "#ff6b6b";
+        mesaj.innerText = "❌ Yanlış kombinasyon";
+    }
+}
+</script>
+
+</body>
+</html>
