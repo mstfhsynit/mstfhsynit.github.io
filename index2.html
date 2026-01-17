@@ -104,9 +104,26 @@ p{margin:5px 0 15px 0;color:#ccc;}
   text-align:center; 
   margin:20px 0 10px 0;
 }
+
+/* Sol üst logo */
+#topLogo{
+    position:fixed;
+    top:10px;
+    left:10px;
+    font-weight:bold;
+    font-size:18px;
+    color:#ffffff;
+    z-index:2000;
+    background:rgba(0,0,0,0.3);
+    padding:5px 10px;
+    border-radius:8px;
+}
 </style>
 </head>
 <body>
+
+<!-- Sol üst logo -->
+<div id="topLogo">MstfHsyn</div>
 
 <h1 id="title">Sayı Tahmin Oyunu</h1>
 <p id="instruction">1 ile 200 arasında bir sayı tutun. Kartlara göre "Evet" veya "Hayır" seçin.</p>
@@ -129,9 +146,7 @@ p{margin:5px 0 15px 0;color:#ccc;}
 </div>
 
 <!-- Yerli Üretim -->
-<div id="localProduction">
-  Yerli Üretim – Türkiye
-</div>
+<div id="localProduction">Yerli Üretim – Türkiye</div>
 
 <!-- Kartlar -->
 <div id="cardContainer"></div>
@@ -267,4 +282,4 @@ function showNextCard(){
 showNextCard();
 </script>
 </body>
-</html>
+  </html>
