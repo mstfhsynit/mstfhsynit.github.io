@@ -66,13 +66,19 @@ if(localStorage.getItem('experienceSeen')){
   document.getElementById('nameForm').innerHTML = "<p>Bu deneyimi zaten yaşadınız. Tekrar edilemez.</p>";
 }
 
+// Başlangıç uyarıları
+function startWarnings(){
+  alert("Bu deneyimi kimseye anlatamazsınız.");
+  alert("Bunu çoğaltamazsınız.");
+  alert("Her şey tekil ve benzersizdir.");
+}
+
 // Kullanıcı adı alındığında başlat
 document.getElementById('startBtn').addEventListener('click', ()=>{
   username = document.getElementById('username').value.trim() || 'Ziyaretçi';
   started = true;
   document.getElementById('nameForm').style.display = 'none';
-  localStorage.setItem('experienceSeen', 'true');
-  showMessage(`Hoşgeldin, ${username}. Bunu anlatamazsın.`);
+  startWarnings();
 
   // Noktaları oluştur
   for(let i=0; i<50; i++){
@@ -80,9 +86,10 @@ document.getElementById('startBtn').addEventListener('click', ()=>{
       x: Math.random()*canvas.width,
       y: Math.random()*canvas.height,
       radius: Math.random()*3 + 2,
-      dx: (Math.random()-0.5)*1.5,
-      dy: (Math.random()-0.5)*1.5,
-      alpha: Math.random()*0.5 + 0.1
+      dx: (Math.random()-0.5)*2,
+      dy: (Math.random()-0.5)*2,
+      alpha: Math.random()*0.5 + 0.1,
+      color: `hsl(${Math.random()*360}, 80%, 60%)`
     });
   }
 });
@@ -100,7 +107,7 @@ function drawPoints(){
   points.forEach(p=>{
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.radius, 0, Math.PI*2);
-    ctx.fillStyle = `rgba(255,255,255,${p.alpha})`;
+    ctx.fillStyle = `hsla(${Math.random()*360},80%,60%,${p.alpha})`;
     ctx.fill();
   });
 }
@@ -113,22 +120,30 @@ function animate(){
     p.y += p.dy;
     p.alpha += (Math.random()-0.5)*0.02;
     if(p.alpha < 0.05) p.alpha = 0.05;
-    if(p.alpha > 0.6) p.alpha = 0.6;
+    if(p.alpha > 0.8) p.alpha = 0.8;
     if(p.x<0 || p.x>canvas.width) p.dx *= -1;
     if(p.y<0 || p.y>canvas.height) p.dy *= -1;
+    p.radius = 2 + Math.sin(Date.now()/200 + p.x/50)*3;
   });
   drawPoints();
   requestAnimationFrame(animate);
 }
 animate();
 
-// Fare hareketi ile ekstra fark ettirme
+// Fare ile fark ettirme
 window.addEventListener('mousemove', e=>{
   if(started){
     points.forEach(p=>{
       let dist = Math.hypot(p.x - e.clientX, p.y - e.clientY);
-      if(dist < 50) p.alpha = 1;
+      if(dist < 60) p.alpha = 1;
     });
+  }
+});
+
+// Ekran görüntüsü uyarısı
+window.addEventListener('keydown', e=>{
+  if(started && e.key === "PrintScreen"){
+    alert("Ekran görüntüsü almanız deneyimi bozmaz ama anlatamazsınız!");
   }
 });
 
@@ -139,8 +154,9 @@ setTimeout(()=>{
     started = false;
     points = [];
     ctx.clearRect(0,0,canvas.width,canvas.height);
+    localStorage.setItem('experienceSeen', 'true');
 
-    // Kışkırtıcı, kudurtucu bitiş mesajı
+    // Kudurtucu bitiş mesajı
     showMessage(`Deneyim sona erdi, ${username}. Bunu bir daha yaşayamazsınız. İsterseniz de boşuna uğraşmayın.`);
   }
 }, duration);
