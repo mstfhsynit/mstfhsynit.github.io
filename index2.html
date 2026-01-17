@@ -12,8 +12,8 @@ body{
   text-align:center;
   color:#fff;
   overflow:hidden;
-  position:relative;
   background:#0b1d2b;
+  position:relative;
 }
 .logo{
   position:fixed;
@@ -72,7 +72,7 @@ p{margin:5px 0 15px 0;color:#ccc;}
 .langBtn img{width:30px;height:30px;border-radius:50%;margin-right:8px;vertical-align:middle;transition:transform 0.2s;}
 .langBtn img:hover{transform:scale(1.1);}
 
-/* Arka plan yıldız ve aylar */
+/* Arka plan yıldız ve hilal aylar */
 .background{
   position:fixed;
   top:0;
@@ -84,9 +84,12 @@ p{margin:5px 0 15px 0;color:#ccc;}
 }
 .star,.moon{
   position:absolute;
-  border-radius:50%;
   background:#fff;
+  border-radius:50%;
   animation:twinkle 3s infinite alternate;
+}
+.moon{
+  clip-path: ellipse(50% 50% at 40% 50%);
 }
 @keyframes twinkle{
   0%{opacity:0.2;}
@@ -138,7 +141,7 @@ p{margin:5px 0 15px 0;color:#ccc;}
 <div class="background"></div>
 
 <script>
-// Yıldız ve aylar
+// Yıldız ve hilal aylar
 const background=document.querySelector('.background');
 for(let i=0;i<50;i++){
   const star=document.createElement('div');
