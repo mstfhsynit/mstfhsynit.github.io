@@ -2,209 +2,259 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Gizli Zihin Oyunu 1-1000</title>
+<title>Türkiye Resmi ve Dini Tatiller</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #0d1b2a; 
-    text-align: center;
-    padding: 50px;
-    color: #ffffff;
-    overflow: hidden;
-    position: relative;
+html,body{
+  margin:0;
+  padding:0;
+  height:100%;
+  font-family:Segoe UI,Arial,sans-serif;
+  background:#0b1a2a; /* logo uyumlu arka plan */
+  color:#dbe4ff;
+  overflow-x:hidden;
 }
-h1 { font-size: 36px; margin-bottom: 20px; }
-#question { font-size: 24px; margin: 30px 0; min-height: 60px; transition: transform 0.2s, color 0.2s; z-index:2; position:relative;}
-.btn { padding: 15px 35px; margin: 15px; font-size: 20px; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; color: white; transition: transform 0.2s, box-shadow 0.2s, background 0.2s; position: relative; z-index:2;}
-.btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-.yes { background-color: #06d6a0; }
-.no { background-color: #ef233c; }
-#message { margin-top: 40px; font-size: 24px; position: relative; z-index:2; }
-.confetti { position: absolute; width: 10px; height: 10px; border-radius: 50%; opacity: 0.9; animation: rise 1.5s ease-out forwards; }
-@keyframes rise { 0% {transform: translateY(0) rotate(0deg);} 100% {transform: translateY(-200px) rotate(720deg); opacity:0;} }
-.randomChar { position: absolute; font-size: 14px; font-weight: bold; color: rgba(255,255,255,0.2); animation: floatUp 1s linear forwards; }
-@keyframes floatUp { 0% {transform: translateY(0) rotate(0deg); opacity:1;} 100% {transform: translateY(-100px) rotate(360deg); opacity:0;} }
-@keyframes jump {0% {transform: translateY(0);} 50% {transform: translateY(-15px);} 100% {transform: translateY(0);} }
-/* yıldızlar */
-.star { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; opacity: 0.8; animation: twinkle 5s infinite; }
-@keyframes twinkle {0%,100% {opacity:0.5;} 50% {opacity:1;}}
 
-/* tarih, saat, gün */
-#datetime { font-size: 18px; margin-top:10px; z-index:2; position: relative; }
-
-/* MstfHsyn logosu sağ üst */
-#logo {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    font-size: 24px;
-    font-weight: bold;
-    color: white;
-    z-index: 2;
-    user-select: none;
+/* YILDIZLI ARKA PLAN */
+#stars{
+  position:fixed;
+  inset:0;
+  z-index:-1;
 }
+
+/* LOGO */
+.logo{
+  position:fixed;
+  top:18px;
+  left:18px;
+  width:140px; /* büyütüldü */
+  pointer-events:none;
+  z-index:10;
+  filter:drop-shadow(0 0 14px rgba(120,170,255,.9));
+}
+
+/* ANA KART */
+.container{
+  max-width:1000px;
+  margin:150px auto 50px;
+  background:rgba(16,30,55,.88);
+  backdrop-filter:blur(10px);
+  padding:30px;
+  border-radius:24px;
+  box-shadow:0 30px 70px rgba(0,0,0,.65);
+}
+
+h1{
+  text-align:center;
+  margin:0 0 22px;
+  color:#eaf0ff;
+}
+
+/* KONTROLLER */
+.controls{
+  text-align:center;
+  margin-bottom:20px;
+}
+select,button{
+  padding:11px 16px;
+  font-size:15px;
+  border-radius:8px;
+  border:1px solid #334066;
+  background:#0f1830;
+  color:#eaf0ff;
+}
+button{
+  background:#3b6cff;
+  border:none;
+  cursor:pointer;
+}
+button:hover{background:#2f58d9}
+
+/* UYARI */
+.warning{
+  display:none;
+  background:#2a1f12;
+  border:1px solid #6b4f1d;
+  padding:13px;
+  border-radius:10px;
+  margin-bottom:18px;
+  color:#ffd78a;
+  font-size:14px;
+}
+
+/* TABLO */
+table{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+}
+th,td{
+  padding:12px;
+  font-size:14px;
+  border-bottom:1px solid #2a3558;
+}
+th{
+  background:#101a33;
+  color:#bcd0ff;
+}
+tr{
+  background:#0c1429;
+}
+tr:nth-child(even){
+  background:#0f1a33;
+}
+
+/* HOVER */
+tbody tr{
+  transition:background .25s ease, box-shadow .25s ease;
+}
+tbody tr:hover{
+  background:#162550;
+  box-shadow:inset 0 0 0 9999px rgba(90,140,255,.08);
+}
+
+/* ETİKETLER */
+.tag{
+  padding:4px 9px;
+  border-radius:6px;
+  font-size:12px;
+  font-weight:600;
+}
+.resmi{background:#1e3c8a;color:#dce6ff}
+.dini{background:#1f5a3c;color:#d9ffe9}
+.bekleniyor{background:#5a4215;color:#ffe2a3}
 </style>
 </head>
+
 <body>
 
-<div id="logo">MstfHsyn</div>
+<canvas id="stars"></canvas>
+<img src="mstfhsyn-logo.png" class="logo" alt="logo">
 
-<h1>Gizli Zihin Oyunu</h1>
-<p>1 ile 1000 arasında bir sayı tut. Bilgisayar sorularla tahmin edecek.</p>
+<div class="container">
+<h1 id="baslik">🇹🇷 Türkiye Resmi ve Dini Tatiller</h1>
 
-<div id="question">Hazır…</div>
-<button class="btn yes" id="yesBtn">Evet</button>
-<button class="btn no" id="noBtn">Hayır</button>
+<div class="controls">
+  <select id="year"></select>
+  <button onclick="listele()">Listele</button>
+</div>
 
-<div id="datetime"></div>
-<div id="message"></div>
+<div id="uyari" class="warning"></div>
+
+<table>
+<thead>
+<tr>
+  <th>Tatil</th>
+  <th>Tür</th>
+  <th>Süre</th>
+  <th>Tarih</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
 
 <script>
-// Dinlendirici melodi başlangıcı
-function playAmbientMelody(){
-    const ctx=new (window.AudioContext||window.webkitAudioContext)();
-    const osc=ctx.createOscillator();
-    osc.type='sine';
-    osc.frequency.setValueAtTime(220,ctx.currentTime);
-    osc.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime+4); // 4 saniye melodi
+/* ⭐ YANIP SÖNEN YILDIZLAR */
+const canvas=document.getElementById("stars");
+const ctx=canvas.getContext("2d");
+
+function resize(){
+  canvas.width=innerWidth;
+  canvas.height=innerHeight;
 }
-playAmbientMelody();
+addEventListener("resize",resize);
+resize();
 
-// Yıldızlar ve yanıp sönme
-for(let i=0;i<150;i++){
-    const star = document.createElement("div");
-    star.className="star";
-    star.style.left = Math.random()*100 + "%";
-    star.style.top = Math.random()*100 + "%";
-    star.style.width = (Math.random()*2+1)+"px";
-    star.style.height = (Math.random()*2+1)+"px";
-    star.style.animationDuration = (Math.random()*3+2) + "s";
-    document.body.appendChild(star);
-}
+const stars=[];
+const STAR_COUNT=450;
 
-// Tarih, saat ve gün
-function updateDateTime(){
-    const now = new Date();
-    const d = now.toLocaleDateString('tr-TR');
-    const t = now.toLocaleTimeString('tr-TR');
-    const weekday = now.toLocaleDateString('tr-TR', { weekday: 'long' });
-    document.getElementById("datetime").textContent = `${d} ${t} - ${weekday}`;
-}
-setInterval(updateDateTime,1000);
-updateDateTime();
-
-// Başlangıç
-let possibleNumbers=[];
-for(let i=1;i<=1000;i++) possibleNumbers.push(i);
-let questionsAsked = 0;
-
-const questionDiv=document.getElementById("question");
-const messageDiv=document.getElementById("message");
-const yesBtn=document.getElementById("yesBtn");
-const noBtn=document.getElementById("noBtn");
-
-// Ses efektleri
-function playButtonSound(){ 
-    const ctx = new (window.AudioContext||window.webkitAudioContext)();
-    const osc=ctx.createOscillator();
-    osc.type='sine';
-    osc.frequency.setValueAtTime(400, ctx.currentTime);
-    osc.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime+0.15);
-}
-function playMelody(){ 
-    const ctx=new (window.AudioContext||window.webkitAudioContext)();
-    const osc=ctx.createOscillator();
-    osc.type='triangle';
-    let times=[0,0.2,0.4];
-    let freqs=[440,523,659];
-    osc.connect(ctx.destination);
-    osc.start();
-    times.forEach((t,i)=>osc.frequency.setValueAtTime(freqs[i], ctx.currentTime+t));
-    osc.stop(ctx.currentTime+0.6);
+for(let i=0;i<STAR_COUNT;i++){
+  stars.push({
+    x:Math.random()*canvas.width,
+    y:Math.random()*canvas.height,
+    r:Math.random()*2.2+0.6,
+    a:Math.random(),
+    da:Math.random()*0.025+0.008
+  });
 }
 
-// Rastgele karakter
-function randomChars(){
-    for(let i=0;i<10;i++){
-        const span=document.createElement("div");
-        span.className="randomChar";
-        span.style.left=`${Math.random()*100}%`;
-        span.textContent = String.fromCharCode(33+Math.floor(Math.random()*94));
-        messageDiv.appendChild(span);
-        setTimeout(()=>span.remove(),1000);
-    }
-}
+(function animate(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  stars.forEach(s=>{
+    s.a+=s.da;
+    if(s.a>1||s.a<0.2) s.da*=-1;
+    ctx.beginPath();
+    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,255,255,${s.a})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(animate);
+})();
 
-// Binary search pivot
-let currentPivot=null;
-function generateQuestion(){
-    if(possibleNumbers.length<=1){
-        animateGuess(possibleNumbers[0]);
-        return;
-    }
-    questionsAsked++;
-    const min=Math.min(...possibleNumbers);
-    const max=Math.max(...possibleNumbers);
-    const pivot=Math.floor((min+max)/2);
-    currentPivot=pivot;
-    questionDiv.textContent=`Tuttuğunuz sayı ${pivot}’den büyük mü?`;
-}
+/* VERİLER */
+const resmi=[
+["Yılbaşı","1 Gün","1 Ocak"],
+["Ulusal Egemenlik ve Çocuk Bayramı","1 Gün","23 Nisan"],
+["Emek ve Dayanışma Günü","1 Gün","1 Mayıs"],
+["Atatürk’ü Anma, Gençlik ve Spor Bayramı","1 Gün","19 Mayıs"],
+["Demokrasi ve Millî Birlik Günü","1 Gün","15 Temmuz"],
+["Zafer Bayramı","1 Gün","30 Ağustos"],
+["Cumhuriyet Bayramı","1,5 Gün","29 Ekim"]
+];
 
-// Tahmin animasyonu
-function animateGuess(finalNumber){
-    questionDiv.style.display="none";
-    yesBtn.style.display="none";
-    noBtn.style.display="none";
+const diniKesin={
+2024:[
+["Ramazan Bayramı (1. Gün)","1 Gün","10 Nisan 2024"],
+["Ramazan Bayramı (2. Gün)","1 Gün","11 Nisan 2024"],
+["Ramazan Bayramı (3. Gün)","1 Gün","12 Nisan 2024"],
+["Kurban Bayramı (1. Gün)","1 Gün","16 Haziran 2024"],
+["Kurban Bayramı (2. Gün)","1 Gün","17 Haziran 2024"],
+["Kurban Bayramı (3. Gün)","1 Gün","18 Haziran 2024"],
+["Kurban Bayramı (4. Gün)","1 Gün","19 Haziran 2024"]
+]
+};
 
-    messageDiv.innerHTML="Bilgisayar tahmin ediyor...";
-    let fakeNumber=1;
-    const interval=setInterval(()=>{
-        fakeNumber+=Math.floor(Math.random()*20)+1;
-        if(fakeNumber>1000) fakeNumber=1;
-        messageDiv.textContent=`Bilgisayar tahmin ediyor: ${fakeNumber}`;
-        messageDiv.style.transform=`scale(${1+Math.random()*0.2})`;
-        randomChars();
-    },50);
+const y=document.getElementById("year");
+for(let i=2016;i<=2046;i++) y.innerHTML+=`<option>${i}</option>`;
 
-    setTimeout(()=>{
-        clearInterval(interval);
-        messageDiv.textContent=`🎉 Bilgisayar tahmin ediyor: ${finalNumber}`;
-        confettiEffect();
-        playMelody();
-        messageDiv.innerHTML+=`<br>Bilgisayar ${questionsAsked} soruda sayınızı buldu!`;
-    },2000);
-}
+function listele(){
+const yil=+y.value;
+const tb=document.getElementById("tbody");
+const u=document.getElementById("uyari");
+tb.innerHTML=""; u.style.display="none";
 
-// Konfeti
-function confettiEffect(){
-    for(let i=0;i<30;i++){
-        const c=document.createElement("div");
-        c.className="confetti";
-        c.style.left=`${Math.random()*100}%`;
-        c.style.backgroundColor=`hsl(${Math.random()*360},70%,60%)`;
-        messageDiv.appendChild(c);
-        setTimeout(()=>c.remove(),1500);
-    }
-}
+document.getElementById("baslik").textContent=`🇹🇷 ${yil} Yılı Resmi ve Dini Tatiller`;
 
-// Buton animasyonu ve cevap
-function buttonAnswer(btn,isYes){
-    btn.style.animation="jump 0.3s ease";
-    setTimeout(()=>btn.style.animation="",300);
-    playButtonSound();
-    if(isYes) possibleNumbers=possibleNumbers.filter(n=>n>currentPivot);
-    else possibleNumbers=possibleNumbers.filter(n=>n<=currentPivot);
-    generateQuestion();
-}
+resmi.forEach(r=>{
+tb.innerHTML+=`
+<tr>
+<td>${r[0]}</td>
+<td><span class="tag resmi">Resmi</span></td>
+<td>${r[1]}</td>
+<td>${r[2]} ${yil}</td>
+</tr>`;
+});
 
-yesBtn.addEventListener("click",()=>buttonAnswer(yesBtn,true));
-noBtn.addEventListener("click",()=>buttonAnswer(noBtn,false));
-
-generateQuestion();
+if(diniKesin[yil]){
+diniKesin[yil].forEach(d=>{
+tb.innerHTML+=`
+<tr>
+<td>${d[0]}</td>
+<td><span class="tag dini">Dini (Kesin)</span></td>
+<td>${d[1]}</td>
+<td>${d[2]}</td>
+</tr>`;
+});
+}else{
+u.style.display="block";
+u.textContent="⚠️ Bu yılın dini tatil tarihleri henüz kesinleşmemiştir.";
+tb.innerHTML+=`
+<tr><td>Ramazan Bayramı</td><td><span class="tag bekleniyor">Bekleniyor</span></td><td>—</td><td>İlan edilmedi</td></tr>
+<tr><td>Kurban Bayramı</td><td><span class="tag bekleniyor">Bekleniyor</span></td><td>—</td><td>İlan edilmedi</td></tr>`;
+}}
 </script>
+
 </body>
 </html>
