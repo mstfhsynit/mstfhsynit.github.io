@@ -6,7 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-/* ===== YILDIZLI ARKA PLAN ===== */
 .stars,.twinkling{
   position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1
 }
@@ -19,49 +18,41 @@
 }
 @keyframes move{from{background-position:0 0}to{background-position:-8000px 4000px}}
 
-body{margin:0;font-family:Segoe UI,Arial,sans-serif;color:#000}
+body{margin:0;font-family:Segoe UI,Arial,sans-serif}
 
-/* ===== LOGO ===== */
 .logo{
-  position:fixed;top:15px;left:15px;width:60px;z-index:10;
-  pointer-events:none; /* tıklanamaz */
+  position:fixed;top:15px;left:15px;width:60px;
+  pointer-events:none
 }
 
-/* ===== ANA KUTU ===== */
 .container{
-  max-width:950px;margin:90px auto;padding:25px;
-  background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(230,235,255,.96));
+  max-width:980px;margin:90px auto;padding:25px;
+  background:linear-gradient(135deg,#ffffff,#eef1ff);
   border-radius:18px;box-shadow:0 20px 40px rgba(0,0,0,.35)
 }
-h1{text-align:center;margin-top:0}
 
-/* ===== KONTROLLER ===== */
+h1{text-align:center}
+
 .controls{text-align:center;margin-bottom:15px}
 select,button{
   padding:10px 14px;font-size:16px;border-radius:8px;border:1px solid #aaa
 }
-button{
-  background:#3b4bff;color:#fff;cursor:pointer
-}
+button{background:#3b4bff;color:#fff;cursor:pointer}
 button:hover{background:#2636d8}
 
-/* ===== UYARI ===== */
 .warning{
   display:none;background:#fff3cd;border:1px solid #ffeeba;
   padding:10px;border-radius:8px;margin-bottom:10px
 }
 
-/* ===== TABLO ===== */
-table{width:100%;border-collapse:collapse;margin-top:15px}
+table{width:100%;border-collapse:collapse}
 th,td{border:1px solid #999;padding:8px}
 th{background:#2f3cff;color:#fff}
 tr:nth-child(even){background:#f2f2f2}
 tr:hover{background:#dde3ff}
 
-/* ===== YAZDIR ===== */
 @media print{
-  body{background:#fff}
-  .stars,.twinkling,.controls,.logo,.warning,button{display:none}
+  .stars,.twinkling,.controls,.logo,.warning{display:none}
   .container{box-shadow:none}
 }
 </style>
@@ -69,38 +60,36 @@ tr:hover{background:#dde3ff}
 
 <body>
 
-<img src="mstfhsyn-logo.png" class="logo" alt="logo">
+<img src="mstfhsyn-logo.png" class="logo">
 
 <div class="stars"></div>
 <div class="twinkling"></div>
 
 <div class="container">
-  <h1 id="baslik">🇹🇷 Türkiye Resmi ve Dini Tatiller</h1>
+<h1 id="baslik">🇹🇷 Türkiye Resmi ve Dini Tatiller</h1>
 
-  <div class="controls">
-    <select id="year"></select>
-    <button onclick="listele()">Listele</button>
-    <button onclick="window.print()">Yazdır</button>
-  </div>
+<div class="controls">
+<select id="year"></select>
+<button onclick="listele()">Listele</button>
+</div>
 
-  <div id="uyari" class="warning">
-    ⚠️ Bu yılın dini günleri henüz Diyanet tarafından kesin olarak ilan edilmemiştir.
-  </div>
+<div id="uyari" class="warning">
+⚠️ Bu yılın dini günleri henüz Diyanet tarafından kesin olarak ilan edilmemiştir.
+</div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Tatil Günü</th>
-        <th>Süre</th>
-        <th>Tarih</th>
-      </tr>
-    </thead>
-    <tbody id="tbody"></tbody>
-  </table>
+<table>
+<thead>
+<tr>
+<th>Tatil Günü</th>
+<th>Süre</th>
+<th>Tarih</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
 </div>
 
 <script>
-// ===== RESMİ TATİLLER =====
 const resmi = [
  ["Yılbaşı","1 Gün","1 Ocak"],
  ["Ulusal Egemenlik ve Çocuk Bayramı","1 Gün","23 Nisan"],
@@ -111,72 +100,55 @@ const resmi = [
  ["Cumhuriyet Bayramı","1,5 Gün","29 Ekim"]
 ];
 
-// ===== DİNİ GÜNLER (KESİN YILLAR) =====
 const kesin = {
-  2016:[
-    ["Ramazan Bayramı","3 Gün","5–7 Temmuz 2016"],
-    ["Kurban Bayramı","4 Gün","12–15 Eylül 2016"]
-  ],
-  2017:[
-    ["Ramazan Bayramı","3 Gün","25–27 Haziran 2017"],
-    ["Kurban Bayramı","4 Gün","1–4 Eylül 2017"]
-  ],
-  2018:[
-    ["Ramazan Bayramı","3 Gün","15–17 Haziran 2018"],
-    ["Kurban Bayramı","4 Gün","21–24 Ağustos 2018"]
-  ],
-  2019:[
-    ["Ramazan Bayramı","3 Gün","4–6 Haziran 2019"],
-    ["Kurban Bayramı","4 Gün","11–14 Ağustos 2019"]
-  ],
-  2020:[
-    ["Ramazan Bayramı","3 Gün","24–26 Mayıs 2020"],
-    ["Kurban Bayramı","4 Gün","31 Temmuz–3 Ağustos 2020"]
-  ],
-  2021:[
-    ["Ramazan Bayramı","3 Gün","13–15 Mayıs 2021"],
-    ["Kurban Bayramı","4 Gün","20–23 Temmuz 2021"]
-  ],
-  2022:[
-    ["Ramazan Bayramı","3 Gün","2–4 Mayıs 2022"],
-    ["Kurban Bayramı","4 Gün","9–12 Temmuz 2022"]
-  ],
-  2023:[
-    ["Ramazan Bayramı","3 Gün","21–23 Nisan 2023"],
-    ["Kurban Bayramı","4 Gün","28 Haziran–1 Temmuz 2023"]
-  ],
-  2024:[
-    ["Ramazan Bayramı","3 Gün","10–12 Nisan 2024"],
-    ["Kurban Bayramı","4 Gün","16–19 Haziran 2024"]
-  ]
+
+2024:[
+ ["Ramazan Bayramı Arefesi","½ Gün","9 Nisan 2024 Salı"],
+ ["Ramazan Bayramı (1. Gün)","1 Gün","10 Nisan 2024 Çarşamba"],
+ ["Ramazan Bayramı (2. Gün)","1 Gün","11 Nisan 2024 Perşembe"],
+ ["Ramazan Bayramı (3. Gün)","1 Gün","12 Nisan 2024 Cuma"],
+ ["Kurban Bayramı Arefesi","½ Gün","15 Haziran 2024 Cumartesi"],
+ ["Kurban Bayramı (1. Gün)","1 Gün","16 Haziran 2024 Pazar"],
+ ["Kurban Bayramı (2. Gün)","1 Gün","17 Haziran 2024 Pazartesi"],
+ ["Kurban Bayramı (3. Gün)","1 Gün","18 Haziran 2024 Salı"],
+ ["Kurban Bayramı (4. Gün)","1 Gün","19 Haziran 2024 Çarşamba"]
+],
+
+2023:[
+ ["Ramazan Bayramı Arefesi","½ Gün","20 Nisan 2023 Perşembe"],
+ ["Ramazan Bayramı (1. Gün)","1 Gün","21 Nisan 2023 Cuma"],
+ ["Ramazan Bayramı (2. Gün)","1 Gün","22 Nisan 2023 Cumartesi"],
+ ["Ramazan Bayramı (3. Gün)","1 Gün","23 Nisan 2023 Pazar"],
+ ["Kurban Bayramı Arefesi","½ Gün","27 Haziran 2023 Salı"],
+ ["Kurban Bayramı (1. Gün)","1 Gün","28 Haziran 2023 Çarşamba"],
+ ["Kurban Bayramı (2. Gün)","1 Gün","29 Haziran 2023 Perşembe"],
+ ["Kurban Bayramı (3. Gün)","1 Gün","30 Haziran 2023 Cuma"],
+ ["Kurban Bayramı (4. Gün)","1 Gün","1 Temmuz 2023 Cumartesi"]
+]
+
 };
 
-// ===== YIL SEÇİCİ =====
-const s=document.getElementById("year");
-for(let y=2016;y<=2046;y++){
+const y=document.getElementById("year");
+for(let i=2016;i<=2046;i++){
  let o=document.createElement("option");
- o.value=y;o.text=y;s.appendChild(o)
+ o.value=i;o.text=i;y.appendChild(o);
 }
 
-// ===== LİSTELE =====
 function listele(){
- const y=s.value;
- document.getElementById("baslik").textContent="🇹🇷 "+y+" Yılı Resmi ve Dini Tatiller";
+ const yil=y.value;
  const tb=document.getElementById("tbody");
  const uy=document.getElementById("uyari");
  tb.innerHTML="";
+ uy.style.display=kesin[yil]?"none":"block";
 
  resmi.forEach(r=>{
-  tb.innerHTML+=`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]} ${y}</td></tr>`;
+  tb.innerHTML+=`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]} ${yil}</td></tr>`;
  });
 
- if(kesin[y]){
-  uy.style.display="none";
-  kesin[y].forEach(r=>{
+ if(kesin[yil]){
+  kesin[yil].forEach(r=>{
    tb.innerHTML+=`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`;
   });
- }else{
-  uy.style.display="block";
  }
 }
 </script>
