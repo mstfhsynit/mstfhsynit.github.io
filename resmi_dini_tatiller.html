@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Global Tatil Takvimi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    select, button {
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      max-width: 700px;
+      margin: auto;
+    }
+    li {
+      background: #fff;
+      margin-bottom: 8px;
+      padding: 10px;
+      border-left: 5px solid #999;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .public {
+      border-color: #007bff;
+    }
+    .religious {
+      border-color: #28a745;
+    }
+    .date {
+      font-weight: bold;
+    }
+    .type {
+      font-size: 12px;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🌍 Global Resmi & Dini Tatiller</h1>
+
+<div class="controls">
+  <select id="countrySelect"></select>
+  <select id="yearSelect"></select>
+  <button onclick="loadHolidays()">Listele</button>
+</div>
+
+<ul id="holidayList"></ul>
+
+<script>
+  const countrySelect = document.getElementById("countrySelect");
+  const yearSelect = document.getElementById("yearSelect");
+  const holidayList = document.getElementById("holidayList");
+
+  // Yıl listesi
+  const currentYear = new Date().getFullYear();
+  for (let y = currentYear - 5; y <= currentYear + 5; y++) {
+    const opt = document.createElement("option");
+    opt.value = y;
+    opt.textContent = y;
+    if (y === currentYear) opt.selected = true;
+    yearSelect.appendChild(opt);
+  }
+
+  // Ülkeleri yükle
+  async function loadCountries() {
+    const res = await fetch("https://date.nager.at/api/v3/AvailableCountries");
+    const countries = await res.json();
+    countries.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c.countryCode;
+      opt.textContent = c.name;
+      countrySelect.appendChild(opt);
+    });
+    countrySelect.value = "TR";
+  }
+
+  // Tatilleri yükle
+  async function loadHolidays() {
+    holidayList.innerHTML = "⏳ Yükleniyor...";
+    const year = yearSelect.value;
+    const country = countrySelect.value;
+
+    try {
+      const res = await fetch(
+        `https://date.nager.at/api/v3/PublicHolidays/${year}/${country}`
+      );
+      const holidays = await res.json();
+
+      holidayList.innerHTML = "";
+
+      holidays.forEach(h => {
+        const li = document.createElement("li");
+
+        const isReligious = h.types.includes("Religious");
+        li.className = isReligious ? "religious" : "public";
+
+        li.innerHTML = `
+          <div class="date">${h.date}</div>
+          <div>${h.localName}</div>
+          <div class="type">
+            ${isReligious ? "Dini Tatil" : "Resmi Tatil"}
+          </div>
+        `;
+
+        holidayList.appendChild(li);
+      });
+
+    } catch (err) {
+      holidayList.innerHTML = "❌ Veri alınamadı";
+    }
+  }
+
+  loadCountries();
+</script>
+
+</body>
+</html>
