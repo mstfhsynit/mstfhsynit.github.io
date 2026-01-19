@@ -2,156 +2,177 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Türkiye Ulusal Bayram ve Genel Tatil Günleri</title>
+<title>Türkiye Resmi & Dini Tatiller</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background: #f4f4f4;
-  padding: 20px;
+/* ===== YILDIZLI ARKA PLAN ===== */
+.stars, .twinkling {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: -1;
 }
+
+.stars {
+  background: #020924 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Ccircle cx='20' cy='30' r='1' fill='white'/%3E%3Ccircle cx='80' cy='120' r='1' fill='white'/%3E%3Ccircle cx='150' cy='60' r='1' fill='white'/%3E%3Ccircle cx='180' cy='170' r='1' fill='white'/%3E%3C/svg%3E") repeat;
+}
+
+.twinkling {
+  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Ccircle cx='40' cy='90' r='1' fill='white'/%3E%3Ccircle cx='110' cy='40' r='1' fill='white'/%3E%3Ccircle cx='170' cy='140' r='1' fill='white'/%3E%3C/svg%3E") repeat;
+  animation: move 180s linear infinite;
+  opacity: 0.5;
+}
+
+@keyframes move {
+  from { background-position: 0 0; }
+  to { background-position: -8000px 4000px; }
+}
+
+/* ===== LOGO ===== */
+.logo {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  width: 60px;
+  z-index: 10;
+  opacity: 0.9;
+}
+
+.logo:hover {
+  opacity: 1;
+  transform: scale(1.05);
+  transition: 0.3s;
+}
+
+/* ===== GENEL TASARIM ===== */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  max-width: 850px;
+  margin: 60px auto;
+  padding: 20px;
+  background: rgba(255,255,255,0.92);
+  border-radius: 10px;
+  backdrop-filter: blur(3px);
+}
+
 h1 {
   text-align: center;
 }
+
 .controls {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
+
 select, button {
-  padding: 8px 14px;
-  font-size: 15px;
+  padding: 8px 12px;
+  font-size: 16px;
 }
-table {
-  width: 100%;
-  max-width: 950px;
-  margin: auto;
-  border-collapse: collapse;
-  background: #fff;
+
+.warning {
+  display: none;
+  background: #fff3cd;
+  border: 1px solid #ffeeba;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 6px;
 }
-th, td {
-  border: 1px solid #ccc;
-  padding: 8px;
-  text-align: center;
+
+ul {
+  list-style: none;
+  padding: 0;
 }
-th {
-  background: #eee;
+
+li {
+  padding: 6px 0;
+  border-bottom: 1px solid #ddd;
 }
-.resmi { background: #e3f2fd; }
-.dini { background: #e8f5e9; }
 </style>
 </head>
+
 <body>
 
-<h1>🇹🇷 Türkiye Ulusal Bayram ve Genel Tatil Günleri</h1>
+<!-- LOGO -->
+<img src="mstfhsyn-logo.png" alt="mstfhsyn logo" class="logo">
 
-<div class="controls">
-  <select id="yearSelect"></select>
-  <button onclick="listele()">Listele</button>
+<!-- YILDIZLAR -->
+<div class="stars"></div>
+<div class="twinkling"></div>
+
+<div class="container">
+  <h1>🇹🇷 Türkiye Resmi & Dini Tatiller</h1>
+
+  <div class="controls">
+    <select id="year"></select>
+    <button onclick="listele()">Listele</button>
+  </div>
+
+  <div id="uyari" class="warning">
+    ⚠️ Bu yılın dini günleri hesaplama yoluyla gösterilmektedir.  
+    Resmi kesinlik için Diyanet İşleri Başkanlığı duyuruları esas alınmalıdır.
+  </div>
+
+  <ul id="liste"></ul>
 </div>
 
-<table id="table" style="display:none;">
-  <thead>
-    <tr>
-      <th>Tatil Günü</th>
-      <th>Süre</th>
-      <th>Tarih</th>
-    </tr>
-  </thead>
-  <tbody id="tbody"></tbody>
-</table>
-
 <script>
-// --- HİCRİ → MİLADİ DÖNÜŞÜM (standart algoritma) ---
-function hijriToGregorian(hy, hm, hd) {
-  const jd =
-    Math.floor((11 * hy + 3) / 30) +
-    354 * hy +
-    30 * hm -
-    Math.floor((hm - 1) / 2) +
-    hd + 1948440 - 385;
+// ===== KESİN YILLAR (ÖRNEK) =====
+const kesin = {
+  2026: [
+    "1 Ocak: Yılbaşı",
+    "23 Nisan: Ulusal Egemenlik ve Çocuk Bayramı",
+    "1 Mayıs: Emek ve Dayanışma Günü",
+    "19 Mayıs: Atatürk'ü Anma, Gençlik ve Spor Bayramı",
+    "15 Temmuz: Demokrasi ve Millî Birlik Günü",
+    "30 Ağustos: Zafer Bayramı",
+    "29 Ekim: Cumhuriyet Bayramı"
+  ]
+};
 
-  let l = jd + 68569;
-  let n = Math.floor((4 * l) / 146097);
-  l = l - Math.floor((146097 * n + 3) / 4);
-  let i = Math.floor((4000 * (l + 1)) / 1461001);
-  l = l - Math.floor((1461 * i) / 4) + 31;
-  let j = Math.floor((80 * l) / 2447);
-  const day = l - Math.floor((2447 * j) / 80);
-  l = Math.floor(j / 11);
-  const month = j + 2 - 12 * l;
-  const year = 100 * (n - 49) + i + l;
-
-  return new Date(year, month - 1, day);
-}
-
-function formatDate(d) {
-  return d.toLocaleDateString("tr-TR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    weekday: "long"
-  });
-}
-
-// --- SABİT RESMİ TATİLLER ---
-function resmiTatiller(y) {
+// ===== HESAPLANAN YILLAR =====
+function hesapli(yil) {
   return [
-    ["Yılbaşı", "1 Gün", formatDate(new Date(y,0,1)), "resmi"],
-    ["Ulusal Egemenlik ve Çocuk Bayramı", "1 Gün", formatDate(new Date(y,3,23)), "resmi"],
-    ["Emek ve Dayanışma Günü", "1 Gün", formatDate(new Date(y,4,1)), "resmi"],
-    ["Atatürk’ü Anma Gençlik ve Spor Bayramı", "1 Gün", formatDate(new Date(y,4,19)), "resmi"],
-    ["Demokrasi ve Millî Birlik Günü", "1 Gün", formatDate(new Date(y,6,15)), "resmi"],
-    ["Zafer Bayramı", "1 Gün", formatDate(new Date(y,7,30)), "resmi"],
-    ["Cumhuriyet Bayramı", "1,5 Gün", `${formatDate(new Date(y,9,28))} – ${formatDate(new Date(y,9,29))}`, "resmi"]
+    "Ramazan Bayramı (hesaplandı)",
+    "Kurban Bayramı (hesaplandı)",
+    "Kandiller (hesaplandı)"
   ];
 }
 
-// --- DİNİ BAYRAMLAR (HESAPLI) ---
-function diniTatiller(y) {
-  // yaklaşık hicri yıl
-  const hy = Math.floor((y - 622) * 33 / 32);
-
-  const ramazan1 = hijriToGregorian(hy, 10, 1);
-  const kurban1  = hijriToGregorian(hy, 12, 10);
-
-  return [
-    ["Ramazan Bayramı Arefesi", "½ Gün", formatDate(new Date(ramazan1.getTime()-86400000)), "dini"],
-    ["Ramazan Bayramı", "1 Gün", formatDate(ramazan1), "dini"],
-    ["Ramazan Bayramı", "2 Gün", formatDate(new Date(ramazan1.getTime()+86400000)), "dini"],
-    ["Ramazan Bayramı", "3 Gün", formatDate(new Date(ramazan1.getTime()+86400000*2)), "dini"],
-
-    ["Kurban Bayramı Arefesi", "½ Gün", formatDate(new Date(kurban1.getTime()-86400000)), "dini"],
-    ["Kurban Bayramı", "1 Gün", formatDate(kurban1), "dini"],
-    ["Kurban Bayramı", "2 Gün", formatDate(new Date(kurban1.getTime()+86400000)), "dini"],
-    ["Kurban Bayramı", "3 Gün", formatDate(new Date(kurban1.getTime()+86400000*2)), "dini"],
-    ["Kurban Bayramı", "4 Gün", formatDate(new Date(kurban1.getTime()+86400000*3)), "dini"]
-  ];
-}
-
-// --- YIL SEÇİCİ ---
-const yearSelect = document.getElementById("yearSelect");
+// ===== YIL SEÇİCİ =====
+const select = document.getElementById("year");
 for (let y = 2016; y <= 2046; y++) {
   const opt = document.createElement("option");
   opt.value = y;
   opt.textContent = y;
-  if (y === new Date().getFullYear()) opt.selected = true;
-  yearSelect.appendChild(opt);
+  select.appendChild(opt);
 }
 
-// --- LİSTELE ---
 function listele() {
-  const y = parseInt(yearSelect.value);
-  const tbody = document.getElementById("tbody");
-  tbody.innerHTML = "";
+  const yil = select.value;
+  const ul = document.getElementById("liste");
+  const uyari = document.getElementById("uyari");
+  ul.innerHTML = "";
 
-  [...resmiTatiller(y), ...diniTatiller(y)].forEach(t => {
-    const tr = document.createElement("tr");
-    tr.className = t[3];
-    tr.innerHTML = `<td>${t[0]}</td><td>${t[1]}</td><td>${t[2]}</td>`;
-    tbody.appendChild(tr);
-  });
-
-  document.getElementById("table").style.display = "table";
+  if (kesin[yil]) {
+    uyari.style.display = "none";
+    kesin[yil].forEach(t => {
+      const li = document.createElement("li");
+      li.textContent = "• " + t;
+      ul.appendChild(li);
+    });
+  } else {
+    uyari.style.display = "block";
+    hesapli(yil).forEach(t => {
+      const li = document.createElement("li");
+      li.textContent = "• " + t;
+      ul.appendChild(li);
+    });
+  }
 }
 </script>
 
