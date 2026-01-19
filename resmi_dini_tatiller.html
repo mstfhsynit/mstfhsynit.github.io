@@ -1,135 +1,158 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <title>Global Tatil Takvimi</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-    }
-    .controls {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    select, button {
-      padding: 8px 12px;
-      font-size: 14px;
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-      max-width: 700px;
-      margin: auto;
-    }
-    li {
-      background: #fff;
-      margin-bottom: 8px;
-      padding: 10px;
-      border-left: 5px solid #999;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .public {
-      border-color: #007bff;
-    }
-    .religious {
-      border-color: #28a745;
-    }
-    .date {
-      font-weight: bold;
-    }
-    .type {
-      font-size: 12px;
-      opacity: 0.7;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Türkiye Ulusal Bayram ve Genel Tatil Günleri</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  padding: 20px;
+}
+h1 {
+  text-align: center;
+}
+.controls {
+  text-align: center;
+  margin-bottom: 20px;
+}
+select, button {
+  padding: 8px 14px;
+  font-size: 15px;
+}
+table {
+  width: 100%;
+  max-width: 950px;
+  margin: auto;
+  border-collapse: collapse;
+  background: #fff;
+}
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+th {
+  background: #eee;
+}
+.resmi { background: #e3f2fd; }
+.dini { background: #e8f5e9; }
+</style>
 </head>
 <body>
 
-<h1>🌍 Global Resmi & Dini Tatiller</h1>
+<h1>🇹🇷 Türkiye Ulusal Bayram ve Genel Tatil Günleri</h1>
 
 <div class="controls">
-  <select id="countrySelect"></select>
   <select id="yearSelect"></select>
-  <button onclick="loadHolidays()">Listele</button>
+  <button onclick="listele()">Listele</button>
 </div>
 
-<ul id="holidayList"></ul>
+<table id="table" style="display:none;">
+  <thead>
+    <tr>
+      <th>Tatil Günü</th>
+      <th>Süre</th>
+      <th>Tarih</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
 
 <script>
-  const countrySelect = document.getElementById("countrySelect");
-  const yearSelect = document.getElementById("yearSelect");
-  const holidayList = document.getElementById("holidayList");
+// --- HİCRİ → MİLADİ DÖNÜŞÜM (standart algoritma) ---
+function hijriToGregorian(hy, hm, hd) {
+  const jd =
+    Math.floor((11 * hy + 3) / 30) +
+    354 * hy +
+    30 * hm -
+    Math.floor((hm - 1) / 2) +
+    hd + 1948440 - 385;
 
-  // Yıl listesi
-  const currentYear = new Date().getFullYear();
-  for (let y = currentYear - 5; y <= currentYear + 5; y++) {
-    const opt = document.createElement("option");
-    opt.value = y;
-    opt.textContent = y;
-    if (y === currentYear) opt.selected = true;
-    yearSelect.appendChild(opt);
-  }
+  let l = jd + 68569;
+  let n = Math.floor((4 * l) / 146097);
+  l = l - Math.floor((146097 * n + 3) / 4);
+  let i = Math.floor((4000 * (l + 1)) / 1461001);
+  l = l - Math.floor((1461 * i) / 4) + 31;
+  let j = Math.floor((80 * l) / 2447);
+  const day = l - Math.floor((2447 * j) / 80);
+  l = Math.floor(j / 11);
+  const month = j + 2 - 12 * l;
+  const year = 100 * (n - 49) + i + l;
 
-  // Ülkeleri yükle
-  async function loadCountries() {
-    const res = await fetch("https://date.nager.at/api/v3/AvailableCountries");
-    const countries = await res.json();
-    countries.forEach(c => {
-      const opt = document.createElement("option");
-      opt.value = c.countryCode;
-      opt.textContent = c.name;
-      countrySelect.appendChild(opt);
-    });
-    countrySelect.value = "TR";
-  }
+  return new Date(year, month - 1, day);
+}
 
-  // Tatilleri yükle
-  async function loadHolidays() {
-    holidayList.innerHTML = "⏳ Yükleniyor...";
-    const year = yearSelect.value;
-    const country = countrySelect.value;
+function formatDate(d) {
+  return d.toLocaleDateString("tr-TR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    weekday: "long"
+  });
+}
 
-    try {
-      const res = await fetch(
-        `https://date.nager.at/api/v3/PublicHolidays/${year}/${country}`
-      );
-      const holidays = await res.json();
+// --- SABİT RESMİ TATİLLER ---
+function resmiTatiller(y) {
+  return [
+    ["Yılbaşı", "1 Gün", formatDate(new Date(y,0,1)), "resmi"],
+    ["Ulusal Egemenlik ve Çocuk Bayramı", "1 Gün", formatDate(new Date(y,3,23)), "resmi"],
+    ["Emek ve Dayanışma Günü", "1 Gün", formatDate(new Date(y,4,1)), "resmi"],
+    ["Atatürk’ü Anma Gençlik ve Spor Bayramı", "1 Gün", formatDate(new Date(y,4,19)), "resmi"],
+    ["Demokrasi ve Millî Birlik Günü", "1 Gün", formatDate(new Date(y,6,15)), "resmi"],
+    ["Zafer Bayramı", "1 Gün", formatDate(new Date(y,7,30)), "resmi"],
+    ["Cumhuriyet Bayramı", "1,5 Gün", `${formatDate(new Date(y,9,28))} – ${formatDate(new Date(y,9,29))}`, "resmi"]
+  ];
+}
 
-      holidayList.innerHTML = "";
+// --- DİNİ BAYRAMLAR (HESAPLI) ---
+function diniTatiller(y) {
+  // yaklaşık hicri yıl
+  const hy = Math.floor((y - 622) * 33 / 32);
 
-      holidays.forEach(h => {
-        const li = document.createElement("li");
+  const ramazan1 = hijriToGregorian(hy, 10, 1);
+  const kurban1  = hijriToGregorian(hy, 12, 10);
 
-        const isReligious = h.types.includes("Religious");
-        li.className = isReligious ? "religious" : "public";
+  return [
+    ["Ramazan Bayramı Arefesi", "½ Gün", formatDate(new Date(ramazan1.getTime()-86400000)), "dini"],
+    ["Ramazan Bayramı", "1 Gün", formatDate(ramazan1), "dini"],
+    ["Ramazan Bayramı", "2 Gün", formatDate(new Date(ramazan1.getTime()+86400000)), "dini"],
+    ["Ramazan Bayramı", "3 Gün", formatDate(new Date(ramazan1.getTime()+86400000*2)), "dini"],
 
-        li.innerHTML = `
-          <div class="date">${h.date}</div>
-          <div>${h.localName}</div>
-          <div class="type">
-            ${isReligious ? "Dini Tatil" : "Resmi Tatil"}
-          </div>
-        `;
+    ["Kurban Bayramı Arefesi", "½ Gün", formatDate(new Date(kurban1.getTime()-86400000)), "dini"],
+    ["Kurban Bayramı", "1 Gün", formatDate(kurban1), "dini"],
+    ["Kurban Bayramı", "2 Gün", formatDate(new Date(kurban1.getTime()+86400000)), "dini"],
+    ["Kurban Bayramı", "3 Gün", formatDate(new Date(kurban1.getTime()+86400000*2)), "dini"],
+    ["Kurban Bayramı", "4 Gün", formatDate(new Date(kurban1.getTime()+86400000*3)), "dini"]
+  ];
+}
 
-        holidayList.appendChild(li);
-      });
+// --- YIL SEÇİCİ ---
+const yearSelect = document.getElementById("yearSelect");
+for (let y = 2016; y <= 2046; y++) {
+  const opt = document.createElement("option");
+  opt.value = y;
+  opt.textContent = y;
+  if (y === new Date().getFullYear()) opt.selected = true;
+  yearSelect.appendChild(opt);
+}
 
-    } catch (err) {
-      holidayList.innerHTML = "❌ Veri alınamadı";
-    }
-  }
+// --- LİSTELE ---
+function listele() {
+  const y = parseInt(yearSelect.value);
+  const tbody = document.getElementById("tbody");
+  tbody.innerHTML = "";
 
-  loadCountries();
+  [...resmiTatiller(y), ...diniTatiller(y)].forEach(t => {
+    const tr = document.createElement("tr");
+    tr.className = t[3];
+    tr.innerHTML = `<td>${t[0]}</td><td>${t[1]}</td><td>${t[2]}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById("table").style.display = "table";
+}
 </script>
 
 </body>
