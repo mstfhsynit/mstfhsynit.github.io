@@ -9,10 +9,11 @@
 html,body{
   margin:0;
   padding:0;
-  font-family:Segoe UI, Arial, sans-serif;
   height:100%;
+  font-family:Segoe UI,Arial,sans-serif;
+  background:#070d1a;
+  color:#dbe4ff;
   overflow-x:hidden;
-  color:#2e3a4d;
 }
 
 /* YILDIZLI ARKA PLAN */
@@ -20,63 +21,65 @@ html,body{
   position:fixed;
   inset:0;
   z-index:-1;
-  background:#0b1a2a;
 }
 
 /* LOGO */
 .logo{
   position:fixed;
-  top:20px;
-  left:20px;
-  width:90px;
+  top:18px;
+  left:18px;
+  width:110px;
   pointer-events:none;
   z-index:10;
-  filter:drop-shadow(0 0 8px rgba(255,255,255,.7));
+  filter:drop-shadow(0 0 12px rgba(255,255,255,.9));
 }
 
-/* ANA KART */
+/* ANA KART – KOYU CAM */
 .container{
   max-width:1000px;
-  margin:120px auto 40px;
-  background:rgba(245,248,252,.92);
-  backdrop-filter:blur(6px);
-  padding:25px;
-  border-radius:20px;
-  box-shadow:0 20px 50px rgba(0,0,0,.25);
+  margin:130px auto 50px;
+  background:rgba(18,26,45,.88);
+  backdrop-filter:blur(10px);
+  padding:28px;
+  border-radius:22px;
+  box-shadow:0 25px 60px rgba(0,0,0,.6);
 }
 
 h1{
   text-align:center;
-  margin:0 0 15px;
-  color:#1f2a44;
+  margin:0 0 20px;
+  color:#eaf0ff;
 }
 
 /* KONTROLLER */
 .controls{
   text-align:center;
-  margin-bottom:15px;
+  margin-bottom:18px;
 }
 select,button{
-  padding:10px 14px;
+  padding:11px 15px;
   font-size:15px;
-  border-radius:6px;
-  border:1px solid #b8c3d6;
+  border-radius:8px;
+  border:1px solid #334066;
+  background:#0f1830;
+  color:#eaf0ff;
 }
 button{
-  background:#2f5cff;
-  color:#fff;
+  background:#3b6cff;
+  border:none;
   cursor:pointer;
 }
-button:hover{background:#2448cc}
+button:hover{background:#2f58d9}
 
 /* UYARI */
 .warning{
   display:none;
-  background:#fff3cd;
-  border:1px solid #ffeeba;
+  background:#2a1f12;
+  border:1px solid #6b4f1d;
   padding:12px;
-  border-radius:8px;
-  margin-bottom:15px;
+  border-radius:10px;
+  margin-bottom:16px;
+  color:#ffd78a;
   font-size:14px;
 }
 
@@ -87,19 +90,19 @@ table{
   border-spacing:0;
 }
 th,td{
-  border:1px solid #dde3ec;
-  padding:10px;
+  padding:11px;
   font-size:14px;
+  border-bottom:1px solid #2a3558;
 }
 th{
-  background:#e9eef6;
-  color:#2b3a55;
+  background:#101a33;
+  color:#bcd0ff;
 }
 tr{
-  background:#f7f9fc;
+  background:#0c1429;
 }
 tr:nth-child(even){
-  background:#f1f4f9;
+  background:#0f1a33;
 }
 
 /* HOVER */
@@ -107,33 +110,27 @@ tbody tr{
   transition:background .25s ease, box-shadow .25s ease;
 }
 tbody tr:hover{
-  background:#eaf1ff;
-  box-shadow:inset 0 0 0 9999px rgba(47,92,255,.05);
+  background:#162550;
+  box-shadow:inset 0 0 0 9999px rgba(90,140,255,.08);
 }
 
 /* ETİKETLER */
 .tag{
-  padding:3px 8px;
-  border-radius:5px;
+  padding:4px 9px;
+  border-radius:6px;
   font-size:12px;
   font-weight:600;
 }
-.resmi{background:#dce8ff;color:#1f3fa3}
-.dini{background:#dff5e3;color:#1f7a36}
-.bekleniyor{background:#fff3cd;color:#8a6d3b}
-
-@media print{
-  canvas,.controls,.logo,.warning{display:none}
-  body{background:#fff}
-  .container{box-shadow:none}
-}
+.resmi{background:#1e3c8a;color:#dce6ff}
+.dini{background:#1f5a3c;color:#d9ffe9}
+.bekleniyor{background:#5a4215;color:#ffe2a3}
 </style>
 </head>
 
 <body>
 
 <canvas id="stars"></canvas>
-<img src="mstfhsyn-logo.png" class="logo" alt="logo">
+<img src="mstfhsyn-logo.png" class="logo">
 
 <div class="container">
 <h1 id="baslik">🇹🇷 Türkiye Resmi ve Dini Tatiller</h1>
@@ -148,7 +145,7 @@ tbody tr:hover{
 <table>
 <thead>
 <tr>
-  <th>Tatil Günü</th>
+  <th>Tatil</th>
   <th>Tür</th>
   <th>Süre</th>
   <th>Tarih</th>
@@ -159,123 +156,64 @@ tbody tr:hover{
 </div>
 
 <script>
-/* ===== YILDIZ ANİMASYONU ===== */
-const canvas=document.getElementById("stars");
-const ctx=canvas.getContext("2d");
-let stars=[];
+/* YILDIZ ANİMASYONU */
+const c=document.getElementById("stars"),x=c.getContext("2d");
+function rs(){c.width=innerWidth;c.height=innerHeight}
+addEventListener("resize",rs);rs();
+let s=[];
+for(let i=0;i<300;i++)s.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.6+.4,a:Math.random(),d:Math.random()*.03+.01});
+(function a(){
+x.clearRect(0,0,c.width,c.height);
+s.forEach(o=>{o.a+=o.d;if(o.a>1||o.a<.2)o.d*=-1;
+x.fillStyle=`rgba(255,255,255,${o.a})`;
+x.beginPath();x.arc(o.x,o.y,o.r,0,7);x.fill();});
+requestAnimationFrame(a);
+})();
 
-function resize(){
-  canvas.width=innerWidth;
-  canvas.height=innerHeight;
-}
-addEventListener("resize",resize);
-resize();
-
-for(let i=0;i<280;i++){
-  stars.push({
-    x:Math.random()*canvas.width,
-    y:Math.random()*canvas.height,
-    r:Math.random()*1.8+.4,
-    a:Math.random(),
-    s:Math.random()*.03+.01
-  });
-}
-
-function animateStars(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  stars.forEach(star=>{
-    star.a+=star.s;
-    if(star.a>1||star.a<.15) star.s*=-1;
-    ctx.beginPath();
-    ctx.arc(star.x,star.y,star.r,0,Math.PI*2);
-    ctx.fillStyle=`rgba(255,255,255,${star.a})`;
-    ctx.fill();
-  });
-  requestAnimationFrame(animateStars);
-}
-animateStars();
-
-/* ===== TATİLLER ===== */
-const resmiTatiller=[
- ["Yılbaşı","1 Gün","1 Ocak"],
- ["Ulusal Egemenlik ve Çocuk Bayramı","1 Gün","23 Nisan"],
- ["Emek ve Dayanışma Günü","1 Gün","1 Mayıs"],
- ["Atatürk’ü Anma, Gençlik ve Spor Bayramı","1 Gün","19 Mayıs"],
- ["Demokrasi ve Millî Birlik Günü","1 Gün","15 Temmuz"],
- ["Zafer Bayramı","1 Gün","30 Ağustos"],
- ["Cumhuriyet Bayramı","1,5 Gün","29 Ekim"]
+/* VERİ */
+const resmi=[
+["Yılbaşı","1 Gün","1 Ocak"],
+["Ulusal Egemenlik ve Çocuk Bayramı","1 Gün","23 Nisan"],
+["Emek ve Dayanışma Günü","1 Gün","1 Mayıs"],
+["Atatürk’ü Anma, Gençlik ve Spor Bayramı","1 Gün","19 Mayıs"],
+["Demokrasi ve Millî Birlik Günü","1 Gün","15 Temmuz"],
+["Zafer Bayramı","1 Gün","30 Ağustos"],
+["Cumhuriyet Bayramı","1,5 Gün","29 Ekim"]
 ];
 
 const diniKesin={
-  2024:[
-    ["Ramazan Bayramı Arefesi","½ Gün","9 Nisan 2024 Salı"],
-    ["Ramazan Bayramı (1. Gün)","1 Gün","10 Nisan 2024 Çarşamba"],
-    ["Ramazan Bayramı (2. Gün)","1 Gün","11 Nisan 2024 Perşembe"],
-    ["Ramazan Bayramı (3. Gün)","1 Gün","12 Nisan 2024 Cuma"],
-    ["Kurban Bayramı Arefesi","½ Gün","15 Haziran 2024 Cumartesi"],
-    ["Kurban Bayramı (1. Gün)","1 Gün","16 Haziran 2024 Pazar"],
-    ["Kurban Bayramı (2. Gün)","1 Gün","17 Haziran 2024 Pazartesi"],
-    ["Kurban Bayramı (3. Gün)","1 Gün","18 Haziran 2024 Salı"],
-    ["Kurban Bayramı (4. Gün)","1 Gün","19 Haziran 2024 Çarşamba"]
-  ]
+2024:[
+["Ramazan Bayramı (1. Gün)","1 Gün","10 Nisan 2024"],
+["Ramazan Bayramı (2. Gün)","1 Gün","11 Nisan 2024"],
+["Ramazan Bayramı (3. Gün)","1 Gün","12 Nisan 2024"],
+["Kurban Bayramı (1. Gün)","1 Gün","16 Haziran 2024"],
+["Kurban Bayramı (2. Gün)","1 Gün","17 Haziran 2024"],
+["Kurban Bayramı (3. Gün)","1 Gün","18 Haziran 2024"],
+["Kurban Bayramı (4. Gün)","1 Gün","19 Haziran 2024"]
+]
 };
 
-/* YIL SEÇİCİ */
-const ySelect=document.getElementById("year");
-for(let y=2016;y<=2046;y++){
-  ySelect.innerHTML+=`<option value="${y}">${y}</option>`;
-}
+const y=document.getElementById("year");
+for(let i=2016;i<=2046;i++)y.innerHTML+=`<option>${i}</option>`;
 
-/* LİSTELE */
 function listele(){
-  const yil=+ySelect.value;
-  const tb=document.getElementById("tbody");
-  const uy=document.getElementById("uyari");
-  tb.innerHTML="";
-  uy.style.display="none";
+const yil=+y.value,tb=document.getElementById("tbody"),u=document.getElementById("uyari");
+tb.innerHTML="";u.style.display="none";
+document.getElementById("baslik").textContent=`🇹🇷 ${yil} Yılı Resmi ve Dini Tatiller`;
 
-  document.getElementById("baslik").textContent=
-    "🇹🇷 "+yil+" Yılı Resmi ve Dini Tatiller";
+resmi.forEach(r=>tb.innerHTML+=`
+<tr><td>${r[0]}</td><td><span class="tag resmi">Resmi</span></td><td>${r[1]}</td><td>${r[2]} ${yil}</td></tr>`);
 
-  resmiTatiller.forEach(r=>{
-    tb.innerHTML+=`
-    <tr>
-      <td>${r[0]}</td>
-      <td><span class="tag resmi">Resmi</span></td>
-      <td>${r[1]}</td>
-      <td>${r[2]} ${yil}</td>
-    </tr>`;
-  });
-
-  if(diniKesin[yil]){
-    diniKesin[yil].forEach(d=>{
-      tb.innerHTML+=`
-      <tr>
-        <td>${d[0]}</td>
-        <td><span class="tag dini">Dini (Kesin)</span></td>
-        <td>${d[1]}</td>
-        <td>${d[2]}</td>
-      </tr>`;
-    });
-  }else{
-    uy.style.display="block";
-    uy.textContent=
-      "⚠️ Bu yılın dini tatil tarihleri henüz kesinleşmemiştir.";
-    tb.innerHTML+=`
-    <tr>
-      <td>Ramazan Bayramı</td>
-      <td><span class="tag bekleniyor">Dini (Bekleniyor)</span></td>
-      <td>—</td>
-      <td>Tarih henüz ilan edilmedi</td>
-    </tr>
-    <tr>
-      <td>Kurban Bayramı</td>
-      <td><span class="tag bekleniyor">Dini (Bekleniyor)</span></td>
-      <td>—</td>
-      <td>Tarih henüz ilan edilmedi</td>
-    </tr>`;
-  }
-}
+if(diniKesin[yil]){
+diniKesin[yil].forEach(d=>tb.innerHTML+=`
+<tr><td>${d[0]}</td><td><span class="tag dini">Dini (Kesin)</span></td><td>${d[1]}</td><td>${d[2]}</td></tr>`);
+}else{
+u.style.display="block";
+u.textContent="⚠️ Bu yılın dini tatil tarihleri henüz kesinleşmemiştir.";
+tb.innerHTML+=`
+<tr><td>Ramazan Bayramı</td><td><span class="tag bekleniyor">Bekleniyor</span></td><td>—</td><td>İlan edilmedi</td></tr>
+<tr><td>Kurban Bayramı</td><td><span class="tag bekleniyor">Bekleniyor</span></td><td>—</td><td>İlan edilmedi</td></tr>`;
+}}
 </script>
 
 </body>
