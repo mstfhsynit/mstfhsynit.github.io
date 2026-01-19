@@ -15,18 +15,18 @@
 }
 
 .stars {
-  background: #020924 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Ccircle cx='20' cy='30' r='1' fill='white'/%3E%3Ccircle cx='80' cy='120' r='1' fill='white'/%3E%3Ccircle cx='150' cy='60' r='1' fill='white'/%3E%3Ccircle cx='180' cy='170' r='1' fill='white'/%3E%3C/svg%3E") repeat;
+  background: #050b2e url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Ccircle cx='30' cy='40' r='1' fill='white'/%3E%3Ccircle cx='90' cy='120' r='1' fill='white'/%3E%3Ccircle cx='160' cy='70' r='1' fill='white'/%3E%3C/svg%3E") repeat;
 }
 
 .twinkling {
-  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Ccircle cx='40' cy='90' r='1' fill='white'/%3E%3Ccircle cx='110' cy='40' r='1' fill='white'/%3E%3Ccircle cx='170' cy='140' r='1' fill='white'/%3E%3C/svg%3E") repeat;
-  animation: move 180s linear infinite;
+  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Ccircle cx='60' cy='90' r='1' fill='white'/%3E%3Ccircle cx='130' cy='30' r='1' fill='white'/%3E%3C/svg%3E") repeat;
+  animation: move 200s linear infinite;
   opacity: 0.5;
 }
 
 @keyframes move {
   from { background-position: 0 0; }
-  to { background-position: -8000px 4000px; }
+  to { background-position: -9000px 5000px; }
 }
 
 /* ===== LOGO ===== */
@@ -36,42 +36,57 @@
   left: 15px;
   width: 60px;
   z-index: 10;
-  opacity: 0.9;
 }
 
-.logo:hover {
-  opacity: 1;
-  transform: scale(1.05);
-  transition: 0.3s;
-}
-
-/* ===== GENEL TASARIM ===== */
+/* ===== TASARIM ===== */
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: "Segoe UI", Arial, sans-serif;
+  color: #fff;
 }
 
 .container {
-  max-width: 850px;
-  margin: 60px auto;
-  padding: 20px;
-  background: rgba(255,255,255,0.92);
-  border-radius: 10px;
-  backdrop-filter: blur(3px);
+  max-width: 900px;
+  margin: 80px auto;
+  padding: 25px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(235,240,255,0.92));
+  color: #000;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+  backdrop-filter: blur(6px);
 }
 
 h1 {
   text-align: center;
+  margin-top: 0;
 }
 
 .controls {
   text-align: center;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
 select, button {
-  padding: 8px 12px;
+  padding: 10px 14px;
   font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+button {
+  background: #4a63ff;
+  color: #fff;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #344bdb;
+}
+
+.badge {
+  text-align: center;
+  margin-bottom: 12px;
+  font-weight: bold;
 }
 
 .warning {
@@ -80,7 +95,7 @@ select, button {
   border: 1px solid #ffeeba;
   padding: 10px;
   margin-bottom: 10px;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
 ul {
@@ -89,8 +104,8 @@ ul {
 }
 
 li {
-  padding: 6px 0;
-  border-bottom: 1px solid #ddd;
+  padding: 8px 0;
+  border-bottom: 1px dashed #aaa;
 }
 </style>
 </head>
@@ -98,7 +113,9 @@ li {
 <body>
 
 <!-- LOGO -->
-<img src="mstfhsyn-logo.png" alt="mstfhsyn logo" class="logo">
+<a href="https://mstfhsynit.github.io">
+  <img src="mstfhsyn-logo.png" class="logo" alt="mstfhsyn logo">
+</a>
 
 <!-- YILDIZLAR -->
 <div class="stars"></div>
@@ -106,6 +123,8 @@ li {
 
 <div class="container">
   <h1>🇹🇷 Türkiye Resmi & Dini Tatiller</h1>
+
+  <div class="badge" id="bugun"></div>
 
   <div class="controls">
     <select id="year"></select>
@@ -121,57 +140,58 @@ li {
 </div>
 
 <script>
-// ===== KESİN YILLAR (ÖRNEK) =====
-const kesin = {
-  2026: [
-    "1 Ocak: Yılbaşı",
-    "23 Nisan: Ulusal Egemenlik ve Çocuk Bayramı",
-    "1 Mayıs: Emek ve Dayanışma Günü",
-    "19 Mayıs: Atatürk'ü Anma, Gençlik ve Spor Bayramı",
-    "15 Temmuz: Demokrasi ve Millî Birlik Günü",
-    "30 Ağustos: Zafer Bayramı",
-    "29 Ekim: Cumhuriyet Bayramı"
-  ]
-};
+// ===== RESMİ TATİLLER (HER YIL AYNI) =====
+const resmi = [
+  "1 Ocak: Yılbaşı",
+  "23 Nisan: Ulusal Egemenlik ve Çocuk Bayramı",
+  "1 Mayıs: Emek ve Dayanışma Günü",
+  "19 Mayıs: Atatürk'ü Anma, Gençlik ve Spor Bayramı",
+  "15 Temmuz: Demokrasi ve Millî Birlik Günü",
+  "30 Ağustos: Zafer Bayramı",
+  "29 Ekim: Cumhuriyet Bayramı"
+];
 
-// ===== HESAPLANAN YILLAR =====
-function hesapli(yil) {
-  return [
-    "Ramazan Bayramı (hesaplandı)",
-    "Kurban Bayramı (hesaplandı)",
-    "Kandiller (hesaplandı)"
-  ];
-}
+// ===== BUGÜN TATİL Mİ? =====
+(function(){
+  const today = new Date();
+  const md = today.getDate()+" "+today.toLocaleString("tr",{month:"long"});
+  const tatil = resmi.find(t=>t.startsWith(today.getDate()));
+  document.getElementById("bugun").textContent =
+    tatil ? "🎉 Bugün tatil: " + tatil : "📅 Bugün resmi tatil yok";
+})();
 
 // ===== YIL SEÇİCİ =====
 const select = document.getElementById("year");
 for (let y = 2016; y <= 2046; y++) {
-  const opt = document.createElement("option");
-  opt.value = y;
-  opt.textContent = y;
-  select.appendChild(opt);
+  const o = document.createElement("option");
+  o.value = y; o.textContent = y;
+  select.appendChild(o);
 }
 
-function listele() {
+// ===== LİSTELE =====
+function listele(){
   const yil = select.value;
   const ul = document.getElementById("liste");
   const uyari = document.getElementById("uyari");
   ul.innerHTML = "";
 
-  if (kesin[yil]) {
-    uyari.style.display = "none";
-    kesin[yil].forEach(t => {
-      const li = document.createElement("li");
-      li.textContent = "• " + t;
+  resmi.forEach(t=>{
+    const li=document.createElement("li");
+    li.textContent="• "+t;
+    ul.appendChild(li);
+  });
+
+  if (yil > 2028) {
+    uyari.style.display="block";
+    ["Ramazan Bayramı (hesaplandı)",
+     "Kurban Bayramı (hesaplandı)",
+     "Kandiller (hesaplandı)"].forEach(t=>{
+      const li=document.createElement("li");
+      li.textContent="• "+t;
       ul.appendChild(li);
     });
   } else {
-    uyari.style.display = "block";
-    hesapli(yil).forEach(t => {
-      const li = document.createElement("li");
-      li.textContent = "• " + t;
-      ul.appendChild(li);
-    });
+    uyari.style.display="none";
   }
 }
 </script>
