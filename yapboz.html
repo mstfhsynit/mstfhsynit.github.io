@@ -56,6 +56,10 @@ h1 { margin-bottom: 10px; }
   left: 120px;
   border: 2px dashed #555;
   z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255,255,255,0.3);
 }
 </style>
 </head>
@@ -77,6 +81,7 @@ const dropSlot = document.getElementById('drop-slot');
 let imgSrc = "";
 let currentPiece = null;
 
+// Fotoğraf seçildiğinde
 fileInput.addEventListener('change', e=>{
   const file = e.target.files[0];
   if(!file) return;
@@ -91,14 +96,16 @@ fileInput.addEventListener('change', e=>{
 
 function createPieces(){
   piecesContainer.innerHTML = "";
+  const size = 120;
+  
   // 3x3 grid, orta parça boş -> 8 parça
   const positions = [
-    {row:0,col:0}, {row:0,col:1}, {row:0,col:2},
+    {row:0,col:0},{row:0,col:1},{row:0,col:2},
     {row:1,col:0},           {row:1,col:2},
-    {row:2,col:0}, {row:2,col:1}, {row:2,col:2},
+    {row:2,col:0},{row:2,col:1},{row:2,col:2},
   ];
 
-  positions.forEach((pos, index)=>{
+  positions.forEach((pos,index)=>{
     let div = document.createElement('div');
     div.className = 'piece';
     div.dataset.row = pos.row;
@@ -110,8 +117,8 @@ function createPieces(){
     img.style.height = "360px";
     img.style.objectFit = "none";
     img.style.position = "absolute";
-    img.style.top = `-${pos.row*120}px`;
-    img.style.left = `-${pos.col*120}px`;
+    img.style.top = `-${pos.row*size}px`;
+    img.style.left = `-${pos.col*size}px`;
 
     div.appendChild(img);
     piecesContainer.appendChild(div);
@@ -133,6 +140,7 @@ dropSlot.addEventListener('drop', e=>{
   e.preventDefault();
   if(currentPiece){
     // Orta boş alanın içine taşı
+    dropSlot.innerHTML = "";
     dropSlot.appendChild(currentPiece);
     currentPiece.style.position = "relative";
     currentPiece.style.top = "0";
