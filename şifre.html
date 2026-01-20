@@ -13,9 +13,9 @@ background:#020617;color:#e5e7eb;
 min-height:100vh;display:flex;
 justify-content:center;align-items:center}
 .card{
-width:100%;max-width:700px;margin:12px;
+width:100%;max-width:720px;margin:12px;
 border:1px solid #1e293b;border-radius:18px;
-padding:20px}
+padding:20px;background:#020617}
 h2,h3{margin-top:0}
 input,button,select{
 width:100%;padding:12px;margin-top:10px;
@@ -27,8 +27,7 @@ button{background:#2563eb;color:white}
 .secondary{background:#334155}
 .hidden{display:none}
 .item{
-border:1px solid #1e293b;border-radius:12px;
-margin-top:10px}
+border:1px solid #1e293b;border-radius:12px;margin-top:10px}
 .header{padding:10px;cursor:pointer}
 .content{padding:10px;display:none}
 .item.open .content{display:block}
@@ -51,7 +50,6 @@ display:flex;justify-content:center;align-items:center}
 <div class="card" id="auth"></div>
 <div class="card hidden" id="app"></div>
 
-<!-- IMPORT AUTH -->
 <div id="importModal" class="modal hidden">
 <div class="card">
 <h3>🔐 Hesap Doğrulama</h3>
@@ -78,15 +76,50 @@ search:"Search",logout:"Logout"}
 };
 let lang=localStorage.getItem("lang")||"tr";
 document.querySelector(".lang").value=lang;
-function setLang(l){lang=l;localStorage.setItem("lang",l);renderAuth()}
 
 /* ===== ELEMENTS ===== */
 const auth=document.getElementById("auth");
 const app=document.getElementById("app");
 
+/* ===== CRYPTO ===== */
+let key=null;
+
+async function deriveKeyFromPassword(password,salt){
+const base=await crypto.subtle.importKey(
+"raw",new TextEncoder().encode(password),
+"PBKDF2",false,["deriveKey"]);
+return crypto.subtle.deriveKey(
+{name:"PBKDF2",salt,iterations:100000,hash:"SHA-256"},
+base,{name:"AES-GCM",length:256},
+false,["encrypt","decrypt"]);
+}
+
+async function encryptText(text){
+const iv=crypto.getRandomValues(new Uint8Array(12));
+const enc=await crypto.subtle.encrypt(
+{name:"AES-GCM",iv},
+key,new TextEncoder().encode(text));
+return{iv:[...iv],data:[...new Uint8Array(enc)]};
+}
+
+async function decryptText(obj){
+const dec=await crypto.subtle.decrypt(
+{name:"AES-GCM",iv:new Uint8Array(obj.iv)},
+key,new Uint8Array(obj.data));
+return new TextDecoder().decode(dec);
+}
+
 /* ===== AUTH UI ===== */
+function setLang(l){
+lang=l;localStorage.setItem("lang",l);
+renderAuth();
+}
+
 function renderAuth(){
-auth.innerHTML="";app.innerHTML="";
+auth.innerHTML="";
+app.classList.add("hidden");
+auth.classList.remove("hidden");
+
 if(!localStorage.getItem("user")){
 auth.innerHTML=`
 <h2>${T[lang].create}</h2>
@@ -103,45 +136,39 @@ auth.innerHTML=`
 }}
 renderAuth();
 
-/* ===== CRYPTO ===== */
-let key;
-async function derive(p,s){
-const base=await crypto.subtle.importKey("raw",
-new TextEncoder().encode(p),"PBKDF2",false,["deriveKey"]);
-return crypto.subtle.deriveKey(
-{name:"PBKDF2",salt:s,iterations:100000,hash:"SHA-256"},
-base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
-}
-async function enc(t){
-const iv=crypto.getRandomValues(new Uint8Array(12));
-const d=await crypto.subtle.encrypt({name:"AES-GCM",iv},
-key,new TextEncoder().encode(t));
-return{iv:[...iv],d:[...new Uint8Array(d)]};
-}
-async function dec(o){
-const d=await crypto.subtle.decrypt(
-{name:"AES-GCM",iv:new Uint8Array(o.iv)},
-key,new Uint8Array(o.d));
-return new TextDecoder().decode(d);
-}
-
 /* ===== AUTH LOGIC ===== */
 async function register(){
 if(p1.value!==p2.value)return alert("Şifreler uyuşmuyor");
 const salt=crypto.getRandomValues(new Uint8Array(16));
-key=await derive(p1.value,salt);
+key=await deriveKeyFromPassword(p1.value,salt);
+
 localStorage.setItem("user",u.value);
 localStorage.setItem("salt",JSON.stringify([...salt]));
-open();
+localStorage.setItem("vault","[]");
+
+openApp();
 }
+
 async function login(){
 if(u.value!==localStorage.getItem("user"))
 return alert("Kullanıcı adı yanlış");
+
 const salt=new Uint8Array(JSON.parse(localStorage.getItem("salt")));
-key=await derive(p.value,salt);
-open();
+try{
+key=await deriveKeyFromPassword(p.value,salt);
+
+// test decrypt
+const vault=JSON.parse(localStorage.getItem("vault")||"[]");
+if(vault.length){
+await decryptText(vault[0].p);
 }
-function open(){
+openApp();
+}catch{
+alert("Master şifre yanlış");
+}
+}
+
+function openApp(){
 auth.classList.add("hidden");
 app.classList.remove("hidden");
 renderApp();
@@ -149,91 +176,122 @@ renderApp();
 
 /* ===== APP ===== */
 function now(){return new Date().toLocaleString();}
+
 function renderApp(){
 app.innerHTML=`
 <h3>🔐 Password Manager</h3>
 <input id="label" placeholder="${T[lang].label}">
 <input id="pw" type="password" placeholder="${T[lang].newpass}">
-<button onclick="save()">${T[lang].save}</button>
+<button onclick="saveEntry()">${T[lang].save}</button>
 <hr>
 <button class="secondary" onclick="exportTXT()">${T[lang].export}</button>
 <input type="file" id="file" hidden onchange="prepareImport(this)">
 <button class="secondary" onclick="file.click()">${T[lang].import}</button>
-<input id="search" placeholder="${T[lang].search}" oninput="load()">
+<input id="search" placeholder="${T[lang].search}" oninput="loadList()">
 <div id="list"></div>
 <hr>
 <button class="secondary" onclick="logout()">${T[lang].logout}</button>`;
-load();
+loadList();
 }
-async function save(){
-let v=JSON.parse(localStorage.getItem("vault")||"[]");
-v.push({l:label.value,p:await enc(pw.value),
-c:now(),u:"-"});
+
+async function saveEntry(){
+if(!label.value||!pw.value)return;
+let v=JSON.parse(localStorage.getItem("vault"));
+v.push({
+l:label.value,
+p:await encryptText(pw.value),
+c:now(),u:"-"
+});
 localStorage.setItem("vault",JSON.stringify(v));
-label.value="";pw.value="";load();
+label.value="";pw.value="";
+loadList();
 }
-async function load(){
+
+async function loadList(){
 list.innerHTML="";
-let v=JSON.parse(localStorage.getItem("vault")||"[]");
+let v=JSON.parse(localStorage.getItem("vault"));
 v.forEach((x,i)=>{
 if(!x.l.toLowerCase().includes(search.value.toLowerCase()))return;
 list.innerHTML+=`
 <div class="item">
 <div class="header" onclick="this.parentNode.classList.toggle('open')">
-<b>${x.l}</b><div class="time">${x.c}</div>
+<b>${x.l}</b>
+<div class="time">${x.c}</div>
 </div>
 <div class="content">
 <input id="p${i}" type="password">
 <button onclick="show(${i})">👁️</button>
-</div></div>`;
+</div>
+</div>`;
 });
 }
+
 async function show(i){
 let v=JSON.parse(localStorage.getItem("vault"));
-p=document.getElementById("p"+i);
-p.value=await dec(v[i].p);
+const el=document.getElementById("p"+i);
+el.value=await decryptText(v[i].p);
 v[i].u=now();
 localStorage.setItem("vault",JSON.stringify(v));
 }
 
-/* ===== EXPORT ===== */
+/* ===== EXPORT TXT ===== */
 async function exportTXT(){
-let v=JSON.parse(localStorage.getItem("vault")||"[]");
+let v=JSON.parse(localStorage.getItem("vault"));
 let txt="";
 for(const x of v){
-txt+=`${x.l}\nŞifre: ${await dec(x.p)}\nOluşturma: ${x.c}\nSon Kullanım: ${x.u}\n-----------------\n`;
+txt+=`${x.l}\nŞifre: ${await decryptText(x.p)}\nOluşturma: ${x.c}\nSon Kullanım: ${x.u}\n-----------------\n`;
 }
-const b=new Blob([txt],{type:"text/plain"});
+const blob=new Blob([txt],{type:"text/plain"});
 const a=document.createElement("a");
-a.href=URL.createObjectURL(b);
+a.href=URL.createObjectURL(blob);
 a.download="passwords.txt";
 a.click();
 }
 
-/* ===== IMPORT (AUTH REQUIRED) ===== */
+/* ===== IMPORT ===== */
 let importData=null;
+
 async function prepareImport(input){
+try{
 importData=JSON.parse(await input.files[0].text());
 document.getElementById("importModal").classList.remove("hidden");
+}catch{
+alert("Geçersiz dosya");
 }
+}
+
 async function confirmImport(){
-if(impUser.value!==importData.user)return alert("Kullanıcı adı yanlış");
+if(impUser.value!==importData.user)
+return alert("Kullanıcı adı yanlış");
+
 try{
 const salt=new Uint8Array(importData.salt);
-await derive(impPass.value,salt);
+const testKey=await deriveKeyFromPassword(impPass.value,salt);
+
+// AES test
+if(importData.vault.length){
+await crypto.subtle.decrypt(
+{name:"AES-GCM",iv:new Uint8Array(importData.vault[0].p.iv)},
+testKey,new Uint8Array(importData.vault[0].p.data));
+}
+
 localStorage.setItem("user",importData.user);
 localStorage.setItem("salt",JSON.stringify(importData.salt));
-localStorage.setItem("vault",importData.vault);
+localStorage.setItem("vault",JSON.stringify(importData.vault));
 location.reload();
-}catch{alert("Master şifre yanlış")}
+}catch{
+alert("Master şifre yanlış");
 }
+}
+
 function closeImport(){
 document.getElementById("importModal").classList.add("hidden");
 }
 
 /* ===== LOGOUT ===== */
 function logout(){
-key=null;location.reload();
+key=null;
+location.reload();
 }
 </script>
 
