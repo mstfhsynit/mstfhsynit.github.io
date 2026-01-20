@@ -72,16 +72,39 @@ button {
   font-size: 14px;
 }
 
-/* ALT YAZI */
+/* 🔥 KAYAN ALT YAZI */
 .footer {
   position: absolute;
-  bottom: 8px;
+  bottom: 6px;
   width: 100%;
-  text-align: center;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.footer span {
+  display: inline-block;
+  white-space: nowrap;
   font-size: 13px;
   font-style: italic;
-  color: rgba(255,255,255,0.8);
-  letter-spacing: 0.5px;
+  color: rgba(255,255,255,0.85);
+  animation: slide 14s linear infinite;
+}
+
+@keyframes slide {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
 }
 </style>
 </head>
@@ -113,9 +136,9 @@ button {
     🏆 En iyi skor: <span id="best">0</span>
   </div>
 
-  <!-- ALT SÖZ -->
+  <!-- 🔥 KAYAN SÖZ -->
   <div class="footer">
-    Menfaati bitenin ihaneti başlar.
+    <span>Menfaati bitenin ihaneti başlar.</span>
   </div>
 </div>
 
