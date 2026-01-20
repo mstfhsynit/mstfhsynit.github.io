@@ -1,17 +1,14 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Akıllı Ders Asistanı</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
     * {
       box-sizing: border-box;
-      font-family: 'Inter', sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
     }
 
     body {
@@ -21,39 +18,34 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #fff;
     }
 
     .container {
-      background: rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(12px);
-      padding: 30px;
-      border-radius: 20px;
+      background: white;
+      padding: 25px;
       width: 100%;
-      max-width: 600px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      max-width: 420px;
+      border-radius: 18px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+      text-align: center;
     }
 
     h1 {
-      text-align: center;
-      margin-bottom: 10px;
-      font-weight: 700;
+      margin-top: 0;
     }
 
     p {
-      text-align: center;
       font-size: 14px;
-      opacity: 0.9;
+      color: #555;
     }
 
-    textarea, select {
+    input, select {
       width: 100%;
-      margin-top: 15px;
       padding: 12px;
+      margin-top: 12px;
       border-radius: 10px;
-      border: none;
+      border: 1px solid #ccc;
       outline: none;
-      font-size: 14px;
     }
 
     button {
@@ -62,126 +54,46 @@
       padding: 14px;
       border: none;
       border-radius: 12px;
-      background: #00e0ff;
-      color: #000;
+      background: #667eea;
+      color: white;
       font-size: 16px;
-      font-weight: 600;
       cursor: pointer;
-      transition: 0.3s;
     }
 
     button:hover {
-      background: #00bcd4;
+      background: #556cd6;
     }
 
-    .response {
+    #result {
       margin-top: 20px;
-      background: rgba(0, 0, 0, 0.25);
       padding: 15px;
-      border-radius: 12px;
+      background: #f4f4f4;
+      border-radius: 10px;
       min-height: 80px;
-      white-space: pre-wrap;
-      font-size: 14px;
-    }
-
-    .actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .actions button {
-      flex: 1;
-      font-size: 13px;
-      padding: 10px;
-      background: #ffffff;
+      white-space: pre-line;
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <h1>📚 Akıllı Ders Asistanı</h1>
-    <p>Konuyu yaz, seviyeni seç, yapay zeka anlatsın.</p>
+<div class="container">
+  <h1>📚 Akıllı Ders Asistanı</h1>
+  <p>Konu yaz, seviyeyi seç, sistem anlatsın.</p>
 
-    <textarea id="topic" rows="3" placeholder="Örn: Türev, Fotosentez, Olasılık..."></textarea>
+  <input id="topic" placeholder="Örn: türev, fotosentez">
 
-    <select id="level">
-      <option value="ilkokul">İlkokul</option>
-      <option value="ortaokul">Ortaokul</option>
-      <option value="lise">Lise</option>
-      <option value="universite">Üniversite</option>
-    </select>
+  <select id="level">
+    <option value="ilkokul">İlkokul</option>
+    <option value="ortaokul">Ortaokul</option>
+    <option value="lise">Lise</option>
+    <option value="universite">Üniversite</option>
+  </select>
 
-    <button onclick="askAI()">Anlat 🚀</button>
+  <button onclick="teach()">Anlat</button>
 
-    <div class="actions">
-      <button onclick="simpler()">Daha Basit</button>
-      <button onclick="example()">Örnek Ver</button>
-    </div>
+  <div id="result">Burada anlatım görünecek...</div>
+</div>
 
-    <div class="response" id="response">
-      Burada yapay zeka cevabı görünecek...
-    </div>
-  </div>
-
-<script>
-const API_KEY = "BURAYA_API_KEY_YAZ"; // OpenAI API Key
-
-async function sendPrompt(prompt) {
-  const responseBox = document.getElementById("response");
-  responseBox.textContent = "⏳ Düşünüyorum...";
-
-  try {
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: "Sen deneyimli bir öğretmensin." },
-          { role: "user", content: prompt }
-        ],
-        temperature: 0.7
-      })
-    });
-
-    const data = await res.json();
-    responseBox.textContent = data.choices[0].message.content;
-
-  } catch (error) {
-    responseBox.textContent = "❌ Bir hata oluştu.";
-  }
-}
-
-function askAI() {
-  const topic = document.getElementById("topic").value;
-  const level = document.getElementById("level").value;
-
-  const prompt = `
-Konu: ${topic}
-Seviye: ${level}
-
-Bu konuyu:
-- Basit
-- Adım adım
-- Günlük hayattan örneklerle
-anlat.
-`;
-  sendPrompt(prompt);
-}
-
-function simpler() {
-  sendPrompt("Bu konuyu daha da basit anlat.");
-}
-
-function example() {
-  sendPrompt("Bu konuyla ilgili sadece örnekler ver.");
-}
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>
