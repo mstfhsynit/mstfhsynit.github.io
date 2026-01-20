@@ -1,129 +1,159 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>Refleks Oyunu</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Kutu Yakala Oyunu</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #141e30, #243b55);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: Arial, sans-serif;
-      color: white;
-    }
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, sans-serif;
+  color: white;
+}
 
-    .game {
-      background: rgba(0,0,0,0.4);
-      padding: 25px;
-      border-radius: 16px;
-      width: 100%;
-      max-width: 400px;
-      text-align: center;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    }
+.game {
+  width: 360px;
+  height: 520px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 16px;
+  padding: 15px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  position: relative;
+  overflow: hidden;
+}
 
-    h1 {
-      margin-top: 0;
-    }
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-    #box {
-      margin: 20px auto;
-      width: 200px;
-      height: 200px;
-      background: red;
-      border-radius: 12px;
-      display: none;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
+select, button {
+  border-radius: 8px;
+  border: none;
+  padding: 6px 10px;
+  font-size: 14px;
+}
 
-    button {
-      padding: 12px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      background: #00c853;
-      color: black;
-    }
+button {
+  background: #00e676;
+  cursor: pointer;
+}
 
-    button:hover {
-      background: #00e676;
-    }
+#area {
+  position: relative;
+  width: 100%;
+  height: 420px;
+  margin-top: 10px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  overflow: hidden;
+}
 
-    .info {
-      margin-top: 15px;
-      font-size: 15px;
-    }
-  </style>
+.box {
+  width: 50px;
+  height: 50px;
+  background: #ff5252;
+  position: absolute;
+  bottom: -60px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.info {
+  text-align: center;
+  margin-top: 8px;
+}
+</style>
 </head>
+
 <body>
 
 <div class="game">
-  <h1>⚡ Refleks Oyunu</h1>
-  <p>Yeşil olunca <b>hemen tıkla!</b></p>
+  <header>
+    <div>🎯 Skor: <span id="score">0</span></div>
 
-  <button id="startBtn">Başla</button>
+    <select id="difficulty">
+      <option value="easy">Kolay</option>
+      <option value="medium">Orta</option>
+      <option value="hard">Zor</option>
+    </select>
 
-  <div id="box"></div>
+    <button onclick="startGame()">Başla</button>
+  </header>
 
-  <div class="info" id="message"></div>
-  <div class="info" id="best"></div>
+  <div id="area"></div>
+
+  <div class="info">
+    ❤️ Can: <span id="lives">3</span>
+  </div>
 </div>
 
 <script>
-  const box = document.getElementById("box");
-  const startBtn = document.getElementById("startBtn");
-  const message = document.getElementById("message");
-  const bestText = document.getElementById("best");
+let score = 0;
+let lives = 3;
+let intervalId = null;
+let speed = 2;
 
-  let startTime = 0;
-  let timeoutId = null;
+const area = document.getElementById("area");
+const scoreText = document.getElementById("score");
+const livesText = document.getElementById("lives");
 
-  let bestScore = localStorage.getItem("bestScore");
-  if (bestScore) {
-    bestText.innerText = "🏆 En iyi skor: " + bestScore + " ms";
+function startGame() {
+  score = 0;
+  lives = 3;
+  scoreText.innerText = score;
+  livesText.innerText = lives;
+  area.innerHTML = "";
+
+  clearInterval(intervalId);
+
+  const diff = document.getElementById("difficulty").value;
+  speed = diff === "easy" ? 2 : diff === "medium" ? 4 : 6;
+
+  intervalId = setInterval(createBox, 900);
+}
+
+function createBox() {
+  if (lives <= 0) {
+    clearInterval(intervalId);
+    alert("Oyun bitti! Skor: " + score);
+    return;
   }
 
-  startBtn.onclick = () => {
-    message.innerText = "Hazır ol...";
-    box.style.display = "none";
-    box.style.background = "red";
+  const box = document.createElement("div");
+  box.className = "box";
 
-    const waitTime = Math.random() * 3000 + 1000;
+  box.style.left = Math.random() * (area.clientWidth - 50) + "px";
+  area.appendChild(box);
 
-    timeoutId = setTimeout(() => {
-      box.style.display = "block";
-      box.style.background = "green";
-      startTime = Date.now();
-      message.innerText = "TIKLA!";
-    }, waitTime);
-  };
+  let bottom = -60;
+
+  const move = setInterval(() => {
+    bottom += speed;
+    box.style.bottom = bottom + "px";
+
+    if (bottom > area.clientHeight) {
+      clearInterval(move);
+      box.remove();
+      lives--;
+      livesText.innerText = lives;
+    }
+  }, 20);
 
   box.onclick = () => {
-    if (box.style.background !== "green") {
-      message.innerText = "❌ Erken tıkladın!";
-      clearTimeout(timeoutId);
-      box.style.display = "none";
-      return;
-    }
-
-    const reactionTime = Date.now() - startTime;
-    message.innerText = "⚡ Tepki süren: " + reactionTime + " ms";
-
-    if (!bestScore || reactionTime < bestScore) {
-      bestScore = reactionTime;
-      localStorage.setItem("bestScore", bestScore);
-      bestText.innerText = "🏆 En iyi skor: " + bestScore + " ms";
-    }
-
-    box.style.display = "none";
+    clearInterval(move);
+    box.remove();
+    score++;
+    scoreText.innerText = score;
   };
+}
 </script>
 
 </body>
