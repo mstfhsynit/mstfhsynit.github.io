@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Password Strength & Generator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at top left,#2563eb,transparent 40%),
+    radial-gradient(circle at bottom right,#9333ea,transparent 40%),
+    #020617;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:#e5e7eb;
+}
+.card{
+  width:100%;
+  max-width:420px;
+  margin:16px;
+  background:rgba(2,6,23,.85);
+  backdrop-filter:blur(14px);
+  border-radius:18px;
+  padding:20px;
+  box-shadow:0 20px 40px rgba(0,0,0,.4);
+}
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+select{
+  background:#334155;
+  color:white;
+  border:none;
+  padding:6px 10px;
+  border-radius:10px;
+}
+h2{margin:12px 0}
+input,button{
+  width:100%;
+  padding:12px;
+  margin-top:8px;
+  border-radius:10px;
+  border:none;
+  font-size:16px;
+}
+input{
+  background:#020617;
+  color:#e5e7eb;
+}
+button{
+  background:#2563eb;
+  color:white;
+  cursor:pointer;
+}
+button.secondary{
+  background:#334155;
+}
+.row{
+  display:flex;
+  gap:8px;
+}
+.bar{
+  width:100%;
+  height:10px;
+  background:#020617;
+  border-radius:999px;
+  margin-top:10px;
+  overflow:hidden;
+}
+.bar-fill{
+  height:100%;
+  width:0%;
+  transition:width .4s ease, background .4s ease;
+}
+.result{
+  margin-top:8px;
+  font-weight:bold;
+}
+hr{
+  border:none;
+  height:1px;
+  background:#1e293b;
+  margin:16px 0;
+}
+</style>
+</head>
+
+<body>
+<div class="card" id="card">
+
+<div class="top">
+  <strong>🔐 Tool</strong>
+  <select onchange="setLang(this.value)">
+    <option value="tr">TR</option>
+    <option value="en">EN</option>
+    <option value="de">DE</option>
+    <option value="fr">FR</option>
+    <option value="es">ES</option>
+    <option value="it">IT</option>
+    <option value="ru">RU</option>
+    <option value="pt">PT</option>
+    <option value="ja">JP</option>
+    <option value="ar">AR</option>
+  </select>
+</div>
+
+<h2 id="t1"></h2>
+
+<div class="row">
+  <input type="password" id="pw">
+  <button class="secondary" onclick="toggleEye()">👁️</button>
+</div>
+
+<div class="bar"><div id="bar" class="bar-fill"></div></div>
+<div id="res" class="result"></div>
+
+<hr>
+
+<h2 id="t2"></h2>
+<label id="t3"></label>
+<input type="number" id="len" min="8" max="32" value="12">
+
+<div class="row">
+  <button onclick="generate()" id="t4"></button>
+  <button class="secondary" onclick="copyPass()" id="t5"></button>
+</div>
+
+<input id="out" readonly>
+
+</div>
+
+<script>
+const T={
+tr:{t1:"Şifre Gücü Testi",t2:"Güçlü Şifre Oluştur",t3:"Uzunluk",t4:"Oluştur",t5:"Kopyala",w:"Zayıf",m:"Orta",s:"Güçlü"},
+en:{t1:"Password Strength Checker",t2:"Generate Password",t3:"Length",t4:"Generate",t5:"Copy",w:"Weak",m:"Medium",s:"Strong"},
+de:{t1:"Passwortstärke",t2:"Passwort erzeugen",t3:"Länge",t4:"Erzeugen",t5:"Kopieren",w:"Schwach",m:"Mittel",s:"Stark"},
+fr:{t1:"Sécurité du mot de passe",t2:"Générer",t3:"Longueur",t4:"Générer",t5:"Copier",w:"Faible",m:"Moyen",s:"Fort"},
+es:{t1:"Seguridad de contraseña",t2:"Generar",t3:"Longitud",t4:"Generar",t5:"Copiar",w:"Débil",m:"Media",s:"Fuerte"},
+it:{t1:"Sicurezza password",t2:"Genera",t3:"Lunghezza",t4:"Genera",t5:"Copia",w:"Debole",m:"Media",s:"Forte"},
+ru:{t1:"Надежность пароля",t2:"Создать",t3:"Длина",t4:"Создать",t5:"Копировать",w:"Слабый",m:"Средний",s:"Надежный"},
+pt:{t1:"Força da senha",t2:"Gerar",t3:"Comprimento",t4:"Gerar",t5:"Copiar",w:"Fraca",m:"Média",s:"Forte"},
+ja:{t1:"パスワード強度",t2:"生成",t3:"長さ",t4:"生成",t5:"コピー",w:"弱い",m:"普通",s:"強い"},
+ar:{t1:"فحص قوة كلمة المرور",t2:"إنشاء كلمة مرور",t3:"الطول",t4:"إنشاء",t5:"نسخ",w:"ضعيفة",m:"متوسطة",s:"قوية"}
+};
+
+let lang="tr";
+setLang("tr");
+
+function setLang(l){
+  lang=l;
+  document.getElementById("card").style.direction=l==="ar"?"rtl":"ltr";
+  ["t1","t2","t3","t4","t5"].forEach(id=>{
+    document.getElementById(id).textContent=T[l][id];
+  });
+}
+
+const pw=document.getElementById("pw");
+const bar=document.getElementById("bar");
+const res=document.getElementById("res");
+
+pw.addEventListener("input",()=>{
+  let s=0;
+  const p=pw.value;
+  if(p.length>=12)s+=30;
+  if(/[A-Z]/.test(p))s+=15;
+  if(/[a-z]/.test(p))s+=15;
+  if(/[0-9]/.test(p))s+=20;
+  if(/[^A-Za-z0-9]/.test(p))s+=20;
+
+  bar.style.width=s+"%";
+  bar.style.background=s<40?"#ef4444":s<70?"#f59e0b":"#22c55e";
+  res.textContent=s<40?T[lang].w:s<70?T[lang].m:T[lang].s;
+});
+
+function toggleEye(){
+  pw.type=pw.type==="password"?"text":"password";
+}
+
+function generate(){
+  const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
+  const len=document.getElementById("len").value;
+  const arr=new Uint32Array(len);
+  crypto.getRandomValues(arr);
+  let out="";
+  for(let i=0;i<len;i++) out+=chars[arr[i]%chars.length];
+  document.getElementById("out").value=out;
+}
+
+function copyPass(){
+  const v=document.getElementById("out").value;
+  if(v) navigator.clipboard.writeText(v);
+}
+</script>
+
+</body>
+</html>
