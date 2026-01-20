@@ -3,262 +3,229 @@
 <head>
 <meta charset="UTF-8">
 <title>Online Taş Kağıt Makas</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-<!-- Konfeti -->
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 body{
   margin:0;
-  min-height:100vh;
+  font-family:Arial;
   background:linear-gradient(135deg,#1d2671,#c33764);
-  font-family:Arial,sans-serif;
   color:#fff;
   display:flex;
   justify-content:center;
   align-items:center;
+  height:100vh;
 }
-
-.app{
+.box{
   width:440px;
-  background:rgba(0,0,0,.5);
-  border-radius:20px;
+  background:rgba(0,0,0,.45);
   padding:20px;
+  border-radius:18px;
 }
-
-h1{text-align:center;margin:5px}
-
-.panel{
-  background:rgba(255,255,255,.1);
-  border-radius:12px;
-  padding:10px;
-  margin:10px 0;
-}
-
+h1{text-align:center;margin:0}
 input,button{
+  width:100%;
   padding:8px;
-  border-radius:8px;
+  margin:5px 0;
   border:none;
-  margin:3px;
+  border-radius:8px;
 }
-
-button{cursor:pointer}
-
-.players{
-  display:flex;
-  justify-content:space-between;
-  font-weight:bold;
-}
-
-.score{
-  text-align:center;
-  font-size:22px;
-}
-
+button{cursor:pointer;font-size:16px}
 .buttons{
   display:flex;
-  justify-content:space-around;
-  margin:15px 0;
+  justify-content:space-between;
+  margin:10px 0;
 }
-
 .buttons button{
-  width:90px;
-  height:90px;
-  font-size:40px;
-  border-radius:50%;
+  width:30%;
+  font-size:32px;
 }
-
-.status{
-  min-height:50px;
-  text-align:center;
-  margin-top:8px;
+.score{
+  display:flex;
+  justify-content:space-between;
+  margin:6px 0;
 }
+#status,#timer{text-align:center;font-weight:bold}
 
 .chat{
+  background:#222;
+  padding:6px;
   height:120px;
   overflow:auto;
-  background:#0003;
-  padding:6px;
   border-radius:8px;
-  font-size:13px;
+  margin-top:10px;
 }
+.chat-msg{
+  max-width:75%;
+  padding:6px 8px;
+  margin:4px 0;
+  border-radius:10px;
+  clear:both;
+}
+.me{background:#4caf50;float:right;text-align:right}
+.enemy{background:#555;float:left;text-align:left}
 
 .footer{
   text-align:center;
   font-size:12px;
+  margin-top:8px;
   opacity:.8;
-  font-style:italic;
 }
 </style>
 </head>
 
 <body>
-<div class="app">
+<div class="box">
 
 <h1>✊ ✋ ✌️</h1>
-<b style="display:block;text-align:center">Online Taş Kağıt Makas</b>
 
-<div class="panel">
+<div id="login">
   <input id="name" placeholder="İsmin">
-  <button onclick="create()">Oda Oluştur</button><br>
   <input id="room" placeholder="Oda Kodu">
-  <button onclick="join()">Katıl</button>
+  <button onclick="join()">Odaya Gir</button>
 </div>
 
-<div class="panel players">
-  <div id="p1">—</div>
-  <div id="p2">—</div>
-</div>
+<div id="game" style="display:none">
+  <div class="score">
+    <div><span id="p1">-</span>: <b id="s1">0</b></div>
+    <div>El <b id="round">0</b>/10</div>
+    <div><span id="p2">-</span>: <b id="s2">0</b></div>
+  </div>
 
-<div class="panel score">
-  Sen <span id="s1">0</span> — <span id="s2">0</span> Rakip<br>
-  El: <span id="round">0</span> / 10
-</div>
+  <div id="timer">⏱️ 5</div>
 
-<div class="buttons">
-  <button onclick="choose('tas')">✊</button>
-  <button onclick="choose('kagit')">✋</button>
-  <button onclick="choose('makas')">✌️</button>
-</div>
+  <div class="buttons">
+    <button onclick="play('tas')">✊</button>
+    <button onclick="play('kagit')">✋</button>
+    <button onclick="play('makas')">✌️</button>
+  </div>
 
-<div class="status" id="status">Oda bekleniyor…</div>
+  <div id="status">Hamle bekleniyor…</div>
 
-<div class="panel">
   <div class="chat" id="chat"></div>
   <input id="msg" placeholder="Mesaj yaz">
   <button onclick="send()">Gönder</button>
 </div>
 
-<div class="panel">
-  <button onclick="rematch()">🔁 Rövanş</button>
+<div class="footer">Menfaati bitenin ihaneti başlar.</div>
 </div>
 
-<div class="footer">
-  Menfaati bitenin ihaneti başlar.
-</div>
-
-</div>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-// 🔥 Firebase
 firebase.initializeApp({
   apiKey:"AIzaSyBUpSbXWiF7f7pCkDaqOxI5bIseIMdzvnQ",
-  databaseURL:"https://tkm-online-e9c2b-default-rtdb.firebaseio.com"
+  authDomain:"tkm-online-e9c2b.firebaseapp.com",
+  databaseURL:"https://tkm-online-e9c2b-default-rtdb.firebaseio.com",
+  projectId:"tkm-online-e9c2b"
 });
 const db=firebase.database();
 
-let room="",me="",role="";
-const MAX_ROUND = 10;
-
-const el=i=>document.getElementById(i);
-const rnd=()=> "r"+Math.floor(Math.random()*9999);
-
-// 🏠 ODA
-function create(){
-  me=el("name").value||"Oyuncu";
-  room=rnd(); role="p1";
-  db.ref(room).set({
-    round:0,
-    players:{
-      p1:{name:me,score:0},
-      p2:{name:"Bekleniyor",score:0}
-    }
-  });
-  listen();
-  el("status").innerText="Oda kodu: "+room;
-}
+let me="",room="",isHost=false,t=5,interval=null;
+const el=id=>document.getElementById(id);
 
 function join(){
-  me=el("name").value||"Oyuncu";
-  room=el("room").value; role="p2";
-  db.ref(room+"/players/p2").update({name:me});
+  me=name.value.trim();
+  room=roomInput=roomInput||room;
+  room=document.getElementById("room").value.trim();
+  if(!me||!room)return alert("Boş bırakma");
+
+  const ref=db.ref("rooms/"+room);
+  ref.once("value",s=>{
+    if(!s.exists()){
+      isHost=true;
+      ref.set({p1:me,s1:0,p2:null,s2:0,round:0});
+    }else{
+      ref.update({p2:me});
+    }
+  });
+
+  login.style.display="none";
+  game.style.display="block";
   listen();
 }
 
-// 👂 DİNLE
+function startTimer(){
+  clearInterval(interval);
+  t=5;
+  timer.innerText="⏱️ "+t;
+  interval=setInterval(()=>{
+    t--;
+    timer.innerText="⏱️ "+t;
+    if(t<=0){
+      clearInterval(interval);
+      if(isHost){
+        db.ref("rooms/"+room).update({round:round.innerText*1+1,moves:null});
+      }
+    }
+  },1000);
+}
+
+function play(c){
+  db.ref("rooms/"+room+"/moves/"+me).once("value",s=>{
+    if(s.exists())return;
+    db.ref("rooms/"+room+"/moves/"+me).set(c);
+  });
+}
+
 function listen(){
-  db.ref(room).on("value",s=>{
-    if(!s.exists())return;
-    const d=s.val();
+  db.ref("rooms/"+room).on("value",s=>{
+    const d=s.val(); if(!d)return;
 
-    el("p1").innerText=d.players.p1.name;
-    el("p2").innerText=d.players.p2.name;
-    el("s1").innerText=d.players.p1.score;
-    el("s2").innerText=d.players.p2.score;
-    el("round").innerText=d.round;
+    p1.innerText=d.p1||"-";
+    p2.innerText=d.p2||"-";
+    s1.innerText=d.s1||0;
+    s2.innerText=d.s2||0;
+    round.innerText=d.round||0;
 
-    // 💬 CHAT (HATASIZ)
+    if(d.round>=10){
+      status.innerText=
+        d.s1>d.s2?`🏆 Kazanan: ${d.p1}`:
+        d.s2>d.s1?`🏆 Kazanan: ${d.p2}`:"🤝 Berabere";
+      clearInterval(interval);
+      return;
+    }
+
+    if(!d.moves)startTimer();
+
+    if(d.moves && Object.keys(d.moves).length===2){
+      clearInterval(interval);
+      const [a,b]=Object.keys(d.moves);
+      const m1=d.moves[a],m2=d.moves[b];
+      let w=null;
+      if(m1!==m2){
+        if(
+          (m1==="tas"&&m2==="makas")||
+          (m1==="kagit"&&m2==="tas")||
+          (m1==="makas"&&m2==="kagit")
+        )w=a;else w=b;
+      }
+      if(isHost){
+        const up={round:d.round+1,moves:null};
+        if(w===d.p1)up.s1=d.s1+1;
+        if(w===d.p2)up.s2=d.s2+1;
+        db.ref("rooms/"+room).update(up);
+      }
+    }
+
     if(d.chat){
       let html="";
       Object.values(d.chat).forEach(c=>{
-        html+=`<div><b>${c.n}:</b> ${c.m}</div>`;
+        html+=`<div class="chat-msg ${c.n===me?"me":"enemy"}">
+        <b>${c.n}</b><br>${c.m}</div>`;
       });
-      el("chat").innerHTML=html;
-      el("chat").scrollTop=el("chat").scrollHeight;
-    }
-
-    // 🏆 KAZANAN (10 EL)
-    if(d.round >= MAX_ROUND){
-      const s1=d.players.p1.score;
-      const s2=d.players.p2.score;
-      let w="Berabere 🤝";
-      if(s1>s2) w=d.players.p1.name;
-      if(s2>s1) w=d.players.p2.name;
-      el("status").innerHTML="🏆 Kazanan: <b>"+w+"</b>";
-      confetti();
+      chat.innerHTML=html;
+      chat.scrollTop=9999;
     }
   });
 }
 
-// ✊ OYUN
-function choose(c){
-  const ref=db.ref(room);
-  ref.once("value",s=>{
-    const d=s.val();
-    if(d.round >= MAX_ROUND) return;
-
-    const enemy=role==="p1"?"p2":"p1";
-    db.ref(room+"/players/"+role+"/choice").set(c);
-
-    if(d.players[enemy].choice){
-      const r=calc(c,d.players[enemy].choice);
-      if(r===1) d.players[role].score++;
-      if(r===-1) d.players[enemy].score++;
-      d.round++;
-      d.players.p1.choice=null;
-      d.players.p2.choice=null;
-      ref.set(d);
-    }
-  });
-}
-
-function calc(a,b){
-  if(a===b)return 0;
-  if((a==="tas"&&b==="makas")||(a==="kagit"&&b==="tas")||(a==="makas"&&b==="kagit"))return 1;
-  return -1;
-}
-
-// 💬 CHAT GÖNDER
 function send(){
-  const m=el("msg").value;
-  if(!m || !room) return;
-  db.ref(room+"/chat").push({n:me,m});
-  el("msg").value="";
-}
-
-// 🔁 RÖVANŞ
-function rematch(){
-  db.ref(room+"/round").set(0);
-  db.ref(room+"/players/p1/score").set(0);
-  db.ref(room+"/players/p2/score").set(0);
-  el("status").innerText="Yeni oyun başladı!";
+  if(!msg.value)return;
+  db.ref("rooms/"+room+"/chat").push({n:me,m:msg.value});
+  msg.value="";
 }
 </script>
-
 </body>
 </html>
