@@ -1,89 +1,45 @@
-const lessons = {
-  "turev": {
-    lise: {
-      explain: [
-        "Türev, bir şeyin zamanla ne kadar hızlı değiştiğini gösterir.",
-        "Türev, bir grafikteki eğimi ifade eder."
-      ],
-      example: [
-        "Bir arabanın hız göstergesi türeve örnektir.",
-        "f(x)=x² ise türevi f'(x)=2x olur."
-      ]
-    },
-    universite: {
-      explain: [
-        "Türev, limit kavramı kullanılarak tanımlanan matematiksel bir işlemdir.",
-        "Türev, bir fonksiyonun anlık değişim oranını verir."
-      ],
-      example: [
-        "lim h→0 (f(x+h)-f(x))/h ifadesi türev tanımıdır.",
-        "f(x)=x³ → f'(x)=3x²"
-      ]
-    }
-  },
-
-  "fotosentez": {
-    ortaokul: {
-      explain: [
-        "Fotosentez, bitkilerin güneş ışığını kullanarak besin üretmesidir.",
-        "Bitkiler fotosentez sayesinde kendi yiyeceklerini yapar."
-      ],
-      example: [
-        "Bitkilerin yaprakları fotosentez yapar.",
-        "Güneş ışığı olmazsa fotosentez gerçekleşmez."
-      ]
-    },
-    lise: {
-      explain: [
-        "Fotosentez, klorofil yardımıyla gerçekleşen kimyasal bir süreçtir.",
-        "Bu süreçte karbondioksit ve su kullanılır."
-      ],
-      example: [
-        "6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂",
-        "Bu tepkime yapraklarda gerçekleşir."
-      ]
-    }
-  }
-};
-
-function normalizeText(text) {
-  return text
-    .toLowerCase()
-    .trim()
-    .replaceAll("ü", "u")
-    .replaceAll("ı", "i")
-    .replaceAll("ö", "o")
-    .replaceAll("ş", "s")
-    .replaceAll("ğ", "g")
-    .replaceAll("ç", "c");
-}
-
-function random(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-function teach() {
-  const topicInput = document.getElementById("topic").value;
-  const topic = normalizeText(topicInput);
+async function teach() {
+  const topic = document.getElementById("topic").value.trim();
   const level = document.getElementById("level").value;
   const result = document.getElementById("result");
 
-  if (!lessons[topic]) {
-    result.innerText = "Bu konuyu henüz bilmiyorum 😕";
+  if (!topic) {
+    result.innerText = "Lütfen bir konu yaz.";
     return;
   }
 
-  if (!lessons[topic][level]) {
+  result.innerText = "Bilgi getiriliyor... ⏳";
+
+  const url = `https://tr.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`;
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (!data.extract) {
+      result.innerText = "Bu konu hakkında bilgi bulunamadı 😕";
+      return;
+    }
+
+    let text = data.extract;
+
+    // Seviye basitleştirme
+    if (level === "ilkokul") {
+      text = text.split(".").slice(0, 2).join(".") + ".";
+    }
+    if (level === "ortaokul") {
+      text = text.split(".").slice(0, 3).join(".") + ".";
+    }
+    if (level === "lise") {
+      text = text.split(".").slice(0, 5).join(".") + ".";
+    }
+
     result.innerText =
-      "Bu konu için bu seviyede içerik yok.\nMevcut seviyeler:\n" +
-      Object.keys(lessons[topic]).join(", ");
-    return;
+      `📌 Konu: ${data.title}\n\n` +
+      text +
+      `\n\n📚 Kaynak: Wikipedia`;
+
+  } catch (err) {
+    result.innerText = "Bir hata oluştu 😕";
   }
-
-  const data = lessons[topic][level];
-
-  result.innerText =
-    random(data.explain) +
-    "\n\nÖrnek:\n" +
-    random(data.example);
 }
