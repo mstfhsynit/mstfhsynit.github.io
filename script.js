@@ -1,23 +1,31 @@
 async function teach() {
-  const topic = document.getElementById("topic").value.trim();
+  let topic = document.getElementById("topic").value.trim();
   const level = document.getElementById("level").value;
   const result = document.getElementById("result");
 
   if (!topic) {
-    result.innerText = "Bir şey yazmalısın 🙂";
+    result.innerText = "Bir konu yazmalısın 🙂";
     return;
   }
+
+  // Basit yazım düzeltme
+  topic = topic
+    .toLowerCase()
+    .replace("nedeir", "nedir")
+    .replace("nedri", "nedir")
+    .replace("nedirr", "nedir");
 
   result.innerText = "Aranıyor... 🔍";
 
   try {
-    // DuckDuckGo Instant Answer API (CORS için proxy)
-    const url = `https://api.allorigins.win/raw?url=` +
+    // Önce DuckDuckGo
+    const ddgUrl =
+      "https://api.allorigins.win/raw?url=" +
       encodeURIComponent(
         `https://api.duckduckgo.com/?q=${topic}&format=json&no_redirect=1`
       );
 
-    const res = await fetch(url);
+    const res = await fetch(ddgUrl);
     const data = await res.json();
 
     let text = "";
@@ -28,8 +36,19 @@ async function teach() {
       text = data.RelatedTopics[0].Text;
     }
 
+    // DuckDuckGo boşsa → Wikipedia
     if (!text) {
-      result.innerText = "Bu arama için özet bulunamadı 😕";
+      const wikiUrl = `https://tr.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`;
+      const wikiRes = await fetch(wikiUrl);
+      const wikiData = await wikiRes.json();
+
+      if (wikiData.extract) {
+        text = wikiData.extract;
+      }
+    }
+
+    if (!text) {
+      result.innerText = "Bu arama için bilgi bulunamadı 😕";
       return;
     }
 
@@ -43,9 +62,9 @@ async function teach() {
     result.innerText =
       `🔎 Arama: ${topic}\n\n` +
       text +
-      `\n\n🌐 Kaynak: DuckDuckGo / Açık Web`;
+      `\n\n🌐 Kaynak: Açık Web`;
 
-  } catch (e) {
+  } catch (err) {
     result.innerText = "Bir hata oluştu 😕";
   }
 }
