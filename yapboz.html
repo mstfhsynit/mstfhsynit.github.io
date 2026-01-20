@@ -3,172 +3,145 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>8 Parçalı Dijital Yapboz</title>
+<title>8 Parçalı Yapboz</title>
 <style>
 body {
   font-family: sans-serif;
   text-align: center;
   background: #f0f0f0;
-  padding-top: 20px;
+  padding: 20px;
 }
-h1 {margin-bottom: 10px;}
-#file-input {margin-bottom: 20px;}
-#puzzle-container {
-  position: relative;
-  width: 360px;
-  height: 360px;
-  margin: auto;
-  border: 2px solid #333;
+h1 { margin-bottom: 10px; }
+#file-input { margin-bottom: 20px; }
+
+#pieces-container {
+  margin-bottom: 20px;
+  min-height: 140px;
 }
-#background {
-  width: 360px;
-  height: 360px;
-  position: absolute;
-  top:0;
-  left:0;
-  object-fit: cover;
-  z-index:0;
-}
+
 .piece {
   width: 120px;
   height: 120px;
-  position: absolute;
-  border:1px solid #555;
-  cursor: pointer;
-  z-index:1;
+  display: inline-block;
+  margin-right: 5px;
+  border: 1px solid #333;
+  cursor: grab;
+  position: relative;
 }
-.piece img {
+
+#puzzle-area {
   width: 360px;
   height: 360px;
-  object-fit: none;
+  margin: auto;
+  position: relative;
+  border: 2px solid #333;
+  background-color: #fff;
+}
+
+#puzzle-area img {
   position: absolute;
-  top:0;
-  left:0;
+  top: 0;
+  left: 0;
+  width: 360px;
+  height: 360px;
+  object-fit: cover;
+  z-index: 0;
+}
+
+#drop-slot {
+  width: 120px;
+  height: 120px;
+  position: absolute;
+  top: 120px;
+  left: 120px;
+  border: 2px dashed #555;
+  z-index: 1;
 }
 </style>
 </head>
 <body>
-<h1>8 Parçalı Dijital Yapboz</h1>
+<h1>8 Parçalı Yapboz</h1>
 <input type="file" id="file-input" accept="image/*"><br>
-<div id="puzzle-container">
+<div id="pieces-container"></div>
+<div id="puzzle-area">
   <img id="background" src="" alt="Alt Resim">
+  <div id="drop-slot"></div>
 </div>
 
 <script>
-const container = document.getElementById('puzzle-container');
 const fileInput = document.getElementById('file-input');
-const size = 120; // blok boyutu
-let pieces = [];
-let empty = {row:2, col:2}; // boş alan başta sağ alt
-let imgSrc = "";
+const piecesContainer = document.getElementById('pieces-container');
+const background = document.getElementById('background');
+const dropSlot = document.getElementById('drop-slot');
 
-// Fotoğraf yüklendiğinde
+let imgSrc = "";
+let currentPiece = null;
+
 fileInput.addEventListener('change', e=>{
   const file = e.target.files[0];
   if(!file) return;
   const reader = new FileReader();
   reader.onload = function(event){
     imgSrc = event.target.result;
-    document.getElementById('background').src = imgSrc;
-    createPuzzle();
+    background.src = imgSrc;
+    createPieces();
   }
   reader.readAsDataURL(file);
 });
 
-function createPuzzle(){
-  // Temizle
-  pieces.forEach(p=>p.remove());
-  pieces=[];
-  
-  // 3x3 blok, son blok boş olacak
-  let id = 1;
-  for(let row=0; row<3; row++){
-    for(let col=0; col<3; col++){
-      if(row===2 && col===2) continue; // boş alan
-      let div = document.createElement('div');
-      div.className='piece';
-      div.dataset.row = row;
-      div.dataset.col = col;
-      div.dataset.id = id;
-      div.style.top = `${row*size}px`;
-      div.style.left = `${col*size}px`;
-      
-      let img = document.createElement('img');
-      img.src = imgSrc;
-      img.style.top = `-${row*size}px`;
-      img.style.left = `-${col*size}px`;
-      div.appendChild(img);
+function createPieces(){
+  piecesContainer.innerHTML = "";
+  // 3x3 grid, orta parça boş -> 8 parça
+  const positions = [
+    {row:0,col:0}, {row:0,col:1}, {row:0,col:2},
+    {row:1,col:0},           {row:1,col:2},
+    {row:2,col:0}, {row:2,col:1}, {row:2,col:2},
+  ];
 
-      container.appendChild(div);
-      pieces.push(div);
-      id++;
-    }
-  }
+  positions.forEach((pos, index)=>{
+    let div = document.createElement('div');
+    div.className = 'piece';
+    div.dataset.row = pos.row;
+    div.dataset.col = pos.col;
 
-  shuffle();
-  addClickEvents();
-}
+    let img = document.createElement('img');
+    img.src = imgSrc;
+    img.style.width = "360px";
+    img.style.height = "360px";
+    img.style.objectFit = "none";
+    img.style.position = "absolute";
+    img.style.top = `-${pos.row*120}px`;
+    img.style.left = `-${pos.col*120}px`;
 
-// Blokları karıştır
-function shuffle(){
-  for(let i=0;i<100;i++){
-    let movable = getMovable();
-    let randomPiece = movable[Math.floor(Math.random()*movable.length)];
-    movePiece(randomPiece);
-  }
-}
+    div.appendChild(img);
+    piecesContainer.appendChild(div);
 
-// Boş alan ile komşu bloklar
-function getMovable(){
-  return pieces.filter(p=>{
-    let row = parseInt(p.dataset.row);
-    let col = parseInt(p.dataset.col);
-    return (Math.abs(row-empty.row)+Math.abs(col-empty.col))===1;
-  });
-}
-
-// Blok tıklayınca boş alana kaydır
-function addClickEvents(){
-  pieces.forEach(p=>{
-    p.addEventListener('click', ()=>{
-      if(isMovable(p)) movePiece(p);
+    // Drag & Drop
+    div.draggable = true;
+    div.addEventListener('dragstart', e=>{
+      currentPiece = div;
     });
   });
 }
 
-function isMovable(p){
-  let row = parseInt(p.dataset.row);
-  let col = parseInt(p.dataset.col);
-  return (Math.abs(row-empty.row)+Math.abs(col-empty.col))===1;
-}
+// Drop alan
+dropSlot.addEventListener('dragover', e=>{
+  e.preventDefault();
+});
 
-function movePiece(p){
-  let tempRow = parseInt(p.dataset.row);
-  let tempCol = parseInt(p.dataset.col);
-
-  p.dataset.row = empty.row;
-  p.dataset.col = empty.col;
-  p.style.top = `${empty.row*size}px`;
-  p.style.left = `${empty.col*size}px`;
-
-  empty.row = tempRow;
-  empty.col = tempCol;
-
-  checkWin();
-}
-
-// Kazanma kontrolü
-function checkWin(){
-  let correct = pieces.every(p=>{
-    let id = parseInt(p.dataset.id);
-    let row = parseInt(p.dataset.row);
-    let col = parseInt(p.dataset.col);
-    return id === row*3 + col +1;
-  });
-  if(correct){
-    alert("🎉 Tebrikler! Yapbozu tamamladınız!");
+dropSlot.addEventListener('drop', e=>{
+  e.preventDefault();
+  if(currentPiece){
+    // Orta boş alanın içine taşı
+    dropSlot.appendChild(currentPiece);
+    currentPiece.style.position = "relative";
+    currentPiece.style.top = "0";
+    currentPiece.style.left = "0";
+    currentPiece.style.cursor = "default";
+    currentPiece.draggable = false;
+    currentPiece = null;
   }
-}
+});
 </script>
 </body>
 </html>
