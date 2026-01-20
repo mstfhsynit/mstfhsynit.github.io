@@ -153,7 +153,7 @@ firebase.initializeApp({
 const db=firebase.database();
 
 let room="",me="",role="";
-const WIN=10;
+const MAX_ROUND = 10;
 
 const el=i=>document.getElementById(i);
 const rnd=()=> "r"+Math.floor(Math.random()*9999);
@@ -164,7 +164,6 @@ function create(){
   room=rnd(); role="p1";
   db.ref(room).set({
     round:0,
-    chat:[],
     players:{
       p1:{name:me,score:0},
       p2:{name:"Bekleniyor",score:0}
@@ -186,21 +185,31 @@ function listen(){
   db.ref(room).on("value",s=>{
     if(!s.exists())return;
     const d=s.val();
+
     el("p1").innerText=d.players.p1.name;
     el("p2").innerText=d.players.p2.name;
     el("s1").innerText=d.players.p1.score;
     el("s2").innerText=d.players.p2.score;
     el("round").innerText=d.round;
 
+    // 💬 CHAT (HATASIZ)
     if(d.chat){
-      el("chat").innerHTML=d.chat.map(c=>`<div><b>${c.n}:</b> ${c.m}</div>`).join("");
-      el("chat").scrollTop=9999;
+      let html="";
+      Object.values(d.chat).forEach(c=>{
+        html+=`<div><b>${c.n}:</b> ${c.m}</div>`;
+      });
+      el("chat").innerHTML=html;
+      el("chat").scrollTop=el("chat").scrollHeight;
     }
 
-    if(d.players.p1.score>=WIN||d.players.p2.score>=WIN){
-      const w=d.players.p1.score>d.players.p2.score
-        ?d.players.p1.name:d.players.p2.name;
-      el("status").innerHTML="🏆 KAZANAN: <b>"+w+"</b>";
+    // 🏆 KAZANAN (10 EL)
+    if(d.round >= MAX_ROUND){
+      const s1=d.players.p1.score;
+      const s2=d.players.p2.score;
+      let w="Berabere 🤝";
+      if(s1>s2) w=d.players.p1.name;
+      if(s2>s1) w=d.players.p2.name;
+      el("status").innerHTML="🏆 Kazanan: <b>"+w+"</b>";
       confetti();
     }
   });
@@ -211,14 +220,15 @@ function choose(c){
   const ref=db.ref(room);
   ref.once("value",s=>{
     const d=s.val();
-    if(d.round>=WIN*2)return;
-    const e=role==="p1"?"p2":"p1";
+    if(d.round >= MAX_ROUND) return;
+
+    const enemy=role==="p1"?"p2":"p1";
     db.ref(room+"/players/"+role+"/choice").set(c);
 
-    if(d.players[e].choice){
-      const r=calc(c,d.players[e].choice);
-      if(r===1)d.players[role].score++;
-      if(r===-1)d.players[e].score++;
+    if(d.players[enemy].choice){
+      const r=calc(c,d.players[enemy].choice);
+      if(r===1) d.players[role].score++;
+      if(r===-1) d.players[enemy].score++;
       d.round++;
       d.players.p1.choice=null;
       d.players.p2.choice=null;
@@ -233,10 +243,10 @@ function calc(a,b){
   return -1;
 }
 
-// 💬 CHAT
+// 💬 CHAT GÖNDER
 function send(){
   const m=el("msg").value;
-  if(!m)return;
+  if(!m || !room) return;
   db.ref(room+"/chat").push({n:me,m});
   el("msg").value="";
 }
@@ -249,5 +259,6 @@ function rematch(){
   el("status").innerText="Yeni oyun başladı!";
 }
 </script>
+
 </body>
 </html>
