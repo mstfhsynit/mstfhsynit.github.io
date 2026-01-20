@@ -5,72 +5,70 @@
 <title>Online Taş Kağıt Makas</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Firebase CDN -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial;
-  background: linear-gradient(135deg,#1d2671,#c33764);
-  color: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(135deg,#1d2671,#c33764);
+  font-family:Arial;
+  color:#fff;
 }
 
-.box {
-  width: 380px;
-  background: rgba(0,0,0,.4);
-  padding: 20px;
-  border-radius: 15px;
+.box{
+  width:360px;
+  background:rgba(0,0,0,.45);
+  padding:20px;
+  border-radius:16px;
+  box-shadow:0 20px 40px rgba(0,0,0,.5);
 }
 
-input, button {
-  width: 100%;
-  padding: 10px;
-  margin-top: 8px;
-  border-radius: 8px;
-  border: none;
-  font-size: 15px;
+h2{text-align:center;margin-top:0}
+
+input,button{
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+  border:none;
+  border-radius:8px;
+  font-size:15px;
 }
 
-button {
-  cursor: pointer;
-  background: #fff;
+button{
+  cursor:pointer;
+  background:#fff;
+  font-weight:bold;
 }
 
-.hidden { display:none; }
+button:hover{opacity:.9}
 
-.buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-}
-.buttons button {
-  width: 30%;
-  font-size: 30px;
+#roomCode{
+  margin-top:10px;
+  text-align:center;
+  font-size:18px;
+  font-weight:bold;
+  color:#7CFC00;
 }
 
-.chat {
-  background: rgba(255,255,255,.1);
-  height: 120px;
-  overflow-y: auto;
-  padding: 5px;
-  border-radius: 8px;
-  margin-top: 10px;
+.hidden{display:none}
+
+.info{
+  text-align:center;
+  margin-top:10px;
+  font-size:14px;
 }
 
-.msg.me { text-align: right; color: #7CFC00; }
-.msg.other { text-align: left; color: #00BFFF; }
-
-.footer {
-  margin-top: 8px;
-  font-size: 12px;
-  text-align: center;
-  opacity: .8;
+.footer{
+  margin-top:12px;
+  font-size:12px;
+  text-align:center;
+  opacity:.8;
 }
 </style>
 </head>
@@ -81,33 +79,28 @@ button {
 
 <!-- GİRİŞ -->
 <div id="login">
-  <h3>Online Taş Kağıt Makas</h3>
+  <h2>Taş • Kağıt • Makas</h2>
+
   <input id="playerName" placeholder="İsmin">
+
   <button onclick="createRoom()">Oda Oluştur</button>
+
+  <div id="roomCode"></div>
+
+  <hr style="margin:15px 0;opacity:.3">
+
   <input id="roomInput" placeholder="Oda Kodu">
   <button onclick="joinRoom()">Odaya Katıl</button>
-  <div id="roomCode"></div>
-</div>
-
-<!-- OYUN -->
-<div id="game" class="hidden">
-  <div id="players"></div>
-  <div>El: <span id="round">1</span> / 10 | ⏱️ <span id="time">5</span></div>
-
-  <div class="buttons">
-    <button onclick="play('tas')">✊</button>
-    <button onclick="play('kagit')">✋</button>
-    <button onclick="play('makas')">✌️</button>
-  </div>
-
-  <div id="result"></div>
-
-  <div class="chat" id="chat"></div>
-  <input id="chatInput" placeholder="Mesaj yaz" onkeydown="sendMsg(event)">
 
   <div class="footer">
     Menfaati bitenin ihaneti başlar.
   </div>
+</div>
+
+<!-- OYUN -->
+<div id="game" class="hidden">
+  <h2>Odaya Bağlandın</h2>
+  <div id="players" class="info"></div>
 </div>
 
 </div>
@@ -123,131 +116,84 @@ firebase.initializeApp({
 
 const db = firebase.database();
 
-let room, me, role, timer, time = 5;
+let room = "";
+let me = "";
+let role = "";
 
-// 🔑 ODA OLUŞTUR
+// 🟢 ODA OLUŞTUR
 function createRoom(){
-  me = playerName.value.trim();
-  if(!me) return alert("İsim gir");
+  const nameInput = document.getElementById("playerName");
+  const roomCodeDiv = document.getElementById("roomCode");
+
+  if(!nameInput || !roomCodeDiv){
+    alert("HTML elemanı eksik");
+    return;
+  }
+
+  me = nameInput.value.trim();
+  if(me === ""){
+    alert("İsmini yaz");
+    return;
+  }
 
   room = Math.random().toString(36).substring(2,7).toUpperCase();
   role = "p1";
 
   db.ref("rooms/"+room).set({
-    round:1,
-    status:"waiting",
+    createdAt: Date.now(),
     players:{
-      p1:{name:me,score:0,choice:""}
+      p1:{name:me}
+    }
+  }, (err)=>{
+    if(err){
+      alert("Firebase hatası");
+      console.error(err);
+    }else{
+      roomCodeDiv.innerText = "ODA KODU: " + room;
+      startListen();
     }
   });
-
-  roomCode.innerText = "Oda Kodu: "+room;
-  startListen();
 }
 
-// 🚪 ODAYA KATIL
+// 🔵 ODAYA KATIL
 function joinRoom(){
-  me = playerName.value.trim();
+  const nameInput = document.getElementById("playerName");
+  const roomInput = document.getElementById("roomInput");
+
+  me = nameInput.value.trim();
   room = roomInput.value.trim().toUpperCase();
-  if(!me || !room) return alert("Eksik bilgi");
 
-  role = "p2";
-  db.ref("rooms/"+room+"/players/p2").set({name:me,score:0,choice:""});
-  startListen();
-}
-
-// 🎧 DİNLE
-function startListen(){
-  login.classList.add("hidden");
-  game.classList.remove("hidden");
-
-  db.ref("rooms/"+room).on("value",snap=>{
-    const d = snap.val();
-    if(!d) return;
-
-    players.innerText =
-      d.players.p1.name+" ("+d.players.p1.score+")  vs  "+
-      (d.players.p2?d.players.p2.name:"Bekleniyor")+" ("+(d.players.p2?d.players.p2.score:0)+")";
-
-    round.innerText = d.round;
-
-    if(d.players.p1.choice && d.players.p2?.choice){
-      clearInterval(timer);
-      decide(d);
-    }
-  });
-
-  db.ref("rooms/"+room+"/chat").on("child_added",s=>{
-    const m = s.val();
-    const div = document.createElement("div");
-    div.className = "msg "+(m.name===me?"me":"other");
-    div.innerText = m.name+": "+m.text;
-    chat.appendChild(div);
-    chat.scrollTop = chat.scrollHeight;
-  });
-
-  startTimer();
-}
-
-// ⏱️ TIMER
-function startTimer(){
-  time=5;
-  timeEl = document.getElementById("time");
-  timer = setInterval(()=>{
-    time--;
-    timeEl.innerText=time;
-    if(time<=0){
-      clearInterval(timer);
-      play("none");
-    }
-  },1000);
-}
-
-// 🎮 HAMLE
-function play(c){
-  db.ref("rooms/"+room+"/players/"+role+"/choice").set(c);
-}
-
-// 🧠 SONUÇ
-function decide(d){
-  const a=d.players.p1.choice,b=d.players.p2.choice;
-  let win=null;
-
-  if(a!==b){
-    if(
-      (a=="tas"&&b=="makas")||
-      (a=="kagit"&&b=="tas")||
-      (a=="makas"&&b=="kagit")
-    ) win="p1"; else win="p2";
-  }
-
-  if(win){
-    d.players[win].score++;
-    result.innerText="Kazanan: "+d.players[win].name;
-  } else result.innerText="Berabere";
-
-  if(d.round>=10){
-    const w=d.players.p1.score>d.players.p2.score?d.players.p1.name:d.players.p2.name;
-    alert("🏆 Kazanan: "+w);
-    db.ref("rooms/"+room).remove();
-    location.reload();
+  if(me==="" || room===""){
+    alert("İsim ve oda kodu gerekli");
     return;
   }
 
-  db.ref("rooms/"+room).update({
-    round:d.round+1,
-    "players/p1/choice":"",
-    "players/p2/choice":""
-  });
+  role = "p2";
 
-  startTimer();
+  db.ref("rooms/"+room+"/players/p2").set({name:me}, (err)=>{
+    if(err){
+      alert("Odaya girilemedi");
+    }else{
+      startListen();
+    }
+  });
 }
 
-// 💬 CHAT
-function sendMsg(e){
-  if(e.key!=="Enter") return;
-  db.ref("rooms/"+room+"/chat").push({name:me,text:chatInput.value});
-  chatInput.value="";
+// 🎧 ODAYI DİNLE
+function startListen(){
+  document.getElementById("login").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+
+  db.ref("rooms/"+room).on("value", snap=>{
+    const data = snap.val();
+    if(!data) return;
+
+    const p1 = data.players.p1?.name || "—";
+    const p2 = data.players.p2?.name || "Bekleniyor";
+
+    document.getElementById("players").innerText =
+      "Oyuncular: " + p1 + " vs " + p2;
+  });
 }
 </script>
 
