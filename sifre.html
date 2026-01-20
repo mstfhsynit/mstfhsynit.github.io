@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Password Manager</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#020617">
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;font-family:system-ui,sans-serif;
+background:#020617;color:#e5e7eb;
+min-height:100vh;display:flex;
+justify-content:center;align-items:center}
+.card{
+width:100%;max-width:720px;margin:12px;
+border:1px solid #1e293b;border-radius:18px;
+padding:20px;background:#020617}
+h2,h3{margin-top:0}
+input,button,select{
+width:100%;padding:12px;margin-top:10px;
+border-radius:12px;border:none;font-size:16px}
+input,select{
+background:#020617;color:#e5e7eb;
+border:1px solid #1e293b}
+button{background:#2563eb;color:white}
+.secondary{background:#334155}
+.hidden{display:none}
+.item{
+border:1px solid #1e293b;border-radius:12px;margin-top:10px}
+.header{padding:10px;cursor:pointer}
+.content{padding:10px;display:none}
+.item.open .content{display:block}
+.time{font-size:12px;opacity:.6}
+.lang{
+position:absolute;top:10px;right:10px;width:120px}
+.modal{
+position:fixed;inset:0;background:#000a;
+display:flex;justify-content:center;align-items:center}
+</style>
+</head>
+
+<body>
+
+<select class="lang" id="langSel">
+<option value="tr">🇹🇷 Türkçe</option>
+<option value="en">🇬🇧 English</option>
+</select>
+
+<div class="card" id="auth"></div>
+<div class="card hidden" id="app"></div>
+
+<div id="importModal" class="modal hidden">
+<div class="card">
+<h3>🔐 Hesap Doğrulama</h3>
+<input id="impUser" placeholder="Kullanıcı adı">
+<input id="impPass" type="password" placeholder="Master şifre">
+<button onclick="confirmImport()">Doğrula</button>
+<button class="secondary" onclick="closeImport()">İptal</button>
+</div>
+</div>
+
+<script>
+/* ================= LANGUAGE ================= */
+const T={
+tr:{create:"Hesap Oluştur",login:"Giriş Yap",user:"Kullanıcı adı",
+pass:"Master şifre",pass2:"Master şifre tekrar",
+save:"Kaydet",export:"TXT Export",import:"Import",
+label:"Şifre adı",newpass:"Yeni şifre",
+search:"Ara",logout:"Çıkış"},
+en:{create:"Create Account",login:"Login",user:"Username",
+pass:"Master password",pass2:"Confirm password",
+save:"Save",export:"TXT Export",import:"Import",
+label:"Label",newpass:"New password",
+search:"Search",logout:"Logout"}
+};
+
+let lang = localStorage.getItem("lang") || "tr";
+document.getElementById("langSel").value = lang;
+document.getElementById("langSel").onchange = e=>{
+lang=e.target.value;
+localStorage.setItem("lang",lang);
+renderAuth();
+};
+
+/* ================= ELEMENTS ================= */
+const auth = document.getElementById("auth");
+const app  = document.getElementById("app");
+
+/* ================= CRYPTO ================= */
+let key = null;
+
+async function deriveKey(password,salt){
+const base = await crypto.subtle.importKey(
+"raw",new TextEncoder().encode(password),
+"PBKDF2",false,["deriveKey"]);
+return crypto.subtle.deriveKey(
+{name:"PBKDF2",salt,iterations:100000,hash:"SHA-256"},
+base,{name:"AES-GCM",length:256},
+false,["encrypt","decrypt"]);
+}
+
+async function encryptText(text){
+const iv = crypto.getRandomValues(new Uint8Array(12));
+const enc = await crypto.subtle.encrypt(
+{name:"AES-GCM",iv},
+key,new TextEncoder().encode(text));
+return {iv:[...iv],data:[...new Uint8Array(enc)]};
+}
+
+async function decryptText(obj){
+const dec = await crypto.subtle.decrypt(
+{name:"AES-GCM",iv:new Uint8Array(obj.iv)},
+key,new Uint8Array(obj.data));
+return new TextDecoder().decode(dec);
+}
+
+/* ================= AUTH UI ================= */
+function renderAuth(){
+auth.innerHTML="";
+app.classList.add("hidden");
+auth.classList.remove("hidden");
+
+if(!localStorage.getItem("user")){
+auth.innerHTML=`
+<h2>${T[lang].create}</h2>
+<input id="regUser" placeholder="${T[lang].user}">
+<input id="regPass1" type="password" placeholder="${T[lang].pass}">
+<input id="regPass2" type="password" placeholder="${T[lang].pass2}">
+<button onclick="register()">${T[lang].create}</button>`;
+}else{
+auth.innerHTML=`
+<h2>${T[lang].login}</h2>
+<input id="logUser" placeholder="${T[lang].user}">
+<input id="logPass" type="password" placeholder="${T[lang].pass}">
+<button onclick="login()">${T[lang].login}</button>`;
+}}
+renderAuth();
+
+/* ================= AUTH LOGIC ================= */
+async function register(){
+const u = document.getElementById("regUser").value;
+const p1 = document.getElementById("regPass1").value;
+const p2 = document.getElementById("regPass2").value;
+
+if(!u || !p1 || !p2) return alert("Tüm alanları doldurun");
+if(p1!==p2) return alert("Şifreler uyuşmuyor");
+
+const salt = crypto.getRandomValues(new Uint8Array(16));
+key = await deriveKey(p1,salt);
+
+localStorage.setItem("user",u);
+localStorage.setItem("salt",JSON.stringify([...salt]));
+localStorage.setItem("vault","[]");
+
+openApp();
+}
+
+async function login(){
+const u = document.getElementById("logUser").value;
+const p = document.getElementById("logPass").value;
+
+if(u!==localStorage.getItem("user"))
+return alert("Kullanıcı adı yanlış");
+
+try{
+const salt = new Uint8Array(JSON.parse(localStorage.getItem("salt")));
+key = await deriveKey(p,salt);
+
+// test decrypt
+const vault = JSON.parse(localStorage.getItem("vault"));
+if(vault.length){
+await decryptText(vault[0].p);
+}
+openApp();
+}catch{
+alert("Master şifre yanlış");
+}
+}
+
+function openApp(){
+auth.classList.add("hidden");
+app.classList.remove("hidden");
+renderApp();
+}
+
+/* ================= APP ================= */
+function now(){return new Date().toLocaleString();}
+
+function renderApp(){
+app.innerHTML=`
+<h3>🔐 Password Manager</h3>
+<input id="label" placeholder="${T[lang].label}">
+<input id="pw" type="password" placeholder="${T[lang].newpass}">
+<button onclick="saveEntry()">${T[lang].save}</button>
+<hr>
+<button class="secondary" onclick="exportTXT()">${T[lang].export}</button>
+<input type="file" id="file" hidden onchange="prepareImport(this)">
+<button class="secondary" onclick="file.click()">${T[lang].import}</button>
+<input id="search" placeholder="${T[lang].search}" oninput="loadList()">
+<div id="list"></div>
+<hr>
+<button class="secondary" onclick="logout()">${T[lang].logout}</button>`;
+loadList();
+}
+
+async function saveEntry(){
+const l = document.getElementById("label").value;
+const p = document.getElementById("pw").value;
+if(!l||!p) return;
+
+let v = JSON.parse(localStorage.getItem("vault"));
+v.push({l,p:await encryptText(p),c:now(),u:"-"});
+localStorage.setItem("vault",JSON.stringify(v));
+
+document.getElementById("label").value="";
+document.getElementById("pw").value="";
+loadList();
+}
+
+async function loadList(){
+const list=document.getElementById("list");
+const search=document.getElementById("search").value.toLowerCase();
+list.innerHTML="";
+let v = JSON.parse(localStorage.getItem("vault"));
+v.forEach((x,i)=>{
+if(!x.l.toLowerCase().includes(search))return;
+list.innerHTML+=`
+<div class="item">
+<div class="header" onclick="this.parentNode.classList.toggle('open')">
+<b>${x.l}</b><div class="time">${x.c}</div>
+</div>
+<div class="content">
+<input id="p${i}" type="password">
+<button onclick="showPass(${i})">👁️</button>
+</div>
+</div>`;
+});
+}
+
+async function showPass(i){
+let v=JSON.parse(localStorage.getItem("vault"));
+const el=document.getElementById("p"+i);
+el.value=await decryptText(v[i].p);
+v[i].u=now();
+localStorage.setItem("vault",JSON.stringify(v));
+}
+
+/* ================= EXPORT ================= */
+async function exportTXT(){
+let v=JSON.parse(localStorage.getItem("vault"));
+let txt="";
+for(const x of v){
+txt+=`${x.l}\nŞifre: ${await decryptText(x.p)}\nOluşturma: ${x.c}\nSon Kullanım: ${x.u}\n-----------------\n`;
+}
+const blob=new Blob([txt],{type:"text/plain"});
+const a=document.createElement("a");
+a.href=URL.createObjectURL(blob);
+a.download="passwords.txt";
+a.click();
+}
+
+/* ================= IMPORT ================= */
+let importData=null;
+async function prepareImport(input){
+try{
+importData=JSON.parse(await input.files[0].text());
+document.getElementById("importModal").classList.remove("hidden");
+}catch{
+alert("Geçersiz dosya");
+}
+}
+
+async function confirmImport(){
+const u=document.getElementById("impUser").value;
+const p=document.getElementById("impPass").value;
+if(u!==importData.user)return alert("Kullanıcı adı yanlış");
+
+try{
+const salt=new Uint8Array(importData.salt);
+const testKey=await deriveKey(p,salt);
+if(importData.vault.length){
+await crypto.subtle.decrypt(
+{name:"AES-GCM",iv:new Uint8Array(importData.vault[0].p.iv)},
+testKey,new Uint8Array(importData.vault[0].p.data));
+}
+localStorage.setItem("user",importData.user);
+localStorage.setItem("salt",JSON.stringify(importData.salt));
+localStorage.setItem("vault",JSON.stringify(importData.vault));
+location.reload();
+}catch{
+alert("Master şifre yanlış");
+}
+}
+
+function closeImport(){
+document.getElementById("importModal").classList.add("hidden");
+}
+
+/* ================= LOGOUT ================= */
+function logout(){
+key=null;
+location.reload();
+}
+</script>
+
+</body>
+</html>
