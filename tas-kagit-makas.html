@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Taş Kağıt Makas - Full</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root {
+  --bg1:#1d2671;
+  --bg2:#c33764;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(135deg, var(--bg1), var(--bg2));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, sans-serif;
+  color: white;
+}
+
+.game {
+  width: 350px;
+  background: rgba(0,0,0,0.4);
+  padding: 20px;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+
+h1 { margin-top: 0; }
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+}
+
+.buttons button {
+  width: 90px;
+  height: 90px;
+  font-size: 40px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.buttons button:hover {
+  transform: scale(1.15);
+}
+
+.info {
+  font-size: 15px;
+  min-height: 45px;
+}
+
+.score {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.controls button, select {
+  border-radius: 8px;
+  border: none;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+.footer {
+  margin-top: 14px;
+  font-size: 12px;
+  font-style: italic;
+  opacity: 0.85;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game">
+  <h1>✊ ✋ ✌️</h1>
+  <p>Taş – Kağıt – Makas</p>
+
+  <div class="buttons">
+    <button onclick="play('tas')">✊</button>
+    <button onclick="play('kagit')">✋</button>
+    <button onclick="play('makas')">✌️</button>
+  </div>
+
+  <div class="info" id="result">Birini seç</div>
+
+  <div class="score">
+    <div>👤 Sen: <span id="player">0</span></div>
+    <div>🤖 Bilgisayar: <span id="bot">0</span></div>
+  </div>
+
+  <div class="score">
+    ⏱️ Süre: <span id="time">60</span> sn
+  </div>
+
+  <div class="controls">
+    <button onclick="resetGame()">Sıfırla</button>
+
+    <select id="mode">
+      <option value="score">3 Kazanan</option>
+      <option value="time">Süreli</option>
+    </select>
+
+    <button onclick="changeTheme()">Tema</button>
+  </div>
+
+  <div class="footer">
+    Menfaati bitenin ihaneti başlar.
+  </div>
+</div>
+
+<!-- SESLER -->
+<audio id="win" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+<audio id="lose" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
+<audio id="draw" src="https://actions.google.com/sounds/v1/cartoon/pop.ogg"></audio>
+
+<script>
+let playerScore = 0;
+let botScore = 0;
+let time = 60;
+let timer = null;
+
+const resultText = document.getElementById("result");
+const playerText = document.getElementById("player");
+const botText = document.getElementById("bot");
+const timeText = document.getElementById("time");
+
+const winSound = document.getElementById("win");
+const loseSound = document.getElementById("lose");
+const drawSound = document.getElementById("draw");
+
+function play(playerChoice) {
+  const choices = ["tas","kagit","makas"];
+  const botChoice = choices[Math.floor(Math.random() * 3)];
+
+  let res = "";
+
+  if (playerChoice === botChoice) {
+    res = "🤝 Berabere!";
+    drawSound.play();
+  } else if (
+    (playerChoice === "tas" && botChoice === "makas") ||
+    (playerChoice === "kagit" && botChoice === "tas") ||
+    (playerChoice === "makas" && botChoice === "kagit")
+  ) {
+    res = "🎉 Kazandın!";
+    playerScore++;
+    winSound.play();
+  } else {
+    res = "😢 Kaybettin!";
+    botScore++;
+    loseSound.play();
+  }
+
+  resultText.innerHTML =
+    `Sen ${emoji(playerChoice)} | Bilgisayar ${emoji(botChoice)}<br>${res}`;
+
+  updateScore();
+  checkEnd();
+}
+
+function updateScore() {
+  playerText.innerText = playerScore;
+  botText.innerText = botScore;
+}
+
+function checkEnd() {
+  const mode = document.getElementById("mode").value;
+
+  if (mode === "score") {
+    if (playerScore === 3 || botScore === 3) {
+      alert(playerScore === 3 ? "🎉 Oyunu kazandın!" : "😢 Oyunu kaybettin!");
+      resetGame();
+    }
+  }
+}
+
+function startTimer() {
+  clearInterval(timer);
+  timer = setInterval(() => {
+    time--;
+    timeText.innerText = time;
+    if (time <= 0) {
+      clearInterval(timer);
+      alert(playerScore > botScore ? "🎉 Kazandın!" : "😢 Kaybettin!");
+      resetGame();
+    }
+  }, 1000);
+}
+
+document.getElementById("mode").onchange = () => {
+  resetGame();
+};
+
+function resetGame() {
+  playerScore = 0;
+  botScore = 0;
+  time = 60;
+  updateScore();
+  timeText.innerText = time;
+  resultText.innerText = "Birini seç";
+  clearInterval(timer);
+
+  if (document.getElementById("mode").value === "time") {
+    startTimer();
+  }
+}
+
+const themes = [
+  ["#1d2671","#c33764"],
+  ["#0f2027","#2c5364"],
+  ["#232526","#414345"],
+  ["#42275a","#734b6d"]
+];
+let themeIndex = 0;
+
+function changeTheme() {
+  themeIndex = (themeIndex + 1) % themes.length;
+  document.documentElement.style.setProperty("--bg1", themes[themeIndex][0]);
+  document.documentElement.style.setProperty("--bg2", themes[themeIndex][1]);
+}
+
+function emoji(c) {
+  return c === "tas" ? "✊" : c === "kagit" ? "✋" : "✌️";
+}
+</script>
+
+</body>
+</html>
