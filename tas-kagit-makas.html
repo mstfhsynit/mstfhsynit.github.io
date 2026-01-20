@@ -46,12 +46,10 @@ button{
   font-weight:bold;
 }
 
-button:hover{opacity:.9}
-
 #roomCode{
   margin-top:10px;
   text-align:center;
-  font-size:18px;
+  font-size:20px;
   font-weight:bold;
   color:#7CFC00;
 }
@@ -61,7 +59,7 @@ button:hover{opacity:.9}
 .info{
   text-align:center;
   margin-top:10px;
-  font-size:14px;
+  font-size:16px;
 }
 
 .footer{
@@ -99,14 +97,14 @@ button:hover{opacity:.9}
 
 <!-- OYUN -->
 <div id="game" class="hidden">
-  <h2>Odaya Bağlandın</h2>
+  <h2>Oyun Odası</h2>
   <div id="players" class="info"></div>
 </div>
 
 </div>
 
 <script>
-// 🔥 Firebase config
+// 🔥 Firebase
 firebase.initializeApp({
   apiKey: "AIzaSyBUpSbXWiF7f7pCkDaqOxI5bIseIMdzvnQ",
   authDomain: "tkm-online-e9c2b.firebaseapp.com",
@@ -122,77 +120,70 @@ let role = "";
 
 // 🟢 ODA OLUŞTUR
 function createRoom(){
-  const nameInput = document.getElementById("playerName");
-  const roomCodeDiv = document.getElementById("roomCode");
-
-  if(!nameInput || !roomCodeDiv){
-    alert("HTML elemanı eksik");
-    return;
-  }
-
-  me = nameInput.value.trim();
-  if(me === ""){
+  const name = playerName.value.trim();
+  if(name===""){
     alert("İsmini yaz");
     return;
   }
 
-  room = Math.random().toString(36).substring(2,7).toUpperCase();
+  me = name;
   role = "p1";
+  room = Math.random().toString(36).substring(2,7).toUpperCase();
 
   db.ref("rooms/"+room).set({
-    createdAt: Date.now(),
     players:{
       p1:{name:me}
     }
-  }, (err)=>{
-    if(err){
-      alert("Firebase hatası");
-      console.error(err);
-    }else{
-      roomCodeDiv.innerText = "ODA KODU: " + room;
-      startListen();
+  });
+
+  roomCode.innerText = "ODA KODU: " + room;
+
+  // 👇 SADECE RAKİP GELİNCE OYUNA GEÇ
+  db.ref("rooms/"+room+"/players/p2").on("value", snap=>{
+    if(snap.exists()){
+      startGame();
     }
   });
 }
 
 // 🔵 ODAYA KATIL
 function joinRoom(){
-  const nameInput = document.getElementById("playerName");
-  const roomInput = document.getElementById("roomInput");
+  const name = playerName.value.trim();
+  const code = roomInput.value.trim().toUpperCase();
 
-  me = nameInput.value.trim();
-  room = roomInput.value.trim().toUpperCase();
-
-  if(me==="" || room===""){
+  if(name==="" || code===""){
     alert("İsim ve oda kodu gerekli");
     return;
   }
 
+  me = name;
+  room = code;
   role = "p2";
 
-  db.ref("rooms/"+room+"/players/p2").set({name:me}, (err)=>{
+  db.ref("rooms/"+room+"/players/p2").set({
+    name:me
+  }, err=>{
     if(err){
       alert("Odaya girilemedi");
     }else{
-      startListen();
+      startGame();
     }
   });
 }
 
-// 🎧 ODAYI DİNLE
-function startListen(){
-  document.getElementById("login").classList.add("hidden");
-  document.getElementById("game").classList.remove("hidden");
+// 🎮 OYUNA GEÇ
+function startGame(){
+  login.classList.add("hidden");
+  game.classList.remove("hidden");
 
   db.ref("rooms/"+room).on("value", snap=>{
-    const data = snap.val();
-    if(!data) return;
+    const d = snap.val();
+    if(!d) return;
 
-    const p1 = data.players.p1?.name || "—";
-    const p2 = data.players.p2?.name || "Bekleniyor";
+    const p1 = d.players.p1?.name || "—";
+    const p2 = d.players.p2?.name || "Bekleniyor";
 
-    document.getElementById("players").innerText =
-      "Oyuncular: " + p1 + " vs " + p2;
+    players.innerText = p1 + " vs " + p2;
   });
 }
 </script>
