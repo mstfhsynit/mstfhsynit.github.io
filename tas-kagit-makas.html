@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>Online Taş Kağıt Makas</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <style>
 body{
   margin:0;
@@ -71,6 +70,14 @@ button{cursor:pointer;font-size:16px}
   margin-top:8px;
   opacity:.8;
 }
+.codeBox{
+  text-align:center;
+  font-size:20px;
+  margin:8px 0;
+  background:#000;
+  padding:6px;
+  border-radius:8px;
+}
 </style>
 </head>
 
@@ -81,8 +88,8 @@ button{cursor:pointer;font-size:16px}
 
 <div id="login">
   <input id="name" placeholder="İsmin">
-  <input id="room" placeholder="Oda Kodu">
-  <button onclick="join()">Odaya Gir</button>
+  <button onclick="createRoom()">Oda Oluştur</button>
+  <div id="roomCode" class="codeBox" style="display:none"></div>
 </div>
 
 <div id="game" style="display:none">
@@ -100,7 +107,7 @@ button{cursor:pointer;font-size:16px}
     <button onclick="play('makas')">✌️</button>
   </div>
 
-  <div id="status">Hamle bekleniyor…</div>
+  <div id="status">Rakip bekleniyor…</div>
 
   <div class="chat" id="chat"></div>
   <input id="msg" placeholder="Mesaj yaz">
@@ -122,27 +129,28 @@ firebase.initializeApp({
 });
 const db=firebase.database();
 
-let me="",room="",isHost=false,t=5,interval=null;
+let me="",room="",isHost=true,t=5,interval=null;
 const el=id=>document.getElementById(id);
 
-function join(){
-  me=name.value.trim();
-  room=roomInput=roomInput||room;
-  room=document.getElementById("room").value.trim();
-  if(!me||!room)return alert("Boş bırakma");
+function genCode(){
+  return Math.random().toString(36).substring(2,7).toUpperCase();
+}
 
-  const ref=db.ref("rooms/"+room);
-  ref.once("value",s=>{
-    if(!s.exists()){
-      isHost=true;
-      ref.set({p1:me,s1:0,p2:null,s2:0,round:0});
-    }else{
-      ref.update({p2:me});
-    }
+function createRoom(){
+  me=el("name").value.trim();
+  if(!me)return alert("İsim gir");
+
+  room=genCode();
+  el("roomCode").style.display="block";
+  el("roomCode").innerText="ODA KODU: "+room;
+
+  db.ref("rooms/"+room).set({
+    p1:me,s1:0,
+    p2:null,s2:0,
+    round:0
   });
 
-  login.style.display="none";
-  game.style.display="block";
+  el("game").style.display="block";
   listen();
 }
 
@@ -156,7 +164,7 @@ function startTimer(){
     if(t<=0){
       clearInterval(interval);
       if(isHost){
-        db.ref("rooms/"+room).update({round:round.innerText*1+1,moves:null});
+        db.ref("rooms/"+room).update({round:+round.innerText+1,moves:null});
       }
     }
   },1000);
@@ -174,7 +182,7 @@ function listen(){
     const d=s.val(); if(!d)return;
 
     p1.innerText=d.p1||"-";
-    p2.innerText=d.p2||"-";
+    p2.innerText=d.p2||"Bekleniyor";
     s1.innerText=d.s1||0;
     s2.innerText=d.s2||0;
     round.innerText=d.round||0;
@@ -187,7 +195,7 @@ function listen(){
       return;
     }
 
-    if(!d.moves)startTimer();
+    if(!d.moves && d.p2)startTimer();
 
     if(d.moves && Object.keys(d.moves).length===2){
       clearInterval(interval);
