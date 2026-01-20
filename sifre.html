@@ -98,7 +98,7 @@ app.innerHTML=`
 }
 
 function register(){
-const u=document.getElementById("rUser").value;
+const u=document.getElementById("rUser").value.trim();
 const p1=document.getElementById("rPass1").value;
 const p2=document.getElementById("rPass2").value;
 
@@ -124,12 +124,12 @@ app.innerHTML=`
 }
 
 function login(){
-const u=document.getElementById("lUser").value;
+const u=document.getElementById("lUser").value.trim();
 const p=document.getElementById("lPass").value;
 
 if(
-u===localStorage.getItem("user") &&
-p===localStorage.getItem("pass")
+u === localStorage.getItem("user") &&
+p === localStorage.getItem("pass")
 ){
 sessionStorage.setItem("logged","1");
 render();
@@ -184,8 +184,9 @@ return v.name.toLowerCase().includes(q.toLowerCase());
 
 /* ---------- VAULT ACTIONS ---------- */
 function add(){
-const name=document.getElementById("name").value;
+const name=document.getElementById("name").value.trim();
 const pass=document.getElementById("pass").value;
+
 if(!name||!pass) return alert("Boş alan var");
 
 const vault=JSON.parse(localStorage.getItem("vault"));
@@ -251,7 +252,7 @@ alert("Önce dosya seçin");
 return;
 }
 
-const u=document.getElementById("impUser").value;
+const u=document.getElementById("impUser").value.trim();
 const p=document.getElementById("impPass").value;
 
 if(u!==importData.user || p!==importData.pass)
