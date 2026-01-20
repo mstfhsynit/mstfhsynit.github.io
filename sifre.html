@@ -22,18 +22,18 @@
 <div class="card">
 <h2>🔐 Şifre Kasası</h2>
 
-<div id="register">
+<div id="registerBox">
 <h3>Hesap Oluştur</h3>
 <input id="regUser" placeholder="Kullanıcı adı">
 <input id="regPass" type="password" placeholder="Ana şifre">
-<button onclick="register()">Oluştur</button>
+<button onclick="createAccount()">Oluştur</button>
 </div>
 
-<div id="login" class="hidden">
+<div id="loginBox" class="hidden">
 <h3>Giriş Yap</h3>
 <input id="logUser" placeholder="Kullanıcı adı">
 <input id="logPass" type="password" placeholder="Ana şifre">
-<button onclick="login()">Giriş</button>
+<button onclick="loginAccount()">Giriş</button>
 </div>
 
 <div id="panel" class="hidden">
@@ -41,7 +41,7 @@
 <input id="title" placeholder="Şifre adı">
 <div class="row">
 <input id="password" type="password" placeholder="Şifre">
-<button onclick="toggle()">👁</button>
+<button onclick="togglePassword()">👁</button>
 </div>
 <button onclick="savePassword()">Kaydet</button>
 
@@ -53,44 +53,76 @@
 </div>
 
 <script>
-function deviceId(){return btoa(navigator.userAgent+screen.width+screen.height)}
+const registerBox=document.getElementById('registerBox')
+const loginBox=document.getElementById('loginBox')
+const panel=document.getElementById('panel')
+const list=document.getElementById('list')
 const key='vault'
 
-function register(){
-localStorage.setItem(key,JSON.stringify({user:regUser.value,pass:regPass.value,device:deviceId(),vault:[]}))
-location.reload()}
+function deviceId(){return btoa(navigator.userAgent+screen.width+screen.height)}
 
-function login(){
-const d=JSON.parse(localStorage.getItem(key))
-if(!d)return alert('Hesap yok')
-if(d.device!==deviceId())return alert('Bu cihazda kullanılamaz')
-if(logUser.value===d.user&&logPass.value===d.pass){login.classList.add('hidden');panel.classList.remove('hidden');render()}else alert('Hatalı')}
+function createAccount(){
+  if(!regUser.value||!regPass.value){alert('Bilgiler eksik');return}
+  const data={user:regUser.value,pass:regPass.value,device:deviceId(),vault:[]}
+  localStorage.setItem(key,JSON.stringify(data))
+  registerBox.classList.add('hidden')
+  loginBox.classList.remove('hidden')
+}
+
+function loginAccount(){
+  const d=JSON.parse(localStorage.getItem(key))
+  if(!d)return alert('Hesap yok')
+  if(d.device!==deviceId())return alert('Bu cihazda kullanılamaz')
+  if(logUser.value===d.user&&logPass.value===d.pass){
+    loginBox.classList.add('hidden')
+    panel.classList.remove('hidden')
+    render()
+  }else alert('Hatalı giriş')
+}
 
 function savePassword(){
-const d=JSON.parse(localStorage.getItem(key))
-const n=new Date()
-d.vault.push({title:title.value,password:password.value,created:`${n.getFullYear()}-${n.getMonth()+1}-${n.getDate()} ${n.getHours()}:${n.getMinutes()}`})
-localStorage.setItem(key,JSON.stringify(d));title.value=password.value='';render()}
+  if(!title.value||!password.value)return alert('Boş alan var')
+  const d=JSON.parse(localStorage.getItem(key))
+  const n=new Date()
+  d.vault.push({title:title.value,password:password.value,created:`${n.getFullYear()}-${n.getMonth()+1}-${n.getDate()} ${n.getHours()}:${String(n.getMinutes()).padStart(2,'0')}`})
+  localStorage.setItem(key,JSON.stringify(d))
+  title.value=password.value=''
+  render()
+}
 
 function render(){
-const d=JSON.parse(localStorage.getItem(key))
-list.innerHTML=''
-d.vault.forEach(v=>{list.innerHTML+=`<div class="item"><b>${v.title}</b><br>Şifre: ${v.password}<br><small>${v.created}</small></div>`})}
+  const d=JSON.parse(localStorage.getItem(key))
+  list.innerHTML=''
+  d.vault.forEach(v=>{
+    list.innerHTML+=`<div class="item"><b>${v.title}</b><br>Şifre: ${v.password}<br><small>${v.created}</small></div>`
+  })
+}
 
-function toggle(){password.type=password.type==='password'?'text':'password'}
+function togglePassword(){password.type=password.type==='password'?'text':'password'}
 function logout(){location.reload()}
 
 function importDocx(input){
-const reader=new FileReader()
-reader.onload=e=>{
-mammoth.extractRawText({arrayBuffer:e.target.result}).then(r=>{
-const lines=r.value.split('\n').filter(x=>x.includes(':'))
-const d=JSON.parse(localStorage.getItem(key))
-lines.forEach(l=>{const [t,p]=l.split(':');const n=new Date();d.vault.push({title:t.trim(),password:p.trim(),created:`${n.getFullYear()}-${n.getMonth()+1}-${n.getDate()} ${n.getHours()}:${n.getMinutes()}`})})
-localStorage.setItem(key,JSON.stringify(d));render()})}
-reader.readAsArrayBuffer(input.files[0])}
+  const reader=new FileReader()
+  reader.onload=e=>{
+    mammoth.extractRawText({arrayBuffer:e.target.result}).then(r=>{
+      const lines=r.value.split('\n').filter(x=>x.includes(':'))
+      const d=JSON.parse(localStorage.getItem(key))
+      lines.forEach(l=>{
+        const [t,p]=l.split(':')
+        const n=new Date()
+        d.vault.push({title:t.trim(),password:p.trim(),created:`${n.getFullYear()}-${n.getMonth()+1}-${n.getDate()} ${n.getHours()}:${String(n.getMinutes()).padStart(2,'0')}`})
+      })
+      localStorage.setItem(key,JSON.stringify(d))
+      render()
+    })
+  }
+  reader.readAsArrayBuffer(input.files[0])
+}
 
-if(localStorage.getItem(key)){register.classList.add('hidden');login.classList.remove('hidden')}
+if(localStorage.getItem(key)){
+  registerBox.classList.add('hidden')
+  loginBox.classList.remove('hidden')
+}
 </script>
 </body>
 </html>
