@@ -3,99 +3,129 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SVG Yapboz</title>
+<title>Dijital Yapboz</title>
 <style>
-body { font-family:sans-serif; text-align:center; background:#f0f0f0; padding-top:20px;}
-h1 {margin-bottom:20px;}
-#puzzle-container { display:grid; grid-template-columns:repeat(3,120px); grid-template-rows:repeat(3,120px); gap:2px; justify-content:center; position:relative;}
-.piece { width:120px; height:120px; cursor:grab; border:1px solid #333; position:absolute; }
-svg { width:100%; height:100%; display:block; }
-#background { position:absolute; top:0; left:0; width:360px; height:360px; z-index:0; }
+body {
+  font-family: sans-serif;
+  text-align: center;
+  background: #f0f0f0;
+  padding-top: 20px;
+}
+h1 {margin-bottom: 10px;}
+#file-input {margin-bottom: 20px;}
+#puzzle-container {
+  position: relative;
+  width: 360px;
+  height: 360px;
+  margin: auto;
+  border: 2px solid #333;
+}
+#background {
+  width: 360px;
+  height: 360px;
+  position: absolute;
+  top:0;
+  left:0;
+  z-index: 0;
+  object-fit: cover;
+}
+.piece {
+  width: 120px;
+  height: 120px;
+  position: absolute;
+  border: 1px solid #555;
+  cursor: grab;
+  background-size: 360px 360px;
+  z-index: 1;
+}
 </style>
 </head>
 <body>
-<h1>SVG Yapboz</h1>
+<h1>Dijital Yapboz</h1>
+<input type="file" id="file-input" accept="image/*"><br>
 <div id="puzzle-container">
-  <!-- Alt resim -->
-  <svg id="background" viewBox="0 0 360 360">
-    <!-- Masa -->
-    <rect x="0" y="120" width="360" height="120" fill="#2ecc71"/>
-    <!-- Bardak -->
-    <ellipse cx="180" cy="180" rx="40" ry="60" fill="#9b59b6"/>
-    <!-- Tabak -->
-    <circle cx="300" cy="180" r="50" fill="#1abc9c"/>
-    <!-- Kitap -->
-    <rect x="0" y="240" width="120" height="120" fill="#f1c40f"/>
-    <!-- Telefon -->
-    <rect x="120" y="240" width="120" height="120" rx="10" ry="10" fill="#34495e"/>
-    <!-- Anahtar -->
-    <rect x="240" y="240" width="120" height="120" fill="#7f8c8d"/>
-  </svg>
+  <img id="background" src="" alt="Yapboz Alt Resim">
 </div>
 
 <script>
-// Yapboz blokları: 3x3 parçalar
-const svgBlocks = [
-  `<svg viewBox="0 0 120 120"><rect x="0" y="0" width="120" height="120" fill="#2ecc71"/><circle cx="60" cy="30" r="20" fill="#9b59b6"/></svg>`,
-  `<svg viewBox="0 0 120 120"><rect x="0" y="0" width="120" height="120" fill="#2ecc71"/><ellipse cx="60" cy="60" rx="40" ry="30" fill="#9b59b6"/></svg>`,
-  `<svg viewBox="0 0 120 120"><rect x="0" y="0" width="120" height="120" fill="#2ecc71"/><circle cx="100" cy="60" r="30" fill="#1abc9c"/></svg>`,
-  `<svg viewBox="0 0 120 120"><rect x="0" y="0" width="120" height="120" fill="#f1c40f"/></svg>`,
-  `<svg viewBox="0 0 120 120"><rect x="0" y="0" width="120" height="120" fill="#34495e"/></svg>`,
-  `<svg viewBox="0 0 120 120"><rect x="0" y="0" width="120" height="120" fill="#7f8c8d"/></svg>`,
-  `<svg viewBox="0 0 120 120"><rect x="0" y="0" width="120" height="120" fill="#f1c40f"/></svg>`,
-  `<svg viewBox="0 0 120 120"><rect x="0" y="0" width="120" height="120" fill="#34495e"/></svg>`,
-  `<svg viewBox="0 0 120 120"><rect x="0" y="0" width="120" height="120" fill="#7f8c8d"/></svg>`
-];
-
 const container = document.getElementById('puzzle-container');
-let positions = [];
-for(let i=0;i<9;i++){
-  let div = document.createElement('div');
-  div.className='piece';
-  div.draggable=true;
-  div.dataset.id=i+1;
-  div.innerHTML=svgBlocks[i];
-  div.style.top = `${Math.floor(i/3)*120}px`;
-  div.style.left = `${(i%3)*120}px`;
-  positions.push({top:div.style.top,left:div.style.left});
-  container.appendChild(div);
+const fileInput = document.getElementById('file-input');
+let pieces = [];
+let dragged = null;
+
+// Fotoğraf seçildiğinde
+fileInput.addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(event){
+    document.getElementById('background').src = event.target.result;
+    createPuzzle(event.target.result);
+  }
+  reader.readAsDataURL(file);
+});
+
+// Yapboz bloklarını oluştur
+function createPuzzle(imgSrc){
+  // Temizle
+  pieces.forEach(p=>p.remove());
+  pieces = [];
+
+  let positions = [];
+  for(let row=0; row<3; row++){
+    for(let col=0; col<3; col++){
+      let div = document.createElement('div');
+      div.className='piece';
+      div.draggable=true;
+      div.dataset.id = row*3 + col + 1;
+      div.style.top = `${row*120}px`;
+      div.style.left = `${col*120}px`;
+      div.style.backgroundImage = `url('${imgSrc}')`;
+      div.style.backgroundPosition = `-${col*120}px -${row*120}px`;
+      container.appendChild(div);
+      pieces.push(div);
+      positions.push({top: div.style.top, left: div.style.left});
+    }
+  }
+
+  // Karıştır
+  positions.sort(()=>Math.random()-0.5);
+  pieces.forEach((p,i)=>{
+    p.style.top = positions[i].top;
+    p.style.left = positions[i].left;
+  });
+
+  // Drag & Drop
+  pieces.forEach(p=>{
+    p.addEventListener('dragstart', e=>{dragged = e.target;});
+    p.addEventListener('dragover', e=>e.preventDefault());
+    p.addEventListener('drop', e=>{
+      e.preventDefault();
+      if(e.target.classList.contains('piece') && e.target!==dragged){
+        // Pozisyon değişimi
+        let tempTop = dragged.style.top;
+        let tempLeft = dragged.style.left;
+        dragged.style.top = e.target.style.top;
+        dragged.style.left = e.target.style.left;
+        e.target.style.top = tempTop;
+        e.target.style.left = tempLeft;
+
+        // ID değişimi
+        let tempID = dragged.dataset.id;
+        dragged.dataset.id = e.target.dataset.id;
+        e.target.dataset.id = tempID;
+
+        checkWin();
+      }
+    });
+  });
 }
 
-// Karıştır
-positions.sort(()=>Math.random()-0.5);
-document.querySelectorAll('.piece').forEach((p,i)=>{
-  p.style.top=positions[i].top;
-  p.style.left=positions[i].left;
-});
-
-// Drag & Drop
-let dragged=null;
-container.addEventListener('dragstart',e=>{dragged=e.target;});
-container.addEventListener('dragover',e=>e.preventDefault());
-container.addEventListener('drop',e=>{
-  e.preventDefault();
-  if(e.target.classList.contains('piece') && e.target!==dragged){
-    // Pozisyon değişimi
-    let tempTop = dragged.style.top;
-    let tempLeft = dragged.style.left;
-    dragged.style.top = e.target.style.top;
-    dragged.style.left = e.target.style.left;
-    e.target.style.top = tempTop;
-    e.target.style.left = tempLeft;
-
-    // ID değişimi
-    let tempID = dragged.dataset.id;
-    dragged.dataset.id = e.target.dataset.id;
-    e.target.dataset.id = tempID;
-
-    checkWin();
-  }
-});
-
+// Kazanma kontrolü
 function checkWin(){
-  const pieces = [...document.querySelectorAll('.piece')];
-  if(pieces.every((p,i)=>p.dataset.id==i+1))
-    alert("🎉 Tebrikler! Yapbozu tamamladın!");
+  if(pieces.every((p,i)=>p.dataset.id==i+1)){
+    alert('🎉 Tebrikler! Yapbozu tamamladın!');
+  }
 }
 </script>
 </body>
