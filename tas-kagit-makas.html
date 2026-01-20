@@ -1,115 +1,52 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<title>Taş Kağıt Makas</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<meta charset="UTF-8" />
+<title>Online Taş Kağıt Makas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <style>
-:root {
-  --bg1:#1d2671;
-  --bg2:#c33764;
-}
-body {
-  margin:0;
-  height:100vh;
-  background:linear-gradient(135deg,var(--bg1),var(--bg2));
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-family:Arial, sans-serif;
-  color:#fff;
-}
-.game {
-  width:360px;
-  background:rgba(0,0,0,0.4);
-  padding:20px;
-  border-radius:18px;
-  text-align:center;
-}
-.buttons {
-  display:flex;
-  justify-content:space-between;
-  margin:20px 0;
-}
-.buttons button {
-  width:90px;
-  height:90px;
-  font-size:40px;
-  border:none;
-  border-radius:50%;
-  cursor:pointer;
-}
-.info {
-  min-height:45px;
-}
-.score {
-  display:flex;
-  justify-content:space-between;
-}
-.footer {
-  margin-top:12px;
-  font-size:12px;
-  font-style:italic;
-  opacity:.8;
-}
+:root{--bg1:#1d2671;--bg2:#c33764}
+body{margin:0;height:100vh;background:linear-gradient(135deg,var(--bg1),var(--bg2));
+display:flex;align-items:center;justify-content:center;font-family:Arial;color:#fff}
+.card{width:360px;background:rgba(0,0,0,.4);padding:18px;border-radius:16px;text-align:center}
+input,button{padding:8px;border-radius:8px;border:none;margin:4px}
+.buttons button{width:90px;height:90px;font-size:40px;border-radius:50%}
+.hide{display:none}
+.small{font-size:12px;opacity:.8}
+.footer{margin-top:10px;font-style:italic;font-size:12px}
 </style>
 </head>
-
 <body>
 
-<div class="game">
-  <h2>✊ ✋ ✌️</h2>
-  <p>Taş – Kağıt – Makas</p>
+<div class="card">
+  <h3>🎮 Online Taş-Kağıt-Makas</h3>
 
-  <div class="buttons">
-    <button onclick="play('tas')">✊</button>
-    <button onclick="play('kagit')">✋</button>
-    <button onclick="play('makas')">✌️</button>
+  <div id="lobby">
+    <input id="name" placeholder="Adın" />
+    <div>
+      <button onclick="createRoom()">Oda Oluştur</button>
+      <button onclick="joinRoom()">Odaya Katıl</button>
+    </div>
+    <input id="roomInput" placeholder="Oda Kodu" />
+    <div class="small">Arkadaşınla aynı kodu kullanın</div>
   </div>
 
-  <div class="info" id="result">Birini seç</div>
-
-  <div class="score">
-    <div>👤 Sen: <span id="player">0</span></div>
-    <div>🤖 Bot: <span id="bot">0</span></div>
-  </div>
-
-  <div class="footer">
-    Menfaati bitenin ihaneti başlar.
+  <div id="game" class="hide">
+    <div>Oda: <b id="roomCode"></b></div>
+    <div class="buttons">
+      <button onclick="choose('tas')">✊</button>
+      <button onclick="choose('kagit')">✋</button>
+      <button onclick="choose('makas')">✌️</button>
+    </div>
+    <div id="status">Seçimini yap</div>
+    <div class="footer">Menfaati bitenin ihaneti başlar.</div>
   </div>
 </div>
 
-<script>
-let p=0,b=0;
-const r=document.getElementById("result");
-const pt=document.getElementById("player");
-const bt=document.getElementById("bot");
-
-function play(c){
-  const a=["tas","kagit","makas"];
-  const bot=a[Math.floor(Math.random()*3)];
-  let t="";
-  if(c===bot){t="🤝 Berabere";}
-  else if(
-    (c==="tas"&&bot==="makas")||
-    (c==="kagit"&&bot==="tas")||
-    (c==="makas"&&bot==="kagit")
-  ){p++;t="🎉 Kazandın";}
-  else{b++;t="😢 Kaybettin";}
-  r.innerHTML=`Sen ${e(c)} | Bot ${e(bot)}<br>${t}`;
-  pt.innerText=p;
-  bt.innerText=b;
-}
-function e(x){
-  return x==="tas"?"✊":x==="kagit"?"✋":"✌️";
-}
-</script>
-
-<!-- 🔥 FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, set, onValue, update } from
+"https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBUpSbXWiF7f7pCkDaqOxI5bIseIMdzvnQ",
@@ -123,13 +60,70 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Test verisi
-set(ref(db,"test"),{
-  durum:"Firebase çalışıyor"
-});
+let roomId="", me="", role="";
 
-console.log("🔥 Firebase bağlandı");
+const lobby = document.getElementById("lobby");
+const game = document.getElementById("game");
+const status = document.getElementById("status");
+const roomCodeEl = document.getElementById("roomCode");
+
+function genCode(){
+  return Math.random().toString(36).substring(2,8).toUpperCase();
+}
+
+window.createRoom = () => {
+  me = document.getElementById("name").value.trim();
+  if(!me) return alert("Ad gir");
+  roomId = genCode();
+  role = "p1";
+  set(ref(db,"rooms/"+roomId),{
+    p1: me, c1: "", p2: "", c2: ""
+  });
+  enterRoom();
+};
+
+window.joinRoom = () => {
+  me = document.getElementById("name").value.trim();
+  roomId = document.getElementById("roomInput").value.trim().toUpperCase();
+  if(!me || !roomId) return alert("Ad ve oda kodu gir");
+  role = "p2";
+  update(ref(db,"rooms/"+roomId),{ p2: me });
+  enterRoom();
+};
+
+function enterRoom(){
+  lobby.classList.add("hide");
+  game.classList.remove("hide");
+  roomCodeEl.textContent = roomId;
+
+  onValue(ref(db,"rooms/"+roomId),(snap)=>{
+    const d = snap.val();
+    if(!d) return;
+    if(d.c1 && d.c2){
+      const res = result(d.c1,d.c2);
+      status.innerHTML = `Sonuç: <b>${res}</b>`;
+    }else{
+      status.textContent = "Rakip bekleniyor...";
+    }
+  });
+}
+
+window.choose = (c) => {
+  if(!roomId) return;
+  const key = role==="p1" ? "c1" : "c2";
+  update(ref(db,"rooms/"+roomId),{ [key]: c });
+  status.textContent = "Seçtin, rakip bekleniyor...";
+};
+
+function result(a,b){
+  if(a===b) return "Berabere";
+  if(
+    (a==="tas"&&b==="makas")||
+    (a==="kagit"&&b==="tas")||
+    (a==="makas"&&b==="kagit")
+  ) return "Kazandın!";
+  return "Kaybettin!";
+}
 </script>
-
 </body>
 </html>
