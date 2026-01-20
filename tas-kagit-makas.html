@@ -1,129 +1,163 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
 <title>Online Taş Kağıt Makas</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
-:root{--bg1:#1d2671;--bg2:#c33764}
-body{margin:0;height:100vh;background:linear-gradient(135deg,var(--bg1),var(--bg2));
-display:flex;align-items:center;justify-content:center;font-family:Arial;color:#fff}
-.card{width:360px;background:rgba(0,0,0,.4);padding:18px;border-radius:16px;text-align:center}
-input,button{padding:8px;border-radius:8px;border:none;margin:4px}
-.buttons button{width:90px;height:90px;font-size:40px;border-radius:50%}
-.hide{display:none}
-.small{font-size:12px;opacity:.8}
-.footer{margin-top:10px;font-style:italic;font-size:12px}
+body{
+  margin:0;
+  height:100vh;
+  background:linear-gradient(135deg,#1d2671,#c33764);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-family:Arial;
+  color:white;
+}
+.game{
+  width:360px;
+  background:rgba(0,0,0,.45);
+  padding:20px;
+  border-radius:18px;
+  text-align:center;
+}
+.buttons button{
+  width:90px;height:90px;
+  font-size:40px;
+  border:none;
+  border-radius:50%;
+  cursor:pointer;
+}
+#chat{
+  margin-top:10px;
+  height:80px;
+  overflow:auto;
+  background:rgba(255,255,255,.1);
+  padding:6px;
+  font-size:13px;
+}
+input{
+  width:100%;
+  padding:6px;
+  border:none;
+  border-radius:6px;
+  margin-top:5px;
+}
 </style>
 </head>
+
 <body>
 
-<div class="card">
-  <h3>🎮 Online Taş-Kağıt-Makas</h3>
+<div class="game">
+<h2 id="names">Oyuncular</h2>
 
-  <div id="lobby">
-    <input id="name" placeholder="Adın" />
-    <div>
-      <button onclick="createRoom()">Oda Oluştur</button>
-      <button onclick="joinRoom()">Odaya Katıl</button>
-    </div>
-    <input id="roomInput" placeholder="Oda Kodu" />
-    <div class="small">Arkadaşınla aynı kodu kullanın</div>
-  </div>
-
-  <div id="game" class="hide">
-    <div>Oda: <b id="roomCode"></b></div>
-    <div class="buttons">
-      <button onclick="choose('tas')">✊</button>
-      <button onclick="choose('kagit')">✋</button>
-      <button onclick="choose('makas')">✌️</button>
-    </div>
-    <div id="status">Seçimini yap</div>
-    <div class="footer">Menfaati bitenin ihaneti başlar.</div>
-  </div>
+<div class="buttons">
+<button onclick="play('tas')">✊</button>
+<button onclick="play('kagit')">✋</button>
+<button onclick="play('makas')">✌️</button>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, onValue, update } from
-"https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+<div id="result">Seçim yap</div>
 
+<div id="roundScore">👤 0 | 🧑‍💻 0</div>
+<div id="roundInfo">El: 0 / 10</div>
+
+<div id="winner"></div>
+
+<div id="chat"></div>
+<input id="msg" placeholder="Mesaj yaz..."
+onkeydown="if(event.key==='Enter')sendMsg()">
+
+<p style="font-size:12px;margin-top:8px">
+Menfaati bitenin ihaneti başlar.
+</p>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyBUpSbXWiF7f7pCkDaqOxI5bIseIMdzvnQ",
   authDomain: "tkm-online-e9c2b.firebaseapp.com",
   databaseURL: "https://tkm-online-e9c2b-default-rtdb.firebaseio.com",
   projectId: "tkm-online-e9c2b",
-  messagingSenderId: "967040600662",
   appId: "1:967040600662:web:2b01ff890db04936cc09f7"
 };
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+const room = "oda1";
+const playerId = "p" + Math.floor(Math.random()*10000);
+let myName = prompt("Adın?");
+db.ref(room+"/players/"+playerId).set({name:myName,score:0});
 
-let roomId="", me="", role="";
+db.ref(room+"/players").on("value",s=>{
+  let t=[];
+  s.forEach(c=>t.push(c.val().name));
+  document.getElementById("names").innerText=t.join(" vs ");
+});
 
-const lobby = document.getElementById("lobby");
-const game = document.getElementById("game");
-const status = document.getElementById("status");
-const roomCodeEl = document.getElementById("roomCode");
-
-function genCode(){
-  return Math.random().toString(36).substring(2,8).toUpperCase();
+function play(choice){
+  db.ref(room+"/moves/"+playerId).set(choice);
 }
 
-window.createRoom = () => {
-  me = document.getElementById("name").value.trim();
-  if(!me) return alert("Ad gir");
-  roomId = genCode();
-  role = "p1";
-  set(ref(db,"rooms/"+roomId),{
-    p1: me, c1: "", p2: "", c2: ""
-  });
-  enterRoom();
-};
+db.ref(room+"/moves").on("value",snap=>{
+  const m=snap.val();
+  if(!m||Object.keys(m).length<2)return;
 
-window.joinRoom = () => {
-  me = document.getElementById("name").value.trim();
-  roomId = document.getElementById("roomInput").value.trim().toUpperCase();
-  if(!me || !roomId) return alert("Ad ve oda kodu gir");
-  role = "p2";
-  update(ref(db,"rooms/"+roomId),{ p2: me });
-  enterRoom();
-};
+  const ids=Object.keys(m);
+  const a=m[ids[0]], b=m[ids[1]];
 
-function enterRoom(){
-  lobby.classList.add("hide");
-  game.classList.remove("hide");
-  roomCodeEl.textContent = roomId;
-
-  onValue(ref(db,"rooms/"+roomId),(snap)=>{
-    const d = snap.val();
-    if(!d) return;
-    if(d.c1 && d.c2){
-      const res = result(d.c1,d.c2);
-      status.innerHTML = `Sonuç: <b>${res}</b>`;
-    }else{
-      status.textContent = "Rakip bekleniyor...";
-    }
-  });
-}
-
-window.choose = (c) => {
-  if(!roomId) return;
-  const key = role==="p1" ? "c1" : "c2";
-  update(ref(db,"rooms/"+roomId),{ [key]: c });
-  status.textContent = "Seçtin, rakip bekleniyor...";
-};
-
-function result(a,b){
-  if(a===b) return "Berabere";
-  if(
+  let r="";
+  if(a===b) r="Berabere";
+  else if(
     (a==="tas"&&b==="makas")||
     (a==="kagit"&&b==="tas")||
     (a==="makas"&&b==="kagit")
-  ) return "Kazandın!";
-  return "Kaybettin!";
+  ){
+    r="Kazanan: "+ids[0];
+    db.ref(room+"/players/"+ids[0]+"/score").transaction(s=>(s||0)+1);
+  }else{
+    r="Kazanan: "+ids[1];
+    db.ref(room+"/players/"+ids[1]+"/score").transaction(s=>(s||0)+1);
+  }
+
+  db.ref(room+"/round").transaction(n=>(n||0)+1);
+  document.getElementById("result").innerText=r;
+  db.ref(room+"/moves").remove();
+});
+
+db.ref(room+"/players").on("value",s=>{
+  let vals=Object.values(s.val()||{});
+  if(vals.length<2)return;
+  document.getElementById("roundScore").innerText=
+  `👤 ${vals[0].score||0} | 🧑‍💻 ${vals[1].score||0}`;
+});
+
+db.ref(room+"/round").on("value",s=>{
+  const r=s.val()||0;
+  document.getElementById("roundInfo").innerText=`El: ${r} / 10`;
+  if(r>=10){
+    db.ref(room+"/players").once("value",p=>{
+      let v=Object.values(p.val());
+      document.getElementById("winner").innerText=
+      v[0].score>v[1].score?"🎉 Kazandın":"😢 Kaybettin";
+    });
+  }
+});
+
+function sendMsg(){
+  const m=document.getElementById("msg");
+  db.ref(room+"/chat").push(myName+": "+m.value);
+  m.value="";
 }
+db.ref(room+"/chat").on("child_added",s=>{
+  document.getElementById("chat").innerHTML+=s.val()+"<br>";
+});
 </script>
 </body>
 </html>
