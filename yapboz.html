@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dijital Yapboz</title>
+<title>Kaydırmalı Yapboz</title>
 <style>
 body {
   font-family: sans-serif;
@@ -25,12 +25,12 @@ h1 { margin-bottom: 10px; }
 
 #puzzle-container img {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 360px;
-  height: 360px;
+  top:0;
+  left:0;
+  width:360px;
+  height:360px;
   object-fit: cover;
-  z-index: 0;
+  z-index:0;
 }
 
 .piece {
@@ -38,8 +38,8 @@ h1 { margin-bottom: 10px; }
   height: 120px;
   position: absolute;
   border: 1px solid #555;
-  cursor: grab;
-  z-index: 1;
+  box-sizing: border-box;
+  touch-action: none; /* Dokunmatik için */
 }
 
 .piece img {
@@ -49,11 +49,12 @@ h1 { margin-bottom: 10px; }
   position: absolute;
   top: 0;
   left: 0;
+  pointer-events: none;
 }
 </style>
 </head>
 <body>
-<h1>Dijital Yapboz (8 Parça)</h1>
+<h1>Kaydırmalı Yapboz</h1>
 <input type="file" id="file-input" accept="image/*"><br>
 <div id="puzzle-container">
   <img id="background" src="" alt="Alt Resim">
@@ -62,7 +63,11 @@ h1 { margin-bottom: 10px; }
 <script>
 const fileInput = document.getElementById('file-input');
 const container = document.getElementById('puzzle-container');
-let pieces = [];
+const background = document.getElementById('background');
+
+const size = 120;
+let grid = [];
+let empty = {row:2,col:2};
 let imgSrc = "";
 
 fileInput.addEventListener('change', e=>{
@@ -71,7 +76,7 @@ fileInput.addEventListener('change', e=>{
   const reader = new FileReader();
   reader.onload = function(event){
     imgSrc = event.target.result;
-    document.getElementById('background').src = imgSrc;
+    background.src = imgSrc;
     createPuzzle();
   }
   reader.readAsDataURL(file);
@@ -79,92 +84,105 @@ fileInput.addEventListener('change', e=>{
 
 function createPuzzle(){
   // Temizle
-  pieces.forEach(p=>p.remove());
-  pieces = [];
+  container.querySelectorAll('.piece').forEach(p=>p.remove());
+  grid = [];
 
-  const size = 120; // blok boyutu
-  const positions = [
-    {row:0,col:0},{row:0,col:1},{row:0,col:2},
-    {row:1,col:0},           {row:1,col:2},
-    {row:2,col:0},{row:2,col:1},{row:2,col:2}
-  ];
+  // 3x3 grid, son parça boş
+  let id=1;
+  for(let r=0;r<3;r++){
+    for(let c=0;c<3;c++){
+      if(r===2 && c===2){
+        grid.push(null); // boş
+        continue;
+      }
+      const div = document.createElement('div');
+      div.className='piece';
+      div.dataset.row=r;
+      div.dataset.col=c;
+      div.dataset.id=id;
 
-  // Parçaları oluştur
-  positions.forEach((pos,index)=>{
-    let div = document.createElement('div');
-    div.className = 'piece';
-    div.dataset.row = pos.row;
-    div.dataset.col = pos.col;
-    div.dataset.id = index + 1;
+      const img = document.createElement('img');
+      img.src = imgSrc;
+      img.style.top = `-${r*size}px`;
+      img.style.left = `-${c*size}px`;
 
-    let img = document.createElement('img');
-    img.src = imgSrc;
-    img.style.top = `-${pos.row*size}px`;
-    img.style.left = `-${pos.col*size}px`;
+      div.appendChild(img);
+      container.appendChild(div);
+      grid.push(div);
 
-    div.appendChild(img);
-    container.appendChild(div);
-    pieces.push(div);
-  });
+      makeDraggable(div);
+      id++;
+    }
+  }
+  shuffle();
+}
 
-  // Karıştır
-  shufflePieces();
+function shuffle(){
+  // Basit karıştırma: 100 rastgele geçiş
+  for(let i=0;i<100;i++){
+    const movable = getMovable();
+    const p = movable[Math.floor(Math.random()*movable.length)];
+    movePiece(p);
+  }
+}
 
-  // Drag & Drop
-  pieces.forEach(p=>{
-    p.draggable = true;
-    p.addEventListener('dragstart', e=>{
-      e.dataTransfer.setData("text/plain", p.dataset.id);
-    });
-  });
-
-  container.addEventListener('dragover', e=> e.preventDefault());
-
-  container.addEventListener('drop', e=>{
-    e.preventDefault();
-    const id = e.dataTransfer.getData("text/plain");
-    const dragged = pieces.find(p=>p.dataset.id===id);
-
-    // İmlecin olduğu yere kaydır
-    const rect = container.getBoundingClientRect();
-    let x = e.clientX - rect.left - 60; // ortala
-    let y = e.clientY - rect.top - 60;
-
-    // Sınırlar
-    x = Math.max(0, Math.min(x, 360-120));
-    y = Math.max(0, Math.min(y, 360-120));
-
-    dragged.style.left = x + "px";
-    dragged.style.top = y + "px";
-
-    checkWin();
+function getMovable(){
+  return grid.filter(p=>{
+    if(!p) return false;
+    const r=parseInt(p.dataset.row);
+    const c=parseInt(p.dataset.col);
+    return (Math.abs(r-empty.row)+Math.abs(c-empty.col))===1;
   });
 }
 
-function shufflePieces(){
-  pieces.forEach(p=>{
-    let x = Math.floor(Math.random()*3)*120;
-    let y = Math.floor(Math.random()*3)*120;
-    p.style.left = x + "px";
-    p.style.top = y + "px";
+function movePiece(p){
+  const r=parseInt(p.dataset.row);
+  const c=parseInt(p.dataset.col);
+
+  // Pozisyon değiştir
+  p.style.top = `${empty.row*size}px`;
+  p.style.left = `${empty.col*size}px`;
+
+  grid[empty.row*3+empty.col] = p;
+  grid[r*3+c] = null;
+
+  p.dataset.row = empty.row;
+  p.dataset.col = empty.col;
+
+  empty.row = r;
+  empty.col = c;
+
+  checkWin();
+}
+
+// Dokunmatik ve fare uyumlu
+function makeDraggable(div){
+  div.addEventListener('click', ()=>{ if(isMovable(div)) movePiece(div); });
+
+  div.addEventListener('touchstart', e=>{
+    if(isMovable(div)){
+      movePiece(div);
+    }
   });
+}
+
+function isMovable(p){
+  const r=parseInt(p.dataset.row);
+  const c=parseInt(p.dataset.col);
+  return (Math.abs(r-empty.row)+Math.abs(c-empty.col))===1;
 }
 
 function checkWin(){
-  const size = 120;
-  const positions = [
-    {row:0,col:0},{row:0,col:1},{row:0,col:2},
-    {row:1,col:0},           {row:1,col:2},
-    {row:2,col:0},{row:2,col:1},{row:2,col:2}
-  ];
-  let won = pieces.every((p,i)=>{
-    let x = parseInt(p.style.left);
-    let y = parseInt(p.style.top);
-    return Math.abs(x - positions[i].col*size) <=5 && Math.abs(y - positions[i].row*size)<=5;
+  let won=true;
+  grid.forEach((p,i)=>{
+    if(!p) return;
+    const targetRow = Math.floor((p.dataset.id-1)/3);
+    const targetCol = (p.dataset.id-1)%3;
+    if(parseInt(p.dataset.row)!==targetRow || parseInt(p.dataset.col)!==targetCol){
+      won=false;
+    }
   });
-  if(won){
-    alert("🎉 Tebrikler! Yapbozu tamamladınız!");
-  }
+  if(won) alert("🎉 Tebrikler! Yapbozu tamamladınız!");
 }
 </script>
 </body>
