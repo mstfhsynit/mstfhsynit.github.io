@@ -14,19 +14,34 @@ body {
 h1 { margin-bottom: 10px; }
 #file-input { margin-bottom: 20px; }
 
+/* Üstte parçaların bulunduğu container */
 #pieces-container {
   margin-bottom: 20px;
-  min-height: 140px;
+  min-height: 70px;
+  white-space: nowrap;
+  overflow-x: auto;
+  padding: 5px;
+  border: 1px solid #aaa;
+  background: #fff;
 }
 
 .piece {
-  width: 120px;
-  height: 120px;
+  width: 60px;
+  height: 60px;
   display: inline-block;
   margin-right: 5px;
   border: 1px solid #333;
   cursor: grab;
   position: relative;
+}
+
+.piece img {
+  width: 360px;
+  height: 360px;
+  object-fit: none;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 #puzzle-area {
@@ -40,26 +55,33 @@ h1 { margin-bottom: 10px; }
 
 #puzzle-area img {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 360px;
-  height: 360px;
+  top:0;
+  left:0;
+  width:360px;
+  height:360px;
   object-fit: cover;
-  z-index: 0;
+  z-index:0;
 }
 
+/* Ortadaki boş alan */
 #drop-slot {
+  width: 360px;
+  height: 360px;
+  position: absolute;
+  top:0;
+  left:0;
+  border: 2px dashed #555;
+  z-index:1;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  background-color: rgba(255,255,255,0.1);
+  justify-content: flex-start;
+}
+.drop-slot-piece {
   width: 120px;
   height: 120px;
-  position: absolute;
-  top: 120px;
-  left: 120px;
-  border: 2px dashed #555;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(255,255,255,0.3);
+  position: relative;
 }
 </style>
 </head>
@@ -96,8 +118,9 @@ fileInput.addEventListener('change', e=>{
 
 function createPieces(){
   piecesContainer.innerHTML = "";
-  const size = 120;
-  
+  dropSlot.innerHTML = "";
+
+  const size = 120; // orta alandaki blok boyutu
   // 3x3 grid, orta parça boş -> 8 parça
   const positions = [
     {row:0,col:0},{row:0,col:1},{row:0,col:2},
@@ -106,6 +129,7 @@ function createPieces(){
   ];
 
   positions.forEach((pos,index)=>{
+    // Üstteki küçük parça
     let div = document.createElement('div');
     div.className = 'piece';
     div.dataset.row = pos.row;
@@ -113,18 +137,14 @@ function createPieces(){
 
     let img = document.createElement('img');
     img.src = imgSrc;
-    img.style.width = "360px";
-    img.style.height = "360px";
-    img.style.objectFit = "none";
-    img.style.position = "absolute";
     img.style.top = `-${pos.row*size}px`;
     img.style.left = `-${pos.col*size}px`;
 
     div.appendChild(img);
     piecesContainer.appendChild(div);
 
-    // Drag & Drop
     div.draggable = true;
+
     div.addEventListener('dragstart', e=>{
       currentPiece = div;
     });
@@ -139,14 +159,25 @@ dropSlot.addEventListener('dragover', e=>{
 dropSlot.addEventListener('drop', e=>{
   e.preventDefault();
   if(currentPiece){
-    // Orta boş alanın içine taşı
-    dropSlot.innerHTML = "";
-    dropSlot.appendChild(currentPiece);
-    currentPiece.style.position = "relative";
-    currentPiece.style.top = "0";
-    currentPiece.style.left = "0";
-    currentPiece.style.cursor = "default";
-    currentPiece.draggable = false;
+    // Drop-slot içine taşı
+    let newDiv = document.createElement('div');
+    newDiv.className = 'drop-slot-piece';
+    
+    // Orta alana resim kopyasını ekle
+    let img = document.createElement('img');
+    img.src = imgSrc;
+    img.style.width = "360px";
+    img.style.height = "360px";
+    img.style.objectFit = "none";
+    img.style.top = `-${currentPiece.dataset.row*120}px`;
+    img.style.left = `-${currentPiece.dataset.col*120}px`;
+    img.style.position = "absolute";
+
+    newDiv.appendChild(img);
+    dropSlot.appendChild(newDiv);
+
+    // Üstten kaldır
+    currentPiece.remove();
     currentPiece = null;
   }
 });
