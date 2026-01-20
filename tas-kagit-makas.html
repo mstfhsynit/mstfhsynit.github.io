@@ -9,27 +9,29 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
+<!-- Konfeti -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
 <style>
 body{
   margin:0;
+  min-height:100vh;
   background:linear-gradient(135deg,#1d2671,#c33764);
   font-family:Arial,sans-serif;
   color:#fff;
   display:flex;
   justify-content:center;
   align-items:center;
-  min-height:100vh;
 }
 
 .app{
-  width:420px;
-  background:rgba(0,0,0,.45);
+  width:440px;
+  background:rgba(0,0,0,.5);
   border-radius:20px;
   padding:20px;
-  text-align:center;
 }
 
-h1{margin:5px 0}
+h1{text-align:center;margin:5px}
 
 .panel{
   background:rgba(255,255,255,.1);
@@ -38,6 +40,15 @@ h1{margin:5px 0}
   margin:10px 0;
 }
 
+input,button{
+  padding:8px;
+  border-radius:8px;
+  border:none;
+  margin:3px;
+}
+
+button{cursor:pointer}
+
 .players{
   display:flex;
   justify-content:space-between;
@@ -45,8 +56,8 @@ h1{margin:5px 0}
 }
 
 .score{
+  text-align:center;
   font-size:22px;
-  margin-top:5px;
 }
 
 .buttons{
@@ -59,37 +70,28 @@ h1{margin:5px 0}
   width:90px;
   height:90px;
   font-size:40px;
-  border:none;
   border-radius:50%;
-  cursor:pointer;
-  transition:.2s;
 }
-
-.buttons button:hover{transform:scale(1.15)}
 
 .status{
   min-height:50px;
-  font-size:16px;
-  margin-top:5px;
+  text-align:center;
+  margin-top:8px;
 }
 
-.win{color:#00ffae}
-.lose{color:#ff7070}
-
-input,button{
-  padding:8px;
+.chat{
+  height:120px;
+  overflow:auto;
+  background:#0003;
+  padding:6px;
   border-radius:8px;
-  border:none;
-}
-
-button{
-  cursor:pointer;
+  font-size:13px;
 }
 
 .footer{
+  text-align:center;
   font-size:12px;
-  opacity:.85;
-  margin-top:10px;
+  opacity:.8;
   font-style:italic;
 }
 </style>
@@ -99,13 +101,12 @@ button{
 <div class="app">
 
 <h1>✊ ✋ ✌️</h1>
-<b>Online Taş Kağıt Makas</b>
+<b style="display:block;text-align:center">Online Taş Kağıt Makas</b>
 
 <div class="panel">
-  <input id="name" placeholder="İsmin" />
-  <button onclick="create()">Oda Oluştur</button>
-  <br><br>
-  <input id="room" placeholder="Oda Kodu" />
+  <input id="name" placeholder="İsmin">
+  <button onclick="create()">Oda Oluştur</button><br>
+  <input id="room" placeholder="Oda Kodu">
   <button onclick="join()">Katıl</button>
 </div>
 
@@ -115,8 +116,8 @@ button{
 </div>
 
 <div class="panel score">
-  Sen <span id="s1">0</span> — <span id="s2">0</span> Rakip
-  <div>El: <span id="round">0</span> / 10</div>
+  Sen <span id="s1">0</span> — <span id="s2">0</span> Rakip<br>
+  El: <span id="round">0</span> / 10
 </div>
 
 <div class="buttons">
@@ -126,6 +127,12 @@ button{
 </div>
 
 <div class="status" id="status">Oda bekleniyor…</div>
+
+<div class="panel">
+  <div class="chat" id="chat"></div>
+  <input id="msg" placeholder="Mesaj yaz">
+  <button onclick="send()">Gönder</button>
+</div>
 
 <div class="panel">
   <button onclick="rematch()">🔁 Rövanş</button>
@@ -145,21 +152,19 @@ firebase.initializeApp({
 });
 const db=firebase.database();
 
-// ⚙️ Değişkenler
 let room="",me="",role="";
 const WIN=10;
 
-// 🎮 Yardımcı
 const el=i=>document.getElementById(i);
-const rnd=()=> "p"+Math.floor(Math.random()*9999);
+const rnd=()=> "r"+Math.floor(Math.random()*9999);
 
 // 🏠 ODA
 function create(){
   me=el("name").value||"Oyuncu";
-  room=rnd();
-  role="p1";
+  room=rnd(); role="p1";
   db.ref(room).set({
     round:0,
+    chat:[],
     players:{
       p1:{name:me,score:0},
       p2:{name:"Bekleniyor",score:0}
@@ -171,13 +176,12 @@ function create(){
 
 function join(){
   me=el("name").value||"Oyuncu";
-  room=el("room").value;
-  role="p2";
+  room=el("room").value; role="p2";
   db.ref(room+"/players/p2").update({name:me});
   listen();
 }
 
-// 👂 Dinleme
+// 👂 DİNLE
 function listen(){
   db.ref(room).on("value",s=>{
     if(!s.exists())return;
@@ -188,11 +192,16 @@ function listen(){
     el("s2").innerText=d.players.p2.score;
     el("round").innerText=d.round;
 
+    if(d.chat){
+      el("chat").innerHTML=d.chat.map(c=>`<div><b>${c.n}:</b> ${c.m}</div>`).join("");
+      el("chat").scrollTop=9999;
+    }
+
     if(d.players.p1.score>=WIN||d.players.p2.score>=WIN){
       const w=d.players.p1.score>d.players.p2.score
         ?d.players.p1.name:d.players.p2.name;
-      el("status").innerHTML="🏆 Kazanan: <b>"+w+"</b>";
-      el("status").className="status win";
+      el("status").innerHTML="🏆 KAZANAN: <b>"+w+"</b>";
+      confetti();
     }
   });
 }
@@ -203,16 +212,13 @@ function choose(c){
   ref.once("value",s=>{
     const d=s.val();
     if(d.round>=WIN*2)return;
-
-    const enemy=role==="p1"?"p2":"p1";
-    const e=d.players[enemy].choice;
-
+    const e=role==="p1"?"p2":"p1";
     db.ref(room+"/players/"+role+"/choice").set(c);
 
-    if(e){
-      const res=calc(c,e);
-      if(res===1)d.players[role].score++;
-      if(res===-1)d.players[enemy].score++;
+    if(d.players[e].choice){
+      const r=calc(c,d.players[e].choice);
+      if(r===1)d.players[role].score++;
+      if(r===-1)d.players[e].score++;
       d.round++;
       d.players.p1.choice=null;
       d.players.p2.choice=null;
@@ -227,17 +233,20 @@ function calc(a,b){
   return -1;
 }
 
+// 💬 CHAT
+function send(){
+  const m=el("msg").value;
+  if(!m)return;
+  db.ref(room+"/chat").push({n:me,m});
+  el("msg").value="";
+}
+
 // 🔁 RÖVANŞ
 function rematch(){
-  db.ref(room).update({
-    round:0,
-    players:{
-      p1:{score:0},
-      p2:{score:0}
-    }
-  });
+  db.ref(room+"/round").set(0);
+  db.ref(room+"/players/p1/score").set(0);
+  db.ref(room+"/players/p2/score").set(0);
   el("status").innerText="Yeni oyun başladı!";
-  el("status").className="status";
 }
 </script>
 </body>
