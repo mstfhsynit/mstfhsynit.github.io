@@ -2,243 +2,244 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Online Taş Kağıt Makas</title>
+<title>Taş Kağıt Makas - Full</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
 <style>
-body{
-  margin:0;
-  background:linear-gradient(135deg,#1d2671,#c33764);
-  font-family:Arial,sans-serif;
-  color:#fff;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
+:root {
+  --bg1:#1d2671;
+  --bg2:#c33764;
 }
 
-.app{
-  width:420px;
-  background:rgba(0,0,0,.45);
-  border-radius:20px;
-  padding:20px;
-  text-align:center;
+body {
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(135deg, var(--bg1), var(--bg2));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, sans-serif;
+  color: white;
 }
 
-h1{margin:5px 0}
-
-.panel{
-  background:rgba(255,255,255,.1);
-  border-radius:12px;
-  padding:10px;
-  margin:10px 0;
+.game {
+  width: 350px;
+  background: rgba(0,0,0,0.4);
+  padding: 20px;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
 }
 
-.players{
-  display:flex;
-  justify-content:space-between;
-  font-weight:bold;
+h1 { margin-top: 0; }
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
 }
 
-.score{
-  font-size:22px;
-  margin-top:5px;
+.buttons button {
+  width: 90px;
+  height: 90px;
+  font-size: 40px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
 }
 
-.buttons{
-  display:flex;
-  justify-content:space-around;
-  margin:15px 0;
+.buttons button:hover {
+  transform: scale(1.15);
 }
 
-.buttons button{
-  width:90px;
-  height:90px;
-  font-size:40px;
-  border:none;
-  border-radius:50%;
-  cursor:pointer;
-  transition:.2s;
+.info {
+  font-size: 15px;
+  min-height: 45px;
 }
 
-.buttons button:hover{transform:scale(1.15)}
-
-.status{
-  min-height:50px;
-  font-size:16px;
-  margin-top:5px;
+.score {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
 }
 
-.win{color:#00ffae}
-.lose{color:#ff7070}
-
-input,button{
-  padding:8px;
-  border-radius:8px;
-  border:none;
+.controls {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
 }
 
-button{
-  cursor:pointer;
+.controls button, select {
+  border-radius: 8px;
+  border: none;
+  padding: 6px 8px;
+  cursor: pointer;
 }
 
-.footer{
-  font-size:12px;
-  opacity:.85;
-  margin-top:10px;
-  font-style:italic;
+.footer {
+  margin-top: 14px;
+  font-size: 12px;
+  font-style: italic;
+  opacity: 0.85;
 }
 </style>
 </head>
 
 <body>
-<div class="app">
 
-<h1>✊ ✋ ✌️</h1>
-<b>Online Taş Kağıt Makas</b>
+<div class="game">
+  <h1>✊ ✋ ✌️</h1>
+  <p>Taş – Kağıt – Makas</p>
 
-<div class="panel">
-  <input id="name" placeholder="İsmin" />
-  <button onclick="create()">Oda Oluştur</button>
-  <br><br>
-  <input id="room" placeholder="Oda Kodu" />
-  <button onclick="join()">Katıl</button>
+  <div class="buttons">
+    <button onclick="play('tas')">✊</button>
+    <button onclick="play('kagit')">✋</button>
+    <button onclick="play('makas')">✌️</button>
+  </div>
+
+  <div class="info" id="result">Birini seç</div>
+
+  <div class="score">
+    <div>👤 Sen: <span id="player">0</span></div>
+    <div>🤖 Bilgisayar: <span id="bot">0</span></div>
+  </div>
+
+  <div class="score">
+    ⏱️ Süre: <span id="time">60</span> sn
+  </div>
+
+  <div class="controls">
+    <button onclick="resetGame()">Sıfırla</button>
+
+    <select id="mode">
+      <option value="score">3 Kazanan</option>
+      <option value="time">Süreli</option>
+    </select>
+
+    <button onclick="changeTheme()">Tema</button>
+  </div>
+
+  <div class="footer">
+    Menfaati bitenin ihaneti başlar.
+  </div>
 </div>
 
-<div class="panel players">
-  <div id="p1">—</div>
-  <div id="p2">—</div>
-</div>
-
-<div class="panel score">
-  Sen <span id="s1">0</span> — <span id="s2">0</span> Rakip
-  <div>El: <span id="round">0</span> / 10</div>
-</div>
-
-<div class="buttons">
-  <button onclick="choose('tas')">✊</button>
-  <button onclick="choose('kagit')">✋</button>
-  <button onclick="choose('makas')">✌️</button>
-</div>
-
-<div class="status" id="status">Oda bekleniyor…</div>
-
-<div class="panel">
-  <button onclick="rematch()">🔁 Rövanş</button>
-</div>
-
-<div class="footer">
-  Menfaati bitenin ihaneti başlar.
-</div>
-
-</div>
+<!-- SESLER -->
+<audio id="win" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+<audio id="lose" src="https://actions.google.com/sounds/v1/cartoon/boing.ogg"></audio>
+<audio id="draw" src="https://actions.google.com/sounds/v1/cartoon/pop.ogg"></audio>
 
 <script>
-// 🔥 Firebase
-firebase.initializeApp({
-  apiKey:"AIzaSyBUpSbXWiF7f7pCkDaqOxI5bIseIMdzvnQ",
-  databaseURL:"https://tkm-online-e9c2b-default-rtdb.firebaseio.com"
-});
-const db=firebase.database();
+let playerScore = 0;
+let botScore = 0;
+let time = 60;
+let timer = null;
 
-// ⚙️ Değişkenler
-let room="",me="",role="";
-const WIN=10;
+const resultText = document.getElementById("result");
+const playerText = document.getElementById("player");
+const botText = document.getElementById("bot");
+const timeText = document.getElementById("time");
 
-// 🎮 Yardımcı
-const el=i=>document.getElementById(i);
-const rnd=()=> "p"+Math.floor(Math.random()*9999);
+const winSound = document.getElementById("win");
+const loseSound = document.getElementById("lose");
+const drawSound = document.getElementById("draw");
 
-// 🏠 ODA
-function create(){
-  me=el("name").value||"Oyuncu";
-  room=rnd();
-  role="p1";
-  db.ref(room).set({
-    round:0,
-    players:{
-      p1:{name:me,score:0},
-      p2:{name:"Bekleniyor",score:0}
+function play(playerChoice) {
+  const choices = ["tas","kagit","makas"];
+  const botChoice = choices[Math.floor(Math.random() * 3)];
+
+  let res = "";
+
+  if (playerChoice === botChoice) {
+    res = "🤝 Berabere!";
+    drawSound.play();
+  } else if (
+    (playerChoice === "tas" && botChoice === "makas") ||
+    (playerChoice === "kagit" && botChoice === "tas") ||
+    (playerChoice === "makas" && botChoice === "kagit")
+  ) {
+    res = "🎉 Kazandın!";
+    playerScore++;
+    winSound.play();
+  } else {
+    res = "😢 Kaybettin!";
+    botScore++;
+    loseSound.play();
+  }
+
+  resultText.innerHTML =
+    `Sen ${emoji(playerChoice)} | Bilgisayar ${emoji(botChoice)}<br>${res}`;
+
+  updateScore();
+  checkEnd();
+}
+
+function updateScore() {
+  playerText.innerText = playerScore;
+  botText.innerText = botScore;
+}
+
+function checkEnd() {
+  const mode = document.getElementById("mode").value;
+
+  if (mode === "score") {
+    if (playerScore === 3 || botScore === 3) {
+      alert(playerScore === 3 ? "🎉 Oyunu kazandın!" : "😢 Oyunu kaybettin!");
+      resetGame();
     }
-  });
-  listen();
-  el("status").innerText="Oda kodu: "+room;
+  }
 }
 
-function join(){
-  me=el("name").value||"Oyuncu";
-  room=el("room").value;
-  role="p2";
-  db.ref(room+"/players/p2").update({name:me});
-  listen();
-}
-
-// 👂 Dinleme
-function listen(){
-  db.ref(room).on("value",s=>{
-    if(!s.exists())return;
-    const d=s.val();
-    el("p1").innerText=d.players.p1.name;
-    el("p2").innerText=d.players.p2.name;
-    el("s1").innerText=d.players.p1.score;
-    el("s2").innerText=d.players.p2.score;
-    el("round").innerText=d.round;
-
-    if(d.players.p1.score>=WIN||d.players.p2.score>=WIN){
-      const w=d.players.p1.score>d.players.p2.score
-        ?d.players.p1.name:d.players.p2.name;
-      el("status").innerHTML="🏆 Kazanan: <b>"+w+"</b>";
-      el("status").className="status win";
+function startTimer() {
+  clearInterval(timer);
+  timer = setInterval(() => {
+    time--;
+    timeText.innerText = time;
+    if (time <= 0) {
+      clearInterval(timer);
+      alert(playerScore > botScore ? "🎉 Kazandın!" : "😢 Kaybettin!");
+      resetGame();
     }
-  });
+  }, 1000);
 }
 
-// ✊ OYUN
-function choose(c){
-  const ref=db.ref(room);
-  ref.once("value",s=>{
-    const d=s.val();
-    if(d.round>=WIN*2)return;
+document.getElementById("mode").onchange = () => {
+  resetGame();
+};
 
-    const enemy=role==="p1"?"p2":"p1";
-    const e=d.players[enemy].choice;
+function resetGame() {
+  playerScore = 0;
+  botScore = 0;
+  time = 60;
+  updateScore();
+  timeText.innerText = time;
+  resultText.innerText = "Birini seç";
+  clearInterval(timer);
 
-    db.ref(room+"/players/"+role+"/choice").set(c);
-
-    if(e){
-      const res=calc(c,e);
-      if(res===1)d.players[role].score++;
-      if(res===-1)d.players[enemy].score++;
-      d.round++;
-      d.players.p1.choice=null;
-      d.players.p2.choice=null;
-      ref.set(d);
-    }
-  });
+  if (document.getElementById("mode").value === "time") {
+    startTimer();
+  }
 }
 
-function calc(a,b){
-  if(a===b)return 0;
-  if((a==="tas"&&b==="makas")||(a==="kagit"&&b==="tas")||(a==="makas"&&b==="kagit"))return 1;
-  return -1;
+const themes = [
+  ["#1d2671","#c33764"],
+  ["#0f2027","#2c5364"],
+  ["#232526","#414345"],
+  ["#42275a","#734b6d"]
+];
+let themeIndex = 0;
+
+function changeTheme() {
+  themeIndex = (themeIndex + 1) % themes.length;
+  document.documentElement.style.setProperty("--bg1", themes[themeIndex][0]);
+  document.documentElement.style.setProperty("--bg2", themes[themeIndex][1]);
 }
 
-// 🔁 RÖVANŞ
-function rematch(){
-  db.ref(room).update({
-    round:0,
-    players:{
-      p1:{score:0},
-      p2:{score:0}
-    }
-  });
-  el("status").innerText="Yeni oyun başladı!";
-  el("status").className="status";
+function emoji(c) {
+  return c === "tas" ? "✊" : c === "kagit" ? "✋" : "✌️";
 }
 </script>
+
 </body>
 </html>
