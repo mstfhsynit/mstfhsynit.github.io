@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dijital Yapboz</title>
+<title>8 Parçalı Dijital Yapboz</title>
 <style>
 body {
   font-family: sans-serif;
@@ -11,8 +11,8 @@ body {
   background: #f0f0f0;
   padding-top: 20px;
 }
-h1 { margin-bottom: 10px; }
-#file-input { margin-bottom: 20px; }
+h1 {margin-bottom: 10px;}
+#file-input {margin-bottom: 20px;}
 #puzzle-container {
   position: relative;
   width: 360px;
@@ -24,120 +24,149 @@ h1 { margin-bottom: 10px; }
   width: 360px;
   height: 360px;
   position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 0;
+  top:0;
+  left:0;
   object-fit: cover;
+  z-index:0;
 }
 .piece {
   width: 120px;
   height: 120px;
   position: absolute;
-  border: 1px solid #555;
-  cursor: grab;
-  z-index: 1;
+  border:1px solid #555;
+  cursor: pointer;
+  z-index:1;
 }
 .piece img {
   width: 360px;
   height: 360px;
   object-fit: none;
   position: absolute;
-  top: 0;
-  left: 0;
+  top:0;
+  left:0;
 }
 </style>
 </head>
 <body>
-<h1>Dijital Yapboz</h1>
+<h1>8 Parçalı Dijital Yapboz</h1>
 <input type="file" id="file-input" accept="image/*"><br>
 <div id="puzzle-container">
-  <img id="background" src="" alt="Yapboz Alt Resim">
+  <img id="background" src="" alt="Alt Resim">
 </div>
 
 <script>
 const container = document.getElementById('puzzle-container');
 const fileInput = document.getElementById('file-input');
+const size = 120; // blok boyutu
 let pieces = [];
-let dragged = null;
+let empty = {row:2, col:2}; // boş alan başta sağ alt
+let imgSrc = "";
 
-fileInput.addEventListener('change', (e) => {
+// Fotoğraf yüklendiğinde
+fileInput.addEventListener('change', e=>{
   const file = e.target.files[0];
   if(!file) return;
   const reader = new FileReader();
   reader.onload = function(event){
-    const src = event.target.result;
-    document.getElementById('background').src = src;
-    createPuzzle(src);
+    imgSrc = event.target.result;
+    document.getElementById('background').src = imgSrc;
+    createPuzzle();
   }
   reader.readAsDataURL(file);
 });
 
-function createPuzzle(src){
-  // Önce mevcut blokları kaldır
-  pieces.forEach(p => p.remove());
-  pieces = [];
-
-  const size = 120; // blok boyutu
-  let positions = [];
-
+function createPuzzle(){
+  // Temizle
+  pieces.forEach(p=>p.remove());
+  pieces=[];
+  
+  // 3x3 blok, son blok boş olacak
+  let id = 1;
   for(let row=0; row<3; row++){
     for(let col=0; col<3; col++){
+      if(row===2 && col===2) continue; // boş alan
       let div = document.createElement('div');
-      div.className = 'piece';
-      div.draggable = true;
-      div.dataset.id = row*3 + col + 1;
+      div.className='piece';
+      div.dataset.row = row;
+      div.dataset.col = col;
+      div.dataset.id = id;
       div.style.top = `${row*size}px`;
       div.style.left = `${col*size}px`;
-
-      // Blok içine tam resim ama sadece kendi parçası görünür
+      
       let img = document.createElement('img');
-      img.src = src;
-      img.style.left = `-${col*size}px`;
+      img.src = imgSrc;
       img.style.top = `-${row*size}px`;
+      img.style.left = `-${col*size}px`;
       div.appendChild(img);
 
       container.appendChild(div);
       pieces.push(div);
-      positions.push({top: div.style.top, left: div.style.left});
+      id++;
     }
   }
 
-  // Karıştır
-  positions.sort(() => Math.random() - 0.5);
-  pieces.forEach((p,i)=>{
-    p.style.top = positions[i].top;
-    p.style.left = positions[i].left;
+  shuffle();
+  addClickEvents();
+}
+
+// Blokları karıştır
+function shuffle(){
+  for(let i=0;i<100;i++){
+    let movable = getMovable();
+    let randomPiece = movable[Math.floor(Math.random()*movable.length)];
+    movePiece(randomPiece);
+  }
+}
+
+// Boş alan ile komşu bloklar
+function getMovable(){
+  return pieces.filter(p=>{
+    let row = parseInt(p.dataset.row);
+    let col = parseInt(p.dataset.col);
+    return (Math.abs(row-empty.row)+Math.abs(col-empty.col))===1;
   });
+}
 
-  // Drag & Drop
+// Blok tıklayınca boş alana kaydır
+function addClickEvents(){
   pieces.forEach(p=>{
-    p.addEventListener('dragstart', e => { dragged = e.target; });
-    p.addEventListener('dragover', e => e.preventDefault());
-    p.addEventListener('drop', e => {
-      e.preventDefault();
-      if(e.target.classList.contains('piece') && e.target!==dragged){
-        // Pozisyon değişimi
-        let tempTop = dragged.style.top;
-        let tempLeft = dragged.style.left;
-        dragged.style.top = e.target.style.top;
-        dragged.style.left = e.target.style.left;
-        e.target.style.top = tempTop;
-        e.target.style.left = tempLeft;
-
-        // ID değişimi
-        let tempID = dragged.dataset.id;
-        dragged.dataset.id = e.target.dataset.id;
-        e.target.dataset.id = tempID;
-
-        checkWin();
-      }
+    p.addEventListener('click', ()=>{
+      if(isMovable(p)) movePiece(p);
     });
   });
 }
 
+function isMovable(p){
+  let row = parseInt(p.dataset.row);
+  let col = parseInt(p.dataset.col);
+  return (Math.abs(row-empty.row)+Math.abs(col-empty.col))===1;
+}
+
+function movePiece(p){
+  let tempRow = parseInt(p.dataset.row);
+  let tempCol = parseInt(p.dataset.col);
+
+  p.dataset.row = empty.row;
+  p.dataset.col = empty.col;
+  p.style.top = `${empty.row*size}px`;
+  p.style.left = `${empty.col*size}px`;
+
+  empty.row = tempRow;
+  empty.col = tempCol;
+
+  checkWin();
+}
+
+// Kazanma kontrolü
 function checkWin(){
-  if(pieces.every((p,i)=>p.dataset.id == i+1)){
-    alert('🎉 Tebrikler! Yapbozu tamamladın!');
+  let correct = pieces.every(p=>{
+    let id = parseInt(p.dataset.id);
+    let row = parseInt(p.dataset.row);
+    let col = parseInt(p.dataset.col);
+    return id === row*3 + col +1;
+  });
+  if(correct){
+    alert("🎉 Tebrikler! Yapbozu tamamladınız!");
   }
 }
 </script>
