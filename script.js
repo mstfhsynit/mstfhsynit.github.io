@@ -4,42 +4,48 @@ async function teach() {
   const result = document.getElementById("result");
 
   if (!topic) {
-    result.innerText = "Lütfen bir konu yaz.";
+    result.innerText = "Bir şey yazmalısın 🙂";
     return;
   }
 
-  result.innerText = "Bilgi getiriliyor... ⏳";
-
-  const url = `https://tr.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`;
+  result.innerText = "Aranıyor... 🔍";
 
   try {
+    // DuckDuckGo Instant Answer API (CORS için proxy)
+    const url = `https://api.allorigins.win/raw?url=` +
+      encodeURIComponent(
+        `https://api.duckduckgo.com/?q=${topic}&format=json&no_redirect=1`
+      );
+
     const res = await fetch(url);
     const data = await res.json();
 
-    if (!data.extract) {
-      result.innerText = "Bu konu hakkında bilgi bulunamadı 😕";
+    let text = "";
+
+    if (data.AbstractText) {
+      text = data.AbstractText;
+    } else if (data.RelatedTopics && data.RelatedTopics.length > 0) {
+      text = data.RelatedTopics[0].Text;
+    }
+
+    if (!text) {
+      result.innerText = "Bu arama için özet bulunamadı 😕";
       return;
     }
 
-    let text = data.extract;
-
-    // Seviye basitleştirme
-    if (level === "ilkokul") {
-      text = text.split(".").slice(0, 2).join(".") + ".";
-    }
-    if (level === "ortaokul") {
-      text = text.split(".").slice(0, 3).join(".") + ".";
-    }
-    if (level === "lise") {
-      text = text.split(".").slice(0, 5).join(".") + ".";
-    }
+    // Seviye sadeleştirme
+    const sentences = text.split(".");
+    if (level === "ilkokul") text = sentences.slice(0, 2).join(".") + ".";
+    if (level === "ortaokul") text = sentences.slice(0, 3).join(".") + ".";
+    if (level === "lise") text = sentences.slice(0, 5).join(".") + ".";
+    if (level === "universite") text = sentences.join(".") + ".";
 
     result.innerText =
-      `📌 Konu: ${data.title}\n\n` +
+      `🔎 Arama: ${topic}\n\n` +
       text +
-      `\n\n📚 Kaynak: Wikipedia`;
+      `\n\n🌐 Kaynak: DuckDuckGo / Açık Web`;
 
-  } catch (err) {
+  } catch (e) {
     result.innerText = "Bir hata oluştu 😕";
   }
 }
