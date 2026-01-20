@@ -5,159 +5,240 @@
 <title>Online Taş Kağıt Makas</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
 <style>
 body{
   margin:0;
-  height:100vh;
   background:linear-gradient(135deg,#1d2671,#c33764);
+  font-family:Arial,sans-serif;
+  color:#fff;
   display:flex;
   justify-content:center;
   align-items:center;
-  font-family:Arial;
-  color:white;
+  min-height:100vh;
 }
-.game{
-  width:360px;
+
+.app{
+  width:420px;
   background:rgba(0,0,0,.45);
+  border-radius:20px;
   padding:20px;
-  border-radius:18px;
   text-align:center;
 }
+
+h1{margin:5px 0}
+
+.panel{
+  background:rgba(255,255,255,.1);
+  border-radius:12px;
+  padding:10px;
+  margin:10px 0;
+}
+
+.players{
+  display:flex;
+  justify-content:space-between;
+  font-weight:bold;
+}
+
+.score{
+  font-size:22px;
+  margin-top:5px;
+}
+
+.buttons{
+  display:flex;
+  justify-content:space-around;
+  margin:15px 0;
+}
+
 .buttons button{
-  width:90px;height:90px;
+  width:90px;
+  height:90px;
   font-size:40px;
   border:none;
   border-radius:50%;
   cursor:pointer;
+  transition:.2s;
 }
-#chat{
-  margin-top:10px;
-  height:80px;
-  overflow:auto;
-  background:rgba(255,255,255,.1);
-  padding:6px;
-  font-size:13px;
-}
-input{
-  width:100%;
-  padding:6px;
-  border:none;
-  border-radius:6px;
+
+.buttons button:hover{transform:scale(1.15)}
+
+.status{
+  min-height:50px;
+  font-size:16px;
   margin-top:5px;
+}
+
+.win{color:#00ffae}
+.lose{color:#ff7070}
+
+input,button{
+  padding:8px;
+  border-radius:8px;
+  border:none;
+}
+
+button{
+  cursor:pointer;
+}
+
+.footer{
+  font-size:12px;
+  opacity:.85;
+  margin-top:10px;
+  font-style:italic;
 }
 </style>
 </head>
 
 <body>
+<div class="app">
 
-<div class="game">
-<h2 id="names">Oyuncular</h2>
+<h1>✊ ✋ ✌️</h1>
+<b>Online Taş Kağıt Makas</b>
+
+<div class="panel">
+  <input id="name" placeholder="İsmin" />
+  <button onclick="create()">Oda Oluştur</button>
+  <br><br>
+  <input id="room" placeholder="Oda Kodu" />
+  <button onclick="join()">Katıl</button>
+</div>
+
+<div class="panel players">
+  <div id="p1">—</div>
+  <div id="p2">—</div>
+</div>
+
+<div class="panel score">
+  Sen <span id="s1">0</span> — <span id="s2">0</span> Rakip
+  <div>El: <span id="round">0</span> / 10</div>
+</div>
 
 <div class="buttons">
-<button onclick="play('tas')">✊</button>
-<button onclick="play('kagit')">✋</button>
-<button onclick="play('makas')">✌️</button>
+  <button onclick="choose('tas')">✊</button>
+  <button onclick="choose('kagit')">✋</button>
+  <button onclick="choose('makas')">✌️</button>
 </div>
 
-<div id="result">Seçim yap</div>
+<div class="status" id="status">Oda bekleniyor…</div>
 
-<div id="roundScore">👤 0 | 🧑‍💻 0</div>
-<div id="roundInfo">El: 0 / 10</div>
-
-<div id="winner"></div>
-
-<div id="chat"></div>
-<input id="msg" placeholder="Mesaj yaz..."
-onkeydown="if(event.key==='Enter')sendMsg()">
-
-<p style="font-size:12px;margin-top:8px">
-Menfaati bitenin ihaneti başlar.
-</p>
+<div class="panel">
+  <button onclick="rematch()">🔁 Rövanş</button>
 </div>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<div class="footer">
+  Menfaati bitenin ihaneti başlar.
+</div>
+
+</div>
 
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyBUpSbXWiF7f7pCkDaqOxI5bIseIMdzvnQ",
-  authDomain: "tkm-online-e9c2b.firebaseapp.com",
-  databaseURL: "https://tkm-online-e9c2b-default-rtdb.firebaseio.com",
-  projectId: "tkm-online-e9c2b",
-  appId: "1:967040600662:web:2b01ff890db04936cc09f7"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-const room = "oda1";
-const playerId = "p" + Math.floor(Math.random()*10000);
-let myName = prompt("Adın?");
-db.ref(room+"/players/"+playerId).set({name:myName,score:0});
-
-db.ref(room+"/players").on("value",s=>{
-  let t=[];
-  s.forEach(c=>t.push(c.val().name));
-  document.getElementById("names").innerText=t.join(" vs ");
+// 🔥 Firebase
+firebase.initializeApp({
+  apiKey:"AIzaSyBUpSbXWiF7f7pCkDaqOxI5bIseIMdzvnQ",
+  databaseURL:"https://tkm-online-e9c2b-default-rtdb.firebaseio.com"
 });
+const db=firebase.database();
 
-function play(choice){
-  db.ref(room+"/moves/"+playerId).set(choice);
+// ⚙️ Değişkenler
+let room="",me="",role="";
+const WIN=10;
+
+// 🎮 Yardımcı
+const el=i=>document.getElementById(i);
+const rnd=()=> "p"+Math.floor(Math.random()*9999);
+
+// 🏠 ODA
+function create(){
+  me=el("name").value||"Oyuncu";
+  room=rnd();
+  role="p1";
+  db.ref(room).set({
+    round:0,
+    players:{
+      p1:{name:me,score:0},
+      p2:{name:"Bekleniyor",score:0}
+    }
+  });
+  listen();
+  el("status").innerText="Oda kodu: "+room;
 }
 
-db.ref(room+"/moves").on("value",snap=>{
-  const m=snap.val();
-  if(!m||Object.keys(m).length<2)return;
-
-  const ids=Object.keys(m);
-  const a=m[ids[0]], b=m[ids[1]];
-
-  let r="";
-  if(a===b) r="Berabere";
-  else if(
-    (a==="tas"&&b==="makas")||
-    (a==="kagit"&&b==="tas")||
-    (a==="makas"&&b==="kagit")
-  ){
-    r="Kazanan: "+ids[0];
-    db.ref(room+"/players/"+ids[0]+"/score").transaction(s=>(s||0)+1);
-  }else{
-    r="Kazanan: "+ids[1];
-    db.ref(room+"/players/"+ids[1]+"/score").transaction(s=>(s||0)+1);
-  }
-
-  db.ref(room+"/round").transaction(n=>(n||0)+1);
-  document.getElementById("result").innerText=r;
-  db.ref(room+"/moves").remove();
-});
-
-db.ref(room+"/players").on("value",s=>{
-  let vals=Object.values(s.val()||{});
-  if(vals.length<2)return;
-  document.getElementById("roundScore").innerText=
-  `👤 ${vals[0].score||0} | 🧑‍💻 ${vals[1].score||0}`;
-});
-
-db.ref(room+"/round").on("value",s=>{
-  const r=s.val()||0;
-  document.getElementById("roundInfo").innerText=`El: ${r} / 10`;
-  if(r>=10){
-    db.ref(room+"/players").once("value",p=>{
-      let v=Object.values(p.val());
-      document.getElementById("winner").innerText=
-      v[0].score>v[1].score?"🎉 Kazandın":"😢 Kaybettin";
-    });
-  }
-});
-
-function sendMsg(){
-  const m=document.getElementById("msg");
-  db.ref(room+"/chat").push(myName+": "+m.value);
-  m.value="";
+function join(){
+  me=el("name").value||"Oyuncu";
+  room=el("room").value;
+  role="p2";
+  db.ref(room+"/players/p2").update({name:me});
+  listen();
 }
-db.ref(room+"/chat").on("child_added",s=>{
-  document.getElementById("chat").innerHTML+=s.val()+"<br>";
-});
+
+// 👂 Dinleme
+function listen(){
+  db.ref(room).on("value",s=>{
+    if(!s.exists())return;
+    const d=s.val();
+    el("p1").innerText=d.players.p1.name;
+    el("p2").innerText=d.players.p2.name;
+    el("s1").innerText=d.players.p1.score;
+    el("s2").innerText=d.players.p2.score;
+    el("round").innerText=d.round;
+
+    if(d.players.p1.score>=WIN||d.players.p2.score>=WIN){
+      const w=d.players.p1.score>d.players.p2.score
+        ?d.players.p1.name:d.players.p2.name;
+      el("status").innerHTML="🏆 Kazanan: <b>"+w+"</b>";
+      el("status").className="status win";
+    }
+  });
+}
+
+// ✊ OYUN
+function choose(c){
+  const ref=db.ref(room);
+  ref.once("value",s=>{
+    const d=s.val();
+    if(d.round>=WIN*2)return;
+
+    const enemy=role==="p1"?"p2":"p1";
+    const e=d.players[enemy].choice;
+
+    db.ref(room+"/players/"+role+"/choice").set(c);
+
+    if(e){
+      const res=calc(c,e);
+      if(res===1)d.players[role].score++;
+      if(res===-1)d.players[enemy].score++;
+      d.round++;
+      d.players.p1.choice=null;
+      d.players.p2.choice=null;
+      ref.set(d);
+    }
+  });
+}
+
+function calc(a,b){
+  if(a===b)return 0;
+  if((a==="tas"&&b==="makas")||(a==="kagit"&&b==="tas")||(a==="makas"&&b==="kagit"))return 1;
+  return -1;
+}
+
+// 🔁 RÖVANŞ
+function rematch(){
+  db.ref(room).update({
+    round:0,
+    players:{
+      p1:{score:0},
+      p2:{score:0}
+    }
+  });
+  el("status").innerText="Yeni oyun başladı!";
+  el("status").className="status";
+}
 </script>
 </body>
 </html>
