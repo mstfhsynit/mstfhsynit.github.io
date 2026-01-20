@@ -19,7 +19,7 @@ body {
 
 .game {
   width: 360px;
-  height: 560px;
+  height: 600px;
   background: rgba(0,0,0,0.4);
   border-radius: 18px;
   padding: 15px;
@@ -71,6 +71,18 @@ button {
   margin-top: 6px;
   font-size: 14px;
 }
+
+/* ALT YAZI */
+.footer {
+  position: absolute;
+  bottom: 8px;
+  width: 100%;
+  text-align: center;
+  font-size: 13px;
+  font-style: italic;
+  color: rgba(255,255,255,0.8);
+  letter-spacing: 0.5px;
+}
 </style>
 </head>
 
@@ -100,9 +112,13 @@ button {
   <div class="info">
     🏆 En iyi skor: <span id="best">0</span>
   </div>
+
+  <!-- ALT SÖZ -->
+  <div class="footer">
+    Menfaati bitenin ihaneti başlar.
+  </div>
 </div>
 
-<!-- SESLER -->
 <audio id="hit" src="https://actions.google.com/sounds/v1/cartoon/pop.ogg"></audio>
 <audio id="miss" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
 
@@ -152,7 +168,6 @@ function startGame() {
 function updateTime() {
   time--;
   timeText.innerText = time;
-
   if (time <= 0 || lives <= 0) endGame();
 }
 
