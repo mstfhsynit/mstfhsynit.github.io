@@ -2,104 +2,122 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Online Taş Kağıt Makas</title>
+<title>Taş Kağıt Makas Online</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
 <style>
 body{
   margin:0;
+  background:#1e1e2f;
   font-family:Arial;
-  background:linear-gradient(135deg,#1d2671,#c33764);
   color:#fff;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
 }
-.box{
-  width:440px;
-  background:rgba(0,0,0,.45);
+.container{
+  max-width:900px;
+  margin:auto;
   padding:20px;
-  border-radius:18px;
 }
-h1{text-align:center;margin:0}
 input,button{
-  width:100%;
-  padding:8px;
-  margin:5px 0;
-  border:none;
+  padding:12px;
+  font-size:16px;
   border-radius:8px;
+  border:none;
 }
-button{cursor:pointer;font-size:16px}
-.buttons{
+button{
+  cursor:pointer;
+  background:#4caf50;
+  color:#fff;
+}
+button.secondary{background:#2196f3}
+button.red{background:#e53935}
+
+#login, #game{display:none}
+
+.players{
   display:flex;
   justify-content:space-between;
+  font-size:20px;
+  margin-bottom:10px;
+}
+
+.score{
+  text-align:center;
+  font-size:22px;
   margin:10px 0;
 }
-.buttons button{
-  width:30%;
-  font-size:32px;
+
+.timer{
+  text-align:center;
+  font-size:18px;
+  color:#ffeb3b;
 }
-.score{
+
+.buttons{
   display:flex;
-  justify-content:space-between;
-  margin:6px 0;
+  justify-content:center;
+  gap:20px;
+  margin:20px 0;
 }
-#status,#timer{text-align:center;font-weight:bold}
+.buttons button{
+  font-size:40px;
+  width:90px;
+  height:90px;
+  border-radius:50%;
+}
 
 .chat{
-  background:#222;
-  padding:6px;
-  height:120px;
+  border:1px solid #555;
+  height:200px;
   overflow:auto;
-  border-radius:8px;
+  padding:10px;
   margin-top:10px;
 }
-.chat-msg{
-  max-width:75%;
-  padding:6px 8px;
-  margin:4px 0;
-  border-radius:10px;
-  clear:both;
-}
-.me{background:#4caf50;float:right;text-align:right}
-.enemy{background:#555;float:left;text-align:left}
-
-.footer{
-  text-align:center;
-  font-size:12px;
-  margin-top:8px;
-  opacity:.8;
-}
-.codeBox{
-  text-align:center;
-  font-size:20px;
-  margin:8px 0;
-  background:#000;
-  padding:6px;
+.msg{
+  margin:5px 0;
+  max-width:70%;
+  padding:8px;
   border-radius:8px;
+}
+.me{background:#4caf50;margin-left:auto;text-align:right}
+.other{background:#555}
+
+.codeBox{
+  margin-top:10px;
+  font-size:18px;
+  background:#333;
+  padding:10px;
+  border-radius:8px;
+  text-align:center;
 }
 </style>
 </head>
 
 <body>
-<div class="box">
+<div class="container">
 
-<h1>✊ ✋ ✌️</h1>
-
+<!-- GİRİŞ -->
 <div id="login">
-  <input id="name" placeholder="İsmin">
+  <h2>Taş Kağıt Makas Online</h2>
+  <input id="name" placeholder="İsmin"><br><br>
+  <input id="roomInput" placeholder="Oda Kodu (katılmak için)"><br><br>
   <button onclick="createRoom()">Oda Oluştur</button>
+  <button class="secondary" onclick="joinRoom()">Odaya Katıl</button>
+  <button class="red" onclick="randomMatch()">Random Eşleş</button>
   <div id="roomCode" class="codeBox" style="display:none"></div>
 </div>
 
-<div id="game" style="display:none">
-  <div class="score">
-    <div><span id="p1">-</span>: <b id="s1">0</b></div>
-    <div>El <b id="round">0</b>/10</div>
-    <div><span id="p2">-</span>: <b id="s2">0</b></div>
+<!-- OYUN -->
+<div id="game">
+  <div class="players">
+    <div id="p1">?</div>
+    <div id="p2">?</div>
   </div>
 
-  <div id="timer">⏱️ 5</div>
+  <div class="score" id="score">0 - 0 | El: 1 / 10</div>
+  <div class="timer" id="timer">⏱️ 5</div>
 
   <div class="buttons">
     <button onclick="play('tas')">✊</button>
@@ -107,132 +125,180 @@ button{cursor:pointer;font-size:16px}
     <button onclick="play('makas')">✌️</button>
   </div>
 
-  <div id="status">Rakip bekleniyor…</div>
+  <div id="result" style="text-align:center;font-size:20px"></div>
 
+  <h3>Chat</h3>
   <div class="chat" id="chat"></div>
-  <input id="msg" placeholder="Mesaj yaz">
-  <button onclick="send()">Gönder</button>
+  <input id="chatInput" placeholder="Mesaj yaz..." 
+         onkeydown="if(event.key==='Enter')sendMsg()">
 </div>
 
-<div class="footer">Menfaati bitenin ihaneti başlar.</div>
 </div>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
+// 🔥 Firebase
 firebase.initializeApp({
-  apiKey:"AIzaSyBUpSbXWiF7f7pCkDaqOxI5bIseIMdzvnQ",
-  authDomain:"tkm-online-e9c2b.firebaseapp.com",
-  databaseURL:"https://tkm-online-e9c2b-default-rtdb.firebaseio.com",
-  projectId:"tkm-online-e9c2b"
+  apiKey: "AIzaSyBUpSbXWiF7f7pCkDaqOxI5bIseIMdzvnQ",
+  authDomain: "tkm-online-e9c2b.firebaseapp.com",
+  databaseURL: "https://tkm-online-e9c2b-default-rtdb.firebaseio.com",
+  projectId: "tkm-online-e9c2b"
 });
-const db=firebase.database();
+const db = firebase.database();
 
-let me="",room="",isHost=true,t=5,interval=null;
-const el=id=>document.getElementById(id);
+let me, room, isHost=false;
+let timerInt, time=5;
+
+// URL'den oda kodu
+const params = new URLSearchParams(location.search);
+if(params.get("room")){
+  roomInput.value = params.get("room");
+}
+
+login.style.display="block";
 
 function genCode(){
-  return Math.random().toString(36).substring(2,7).toUpperCase();
+  return Math.random().toString(36).substr(2,5).toUpperCase();
 }
 
+// ODA OLUŞTUR
 function createRoom(){
-  me=el("name").value.trim();
+  me=name.value.trim();
   if(!me)return alert("İsim gir");
-
   room=genCode();
-  el("roomCode").style.display="block";
-  el("roomCode").innerText="ODA KODU: "+room;
+  isHost=true;
 
   db.ref("rooms/"+room).set({
-    p1:me,s1:0,
-    p2:null,s2:0,
-    round:0
+    p1:me,p2:null,round:1,s1:0,s2:0,choices:{},chat:[]
   });
 
-  el("game").style.display="block";
-  listen();
+  roomCode.style.display="block";
+  roomCode.innerHTML=`Oda Kodu: <b>${room}</b><br>
+  Link: ${location.origin+location.pathname}?room=${room}`;
+
+  startGame();
 }
 
-function startTimer(){
-  clearInterval(interval);
-  t=5;
-  timer.innerText="⏱️ "+t;
-  interval=setInterval(()=>{
-    t--;
-    timer.innerText="⏱️ "+t;
-    if(t<=0){
-      clearInterval(interval);
-      if(isHost){
-        db.ref("rooms/"+room).update({round:+round.innerText+1,moves:null});
+// ODAYA KATIL
+function joinRoom(){
+  me=name.value.trim();
+  room=roomInput.value.trim().toUpperCase();
+  if(!me||!room)return alert("Eksik");
+
+  const ref=db.ref("rooms/"+room);
+  ref.once("value",s=>{
+    if(!s.exists())return alert("Oda yok");
+    if(s.val().p2)return alert("Oda dolu ❌");
+    ref.update({p2:me});
+    startGame();
+  });
+}
+
+// RANDOM
+function randomMatch(){
+  me=name.value.trim();
+  if(!me)return alert("İsim gir");
+
+  db.ref("rooms").once("value",snap=>{
+    let found=false;
+    snap.forEach(r=>{
+      if(!r.val().p2 && !found){
+        room=r.key;
+        found=true;
+        db.ref("rooms/"+room).update({p2:me});
+        startGame();
       }
-    }
-  },1000);
+    });
+    if(!found)createRoom();
+  });
 }
 
-function play(c){
-  db.ref("rooms/"+room+"/moves/"+me).once("value",s=>{
-    if(s.exists())return;
-    db.ref("rooms/"+room+"/moves/"+me).set(c);
-  });
+function startGame(){
+  login.style.display="none";
+  game.style.display="block";
+  listen();
 }
 
 function listen(){
   db.ref("rooms/"+room).on("value",s=>{
-    const d=s.val(); if(!d)return;
+    const d=s.val();
+    if(!d)return;
+    p1.innerText=d.p1;
+    p2.innerText=d.p2||"...";
 
-    p1.innerText=d.p1||"-";
-    p2.innerText=d.p2||"Bekleniyor";
-    s1.innerText=d.s1||0;
-    s2.innerText=d.s2||0;
-    round.innerText=d.round||0;
+    score.innerText=
+      `${d.s1} - ${d.s2} | El: ${d.round}/10`;
 
-    if(d.round>=10){
-      status.innerText=
-        d.s1>d.s2?`🏆 Kazanan: ${d.p1}`:
-        d.s2>d.s1?`🏆 Kazanan: ${d.p2}`:"🤝 Berabere";
-      clearInterval(interval);
-      return;
-    }
-
-    if(!d.moves && d.p2)startTimer();
-
-    if(d.moves && Object.keys(d.moves).length===2){
-      clearInterval(interval);
-      const [a,b]=Object.keys(d.moves);
-      const m1=d.moves[a],m2=d.moves[b];
-      let w=null;
-      if(m1!==m2){
-        if(
-          (m1==="tas"&&m2==="makas")||
-          (m1==="kagit"&&m2==="tas")||
-          (m1==="makas"&&m2==="kagit")
-        )w=a;else w=b;
-      }
-      if(isHost){
-        const up={round:d.round+1,moves:null};
-        if(w===d.p1)up.s1=d.s1+1;
-        if(w===d.p2)up.s2=d.s2+1;
-        db.ref("rooms/"+room).update(up);
-      }
-    }
-
-    if(d.chat){
-      let html="";
-      Object.values(d.chat).forEach(c=>{
-        html+=`<div class="chat-msg ${c.n===me?"me":"enemy"}">
-        <b>${c.n}</b><br>${c.m}</div>`;
-      });
-      chat.innerHTML=html;
-      chat.scrollTop=9999;
-    }
+    renderChat(d.chat||[]);
+    if(Object.keys(d.choices||{}).length===2)
+      resolve(d);
   });
+  startTimer();
 }
 
-function send(){
-  if(!msg.value)return;
-  db.ref("rooms/"+room+"/chat").push({n:me,m:msg.value});
-  msg.value="";
+function play(c){
+  db.ref(`rooms/${room}/choices/${me}`).set(c);
+}
+
+function resolve(d){
+  clearInterval(timerInt);
+  const c=Object.values(d.choices);
+  let r="Berabere";
+  let u1=c[0],u2=c[1];
+  if(
+    (u1=="tas"&&u2=="makas")||
+    (u1=="kagit"&&u2=="tas")||
+    (u1=="makas"&&u2=="kagit")
+  ){d.s1++;r=d.p1+" kazandı"}
+  else if(u1!=u2){d.s2++;r=d.p2+" kazandı"}
+
+  if(d.round>=10){
+    result.innerText=
+      d.s1>d.s2?`${d.p1} KAZANDI 🏆`:
+      d.s2>d.s1?`${d.p2} KAZANDI 🏆`:"BERABERE";
+    db.ref("rooms/"+room).off();
+    return;
+  }
+
+  db.ref("rooms/"+room).update({
+    s1:d.s1,s2:d.s2,
+    round:d.round+1,
+    choices:{}
+  });
+  result.innerText=r;
+  time=5;
+  startTimer();
+}
+
+function startTimer(){
+  time=5;
+  timer.innerText="⏱️ "+time;
+  clearInterval(timerInt);
+  timerInt=setInterval(()=>{
+    time--;
+    timer.innerText="⏱️ "+time;
+    if(time<=0){
+      clearInterval(timerInt);
+      play("none");
+    }
+  },1000);
+}
+
+// CHAT
+function sendMsg(){
+  const t=chatInput.value.trim();
+  if(!t)return;
+  db.ref("rooms/"+room+"/chat").push({u:me,t});
+  chatInput.value="";
+}
+function renderChat(arr){
+  chat.innerHTML="";
+  Object.values(arr).forEach(m=>{
+    const d=document.createElement("div");
+    d.className="msg "+(m.u===me?"me":"other");
+    d.innerText=m.u+": "+m.t;
+    chat.appendChild(d);
+  });
+  chat.scrollTop=9999;
 }
 </script>
 </body>
