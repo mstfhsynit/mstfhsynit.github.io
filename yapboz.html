@@ -3,65 +3,90 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mini Resim Yapbozu</title>
+<title>SVG Yapboz</title>
 <style>
 body { font-family:sans-serif; text-align:center; background:#f0f0f0; padding-top:20px;}
 h1 {margin-bottom:20px;}
-#puzzle-container {
-  display:grid;
-  grid-template-columns:repeat(3,120px);
-  grid-template-rows:repeat(3,120px);
-  gap:2px;
-  justify-content:center;
-}
-.piece { width:120px; height:120px; cursor:grab; border:1px solid #333; }
+#puzzle-container { display:grid; grid-template-columns:repeat(3,120px); grid-template-rows:repeat(3,120px); gap:2px; justify-content:center; position:relative;}
+.piece { width:120px; height:120px; cursor:grab; border:1px solid #333; position:absolute; }
 svg { width:100%; height:100%; display:block; }
+#background { position:absolute; top:0; left:0; width:360px; height:360px; z-index:0; }
 </style>
 </head>
 <body>
-<h1>Mini Resim Yapbozu</h1>
-<div id="puzzle-container"></div>
+<h1>SVG Yapboz</h1>
+<div id="puzzle-container">
+  <!-- Alt resim -->
+  <svg id="background" viewBox="0 0 360 360">
+    <!-- Masa -->
+    <rect x="0" y="120" width="360" height="120" fill="#2ecc71"/>
+    <!-- Bardak -->
+    <ellipse cx="180" cy="180" rx="40" ry="60" fill="#9b59b6"/>
+    <!-- Tabak -->
+    <circle cx="300" cy="180" r="50" fill="#1abc9c"/>
+    <!-- Kitap -->
+    <rect x="0" y="240" width="120" height="120" fill="#f1c40f"/>
+    <!-- Telefon -->
+    <rect x="120" y="240" width="120" height="120" rx="10" ry="10" fill="#34495e"/>
+    <!-- Anahtar -->
+    <rect x="240" y="240" width="120" height="120" fill="#7f8c8d"/>
+  </svg>
+</div>
+
 <script>
-// Her blok resim parçası gibi inline SVG
-const svgPieces = [
-`<svg viewBox="0 0 120 120"><rect width="120" height="120" fill="#f5deb3"/><circle cx="60" cy="60" r="50" fill="#d35400"/><rect x="45" y="40" width="10" height="50" fill="#e67e22"/></svg>`,
-`<svg viewBox="0 0 120 120"><rect width="120" height="120" fill="#f5deb3"/><rect x="0" y="0" width="120" height="120" rx="20" ry="20" fill="#3498db"/><line x1="60" y1="0" x2="60" y2="120" stroke="#2c3e50" stroke-width="5"/></svg>`,
-`<svg viewBox="0 0 120 120"><rect width="120" height="120" fill="#f5deb3"/><polygon points="120,0 120,60 60,60" fill="#e74c3c"/><line x1="90" y1="0" x2="90" y2="60" stroke="#c0392b" stroke-width="3"/></svg>`,
-`<svg viewBox="0 0 120 120"><rect width="120" height="120" fill="#f5deb3"/><rect x="0" y="0" width="120" height="120" fill="#2ecc71"/><line x1="0" y1="60" x2="120" y2="60" stroke="#27ae60" stroke-width="4"/></svg>`,
-`<svg viewBox="0 0 120 120"><rect width="120" height="120" fill="#f5deb3"/><ellipse cx="60" cy="60" rx="40" ry="60" fill="#9b59b6"/><line x1="60" y1="30" x2="60" y2="90" stroke="#8e44ad" stroke-width="3"/></svg>`,
-`<svg viewBox="0 0 120 120"><rect width="120" height="120" fill="#f5deb3"/><circle cx="60" cy="60" r="50" fill="#1abc9c"/><circle cx="60" cy="60" r="30" fill="#16a085"/></svg>`,
-`<svg viewBox="0 0 120 120"><rect width="120" height="120" fill="#f5deb3"/><rect x="0" y="0" width="120" height="120" fill="#f1c40f"/><line x1="0" y1="30" x2="120" y2="30" stroke="#f39c12" stroke-width="3"/></svg>`,
-`<svg viewBox="0 0 120 120"><rect width="120" height="120" fill="#f5deb3"/><rect x="0" y="0" width="120" height="120" rx="10" ry="10" fill="#34495e"/><circle cx="60" cy="60" r="10" fill="#ecf0f1"/></svg>`,
-`<svg viewBox="0 0 120 120"><rect width="120" height="120" fill="#f5deb3"/><rect x="0" y="0" width="120" height="120" fill="#7f8c8d"/><circle cx="60" cy="60" r="10" fill="#95a5a6"/></svg>`
+// Yapboz blokları: 3x3 parçalar
+const svgBlocks = [
+  `<svg viewBox="0 0 120 120"><rect x="0" y="0" width="120" height="120" fill="#2ecc71"/><circle cx="60" cy="30" r="20" fill="#9b59b6"/></svg>`,
+  `<svg viewBox="0 0 120 120"><rect x="0" y="0" width="120" height="120" fill="#2ecc71"/><ellipse cx="60" cy="60" rx="40" ry="30" fill="#9b59b6"/></svg>`,
+  `<svg viewBox="0 0 120 120"><rect x="0" y="0" width="120" height="120" fill="#2ecc71"/><circle cx="100" cy="60" r="30" fill="#1abc9c"/></svg>`,
+  `<svg viewBox="0 0 120 120"><rect x="0" y="0" width="120" height="120" fill="#f1c40f"/></svg>`,
+  `<svg viewBox="0 0 120 120"><rect x="0" y="0" width="120" height="120" fill="#34495e"/></svg>`,
+  `<svg viewBox="0 0 120 120"><rect x="0" y="0" width="120" height="120" fill="#7f8c8d"/></svg>`,
+  `<svg viewBox="0 0 120 120"><rect x="0" y="0" width="120" height="120" fill="#f1c40f"/></svg>`,
+  `<svg viewBox="0 0 120 120"><rect x="0" y="0" width="120" height="120" fill="#34495e"/></svg>`,
+  `<svg viewBox="0 0 120 120"><rect x="0" y="0" width="120" height="120" fill="#7f8c8d"/></svg>`
 ];
 
 const container = document.getElementById('puzzle-container');
-let numbers = [0,1,2,3,4,5,6,7,8];
-numbers.sort(()=>Math.random()-0.5);
-
-numbers.forEach(n=>{
-  const div = document.createElement('div');
-  div.className = 'piece';
-  div.draggable = true;
-  div.dataset.id = n+1;
-  div.innerHTML = svgPieces[n];
+let positions = [];
+for(let i=0;i<9;i++){
+  let div = document.createElement('div');
+  div.className='piece';
+  div.draggable=true;
+  div.dataset.id=i+1;
+  div.innerHTML=svgBlocks[i];
+  div.style.top = `${Math.floor(i/3)*120}px`;
+  div.style.left = `${(i%3)*120}px`;
+  positions.push({top:div.style.top,left:div.style.left});
   container.appendChild(div);
+}
+
+// Karıştır
+positions.sort(()=>Math.random()-0.5);
+document.querySelectorAll('.piece').forEach((p,i)=>{
+  p.style.top=positions[i].top;
+  p.style.left=positions[i].left;
 });
 
 // Drag & Drop
-let dragged = null;
-container.addEventListener('dragstart', e=>{dragged=e.target;});
-container.addEventListener('dragover', e=>e.preventDefault());
-container.addEventListener('drop', e=>{
+let dragged=null;
+container.addEventListener('dragstart',e=>{dragged=e.target;});
+container.addEventListener('dragover',e=>e.preventDefault());
+container.addEventListener('drop',e=>{
   e.preventDefault();
   if(e.target.classList.contains('piece') && e.target!==dragged){
-    const tempID = dragged.dataset.id;
+    // Pozisyon değişimi
+    let tempTop = dragged.style.top;
+    let tempLeft = dragged.style.left;
+    dragged.style.top = e.target.style.top;
+    dragged.style.left = e.target.style.left;
+    e.target.style.top = tempTop;
+    e.target.style.left = tempLeft;
+
+    // ID değişimi
+    let tempID = dragged.dataset.id;
     dragged.dataset.id = e.target.dataset.id;
     e.target.dataset.id = tempID;
-
-    const tempHTML = dragged.innerHTML;
-    dragged.innerHTML = e.target.innerHTML;
-    e.target.innerHTML = tempHTML;
 
     checkWin();
   }
@@ -70,7 +95,7 @@ container.addEventListener('drop', e=>{
 function checkWin(){
   const pieces = [...document.querySelectorAll('.piece')];
   if(pieces.every((p,i)=>p.dataset.id==i+1))
-    alert('🎉 Tebrikler! Yapbozu tamamladın!');
+    alert("🎉 Tebrikler! Yapbozu tamamladın!");
 }
 </script>
 </body>
