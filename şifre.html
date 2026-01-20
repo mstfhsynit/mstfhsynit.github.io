@@ -13,16 +13,18 @@ radial-gradient(circle at bottom right,#9333ea,transparent 40%),#020617;
 display:flex;justify-content:center;align-items:center;color:#e5e7eb}
 .card{width:100%;max-width:620px;margin:16px;
 background:rgba(2,6,23,.95);backdrop-filter:blur(14px);
-border-radius:18px;padding:20px}
+border-radius:18px;padding:22px}
+h2{margin-top:0}
+p{font-size:14px;opacity:.75;line-height:1.4}
 input,button,select{
-width:100%;padding:10px;margin-top:8px;
+width:100%;padding:11px;margin-top:10px;
 border-radius:10px;border:none;font-size:15px}
-input,select{background:#020617;color:#e5e7eb}
+input,select{background:#020617;color:#e5e7eb;border:1px solid #1e293b}
 button{background:#2563eb;color:white;cursor:pointer}
 .secondary{background:#334155}
 .danger{background:#dc2626}
 .hidden{display:none}
-hr{border:none;height:1px;background:#1e293b;margin:16px 0}
+hr{border:none;height:1px;background:#1e293b;margin:18px 0}
 .item{background:#020617;border:1px solid #1e293b;
 border-radius:10px;margin-top:10px;overflow:hidden}
 .header{padding:10px;cursor:pointer}
@@ -46,11 +48,11 @@ border-radius:10px;margin-top:10px;overflow:hidden}
 <div class="top">
 <h3 style="flex:1">🔐 Password Manager</h3>
 <select id="langSel"></select>
-<button class="secondary" onclick="logout()">🚪</button>
+<button class="secondary" onclick="logout()">🚪 Çıkış</button>
 </div>
 
-<input id="label" placeholder="Şifre adı">
-<input type="password" id="pw" placeholder="Şifre" oninput="strength()">
+<input id="label" placeholder="Şifreye bir ad ver (ör: Gmail)">
+<input type="password" id="pw" placeholder="Yeni şifre oluştur" oninput="strength()">
 <div class="bar"><span id="power"></span></div>
 <button onclick="save()">💾 Kaydet</button>
 
@@ -60,46 +62,51 @@ border-radius:10px;margin-top:10px;overflow:hidden}
 
 <hr>
 
-<input id="search" placeholder="Ara..." oninput="load()">
+<input id="search" placeholder="Kaydedilen şifrelerde ara...">
 <hr>
 <div id="list"></div>
 </div>
 
 <script>
-/* ========== LANGUAGE ========== */
-const LANGS={
-tr:{l:"Şifre adı",p:"Şifre",s:"Kaydet",a:"Ara..."},
-en:{l:"Label",p:"Password",s:"Save",a:"Search..."},
-ar:{l:"اسم",p:"كلمة المرور",s:"حفظ",a:"بحث..."},
-de:{l:"Name",p:"Passwort",s:"Speichern",a:"Suchen..."},
-fr:{l:"Nom",p:"Mot de passe",s:"Enregistrer",a:"Rechercher..."},
-es:{l:"Nombre",p:"Contraseña",s:"Guardar",a:"Buscar..."},
-ru:{l:"Имя",p:"Пароль",s:"Сохранить",a:"Поиск..."},
-it:{l:"Nome",p:"Password",s:"Salva",a:"Cerca..."},
-pt:{l:"Nome",p:"Senha",s:"Salvar",a:"Buscar..."},
-nl:{l:"Naam",p:"Wachtwoord",s:"Opslaan",a:"Zoeken..."}
-};
-let lang=localStorage.getItem("lang")||"tr";
-const langSel=document.getElementById("langSel");
-Object.keys(LANGS).forEach(x=>{
-let o=document.createElement("option");
-o.value=x;o.text=x.toUpperCase();
-if(x===lang)o.selected=true;
-langSel.appendChild(o);
-});
-langSel.onchange=e=>{
-lang=e.target.value;
-localStorage.setItem("lang",lang);
-applyLang();
-};
-function applyLang(){
-label.placeholder=LANGS[lang].l;
-pw.placeholder=LANGS[lang].p;
-search.placeholder=LANGS[lang].a;
-}
-applyLang();
+const auth=document.getElementById("auth");
+const app=document.getElementById("app");
 
-/* ========== CRYPTO ========== */
+/* ===== AUTH UI ===== */
+function renderAuth(){
+if(!localStorage.getItem("user")){
+auth.innerHTML=`
+<h2>📝 Hesap Oluştur</h2>
+<p>
+Bu uygulama tarayıcında çalışan güvenli bir şifre yöneticisidir.<br>
+<strong>Master Password</strong> tüm şifrelerini korur.
+</p>
+
+<input id="u" placeholder="Kullanıcı adınızı girin">
+<input type="password" id="p1" placeholder="Master password oluşturun">
+<input type="password" id="p2" placeholder="Master password tekrar">
+
+<p>
+⚠️ Master password unutulursa şifreler geri getirilemez.
+</p>
+
+<button onclick="register()">Hesap Oluştur</button>
+`;
+}else{
+auth.innerHTML=`
+<h2>🔐 Giriş Yap</h2>
+<p>
+Hesabınıza erişmek için master password girin.
+</p>
+
+<input id="u" placeholder="Kullanıcı adınız">
+<input type="password" id="p" placeholder="Master password">
+
+<button onclick="login()">Giriş Yap</button>
+`;
+}}
+renderAuth();
+
+/* ===== CRYPTO ===== */
 let cryptoKey=null;
 async function deriveKey(p,s){
 const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(p),"PBKDF2",false,["deriveKey"]);
@@ -117,26 +124,9 @@ const dec=await crypto.subtle.decrypt({name:"AES-GCM",iv:new Uint8Array(o.iv)},c
 return new TextDecoder().decode(dec);
 }
 
-/* ========== AUTH ========== */
-const auth=document.getElementById("auth");
-const app=document.getElementById("app");
-function renderAuth(){
-if(!localStorage.getItem("user")){
-auth.innerHTML=`
-<h2>📝 Hesap Oluştur</h2>
-<input id="u">
-<input type="password" id="p1">
-<input type="password" id="p2">
-<button onclick="register()">Oluştur</button>`;
-}else{
-auth.innerHTML=`
-<h2>🔐 Giriş</h2>
-<input id="u">
-<input type="password" id="p">
-<button onclick="login()">Giriş</button>`;
-}}
+/* ===== AUTH LOGIC ===== */
 async function register(){
-if(p1.value!==p2.value)return alert("Hata");
+if(p1.value!==p2.value)return alert("Şifreler uyuşmuyor");
 const salt=crypto.getRandomValues(new Uint8Array(16));
 cryptoKey=await deriveKey(p1.value,salt);
 localStorage.setItem("user",u.value);
@@ -146,12 +136,12 @@ open();
 async function login(){
 const salt=new Uint8Array(JSON.parse(localStorage.getItem("salt")));
 cryptoKey=await deriveKey(p.value,salt);
-try{await load();open()}catch{alert("Şifre yanlış")}
+try{await load();open()}catch{alert("Master password yanlış")}
 }
 function open(){auth.classList.add("hidden");app.classList.remove("hidden");load()}
 function logout(){cryptoKey=null;app.classList.add("hidden");auth.classList.remove("hidden")}
 
-/* ========== VAULT ========== */
+/* ===== VAULT ===== */
 function now(){
 const d=new Date(),p=n=>String(n).padStart(2,"0");
 return`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
@@ -167,13 +157,11 @@ async function load(){
 list.innerHTML="";
 let v=JSON.parse(localStorage.getItem("vault")||"[]");
 v.forEach((x,i)=>{
-if(!x.label.toLowerCase().includes(search.value.toLowerCase()))return;
 list.innerHTML+=`
 <div class="item">
 <div class="header" onclick="this.parentNode.classList.toggle('open')">
 <b>${x.label}</b>
 <div class="time">📅 ${x.created}</div>
-<div class="time">✏️ ${x.updated||"-"}</div>
 <div class="time">🕒 ${x.last||"-"}</div>
 </div>
 <div class="content">
@@ -210,30 +198,6 @@ v.splice(i,1);
 localStorage.setItem("vault",JSON.stringify(v));
 load();
 }
-
-/* ========== MASTER CHANGE ========== */
-async function changeMaster(){
-const oldP=prompt("Eski master:");
-const salt=new Uint8Array(JSON.parse(localStorage.getItem("salt")));
-try{
-const oldKey=await deriveKey(oldP,salt);
-let v=JSON.parse(localStorage.getItem("vault")||"[]");
-let plain=[];
-for(let x of v){
-const d=await crypto.subtle.decrypt({name:"AES-GCM",iv:new Uint8Array(x.password.iv)},oldKey,new Uint8Array(x.password.data));
-plain.push(new TextDecoder().decode(d));
-}
-const newP=prompt("Yeni master:");
-const newSalt=crypto.getRandomValues(new Uint8Array(16));
-cryptoKey=await deriveKey(newP,newSalt);
-for(let i=0;i<v.length;i++)v[i].password=await encrypt(plain[i]);
-localStorage.setItem("salt",JSON.stringify([...newSalt]));
-localStorage.setItem("vault",JSON.stringify(v));
-alert("Değiştirildi");
-}catch{alert("Hatalı")}
-}
-
-/* ========== STRENGTH ========== */
 function strength(){
 let s=0;
 if(pw.value.length>=8)s+=25;
@@ -242,8 +206,6 @@ if(/[0-9]/.test(pw.value))s+=25;
 if(/[^A-Za-z0-9]/.test(pw.value))s+=25;
 power.style.width=s+"%";
 }
-
-renderAuth();
 </script>
 </body>
 </html>
