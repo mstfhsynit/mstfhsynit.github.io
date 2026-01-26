@@ -35,17 +35,20 @@ padding:6px;
 font-size:22px;
 letter-spacing:5px;
 border-radius:4px;
+z-index:5;
 }
 
-/* görünmez tuş alanları */
+/* TUŞLAR */
 .key{
 position:absolute;
 width:45px;
 height:45px;
 cursor:pointer;
+z-index:10;   /* ÖNEMLİ */
+background:rgba(255,255,255,0); /* görünmez ama tıklanır */
 }
 
-/* tuş pozisyonları (gerekirse biraz oynatabilirsin) */
+/* pozisyonlar */
 .k1{top:120px; right:180px;}
 .k2{top:120px; right:130px;}
 .k3{top:120px; right:80px;}
@@ -113,8 +116,6 @@ border-radius:8px;
 
 <p id="msg"></p>
 
-<!-- KASA İÇİ -->
-
 <div id="inside">
 
 <div class="folder">
@@ -142,7 +143,6 @@ border-radius:8px;
 const PASSWORD="1234";
 let input="";
 
-// tuşa basma
 function press(n){
 if(input.length<4){
 input+=n;
@@ -152,7 +152,6 @@ screen.innerText="*".repeat(input.length).padEnd(4,"-");
 if(input.length===4) check();
 }
 
-// kontrol
 function check(){
 if(input===PASSWORD){
 safeBox.style.display="none";
@@ -165,43 +164,33 @@ input="";
 screen.innerText="----";
 }
 
-// dosya yükleme
 function upload(i,folder){
 let r=new FileReader();
-
 r.onload=()=>{
 let arr=JSON.parse(localStorage[folder]||"[]");
 arr.push(r.result);
 localStorage[folder]=JSON.stringify(arr);
 show(folder);
 };
-
 r.readAsDataURL(i.files[0]);
 }
 
-// göster
 function show(folder){
 let area=document.getElementById(folder);
 area.innerHTML="";
-
 let arr=JSON.parse(localStorage[folder]||"[]");
 
 arr.forEach(f=>{
-if(folder==="photos")
-area.innerHTML+=`<img src="${f}">`;
-
-if(folder==="videos")
-area.innerHTML+=`<video src="${f}" controls></video>`;
+if(folder==="photos") area.innerHTML+=`<img src="${f}">`;
+if(folder==="videos") area.innerHTML+=`<video src="${f}" controls></video>`;
 });
 }
 
-// not
 function saveNote(){
 localStorage.note=note.value;
 savedNote.innerText=note.value;
 }
 
-// yükle
 function loadAll(){
 show("photos");
 show("videos");
