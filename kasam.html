@@ -6,63 +6,83 @@
 
 <style>
 body{
-background:#1a1a1a;
-color:white;
+background:#111;
 font-family:Arial;
+color:white;
 text-align:center;
 }
 
 #safe{
-width:380px;
+width:420px;
 margin:80px auto;
-background:#333;
+background:#3a3a3a;
+padding:25px;
+border-radius:10px;
+box-shadow:0 0 30px black;
+}
+
+#front{
+display:flex;
+align-items:center;
+justify-content:space-between;
+background:#2b2b2b;
 padding:20px;
-border-radius:12px;
-box-shadow:0 0 25px black;
+border-radius:8px;
+}
+
+#roundLock{
+width:90px;
+height:90px;
+border-radius:50%;
+background:radial-gradient(#bbb,#444);
+border:5px solid #222;
+transition:1s;
 }
 
 #screen{
 background:black;
 color:#0f0;
-padding:10px;
-font-size:22px;
-letter-spacing:5px;
-margin-bottom:15px;
-border-radius:6px;
-}
-
-#lock{
-width:80px;
-height:80px;
-border-radius:50%;
-background:radial-gradient(#aaa,#444);
-margin:10px auto;
-transition:1s;
+padding:8px;
+font-size:20px;
+margin-bottom:10px;
+border-radius:5px;
+letter-spacing:4px;
 }
 
 #keypad{
 display:grid;
 grid-template-columns:repeat(3,1fr);
-gap:8px;
-margin-top:15px;
+gap:6px;
 }
 
 .key{
 background:#555;
-padding:15px;
-border-radius:6px;
-font-size:18px;
+padding:12px;
+border-radius:5px;
 cursor:pointer;
-transition:.2s;
 }
 
-.key:hover{
-background:#0a84ff;
+.key:hover{background:#0a84ff;}
+
+#msg{color:red;margin-top:8px;}
+
+#inside{
+display:none;
+margin-top:25px;
 }
 
-#msg{margin-top:10px;color:red}
+.folder{
+background:#222;
+padding:15px;
+margin:10px;
+border-radius:8px;
+}
 
-#inside{display:none;margin-top:20px;}
+img,video{
+width:100%;
+margin-top:8px;
+border-radius:6px;
+}
 </style>
 </head>
 
@@ -70,9 +90,13 @@ background:#0a84ff;
 
 <div id="safe">
 
-<div id="screen">----</div>
+<div id="front">
 
-<div id="lock"></div>
+<div id="roundLock"></div>
+
+<div style="width:200px">
+
+<div id="screen">----</div>
 
 <div id="keypad">
 <div class="key" onclick="press(1)">1</div>
@@ -89,13 +113,36 @@ background:#0a84ff;
 <div class="key" onclick="check()">✔</div>
 </div>
 
+</div>
+</div>
+
 <p id="msg"></p>
 
 </div>
 
 <div id="inside">
-<h2>📦 Kasa Açıldı!</h2>
-<p>Buraya fotoğraf, video ve not sistemi gelecek.</p>
+
+<h2>📦 Kasa İçeriği</h2>
+
+<div class="folder">
+<h3>📷 Fotoğraflar</h3>
+<input type="file" accept="image/*" onchange="upload(this,'photos')">
+<div id="photos"></div>
+</div>
+
+<div class="folder">
+<h3>🎥 Videolar</h3>
+<input type="file" accept="video/*" onchange="upload(this,'videos')">
+<div id="videos"></div>
+</div>
+
+<div class="folder">
+<h3>📝 Notlar</h3>
+<textarea id="note" rows="4"></textarea><br>
+<button onclick="saveNote()">Kaydet</button>
+<p id="savedNote"></p>
+</div>
+
 </div>
 
 <script>
@@ -126,17 +173,57 @@ return;
 }
 
 if(input===PASSWORD){
-lock.style.transform="rotate(360deg)";
+roundLock.style.transform="rotate(360deg)";
 setTimeout(()=>{
 safe.style.display="none";
 inside.style.display="block";
+loadAll();
 },700);
 }else{
 tries++;
-msg.innerText="Yanlış şifre! "+tries+"/3";
+msg.innerText="Yanlış şifre "+tries+"/3";
 }
 input="";
 update();
+}
+
+// YÜKLEME
+function upload(input,folder){
+let file=input.files[0];
+let r=new FileReader();
+
+r.onload=()=>{
+let arr=JSON.parse(localStorage[folder]||"[]");
+arr.push(r.result);
+localStorage[folder]=JSON.stringify(arr);
+show(folder);
+};
+
+r.readAsDataURL(file);
+}
+
+// GÖSTER
+function show(folder){
+let area=document.getElementById(folder);
+area.innerHTML="";
+
+let arr=JSON.parse(localStorage[folder]||"[]");
+
+arr.forEach(f=>{
+if(folder=="photos") area.innerHTML+=`<img src="${f}">`;
+if(folder=="videos") area.innerHTML+=`<video src="${f}" controls></video>`;
+});
+}
+
+function saveNote(){
+localStorage.note=note.value;
+savedNote.innerText=note.value;
+}
+
+function loadAll(){
+show("photos");
+show("videos");
+if(localStorage.note) savedNote.innerText=localStorage.note;
 }
 </script>
 
