@@ -7,122 +7,115 @@
 <style>
 body{
 background:#111;
-font-family:Arial;
 color:white;
+font-family:Arial;
 text-align:center;
 }
 
-#safe{
-width:420px;
-margin:80px auto;
-background:#3a3a3a;
-padding:25px;
+#safeBox{
+position:relative;
+width:500px;
+margin:60px auto;
+}
+
+#safeBox img{
+width:100%;
 border-radius:10px;
-box-shadow:0 0 30px black;
 }
 
-#front{
-display:flex;
-align-items:center;
-justify-content:space-between;
-background:#2b2b2b;
-padding:20px;
-border-radius:8px;
-}
-
-#roundLock{
-width:90px;
-height:90px;
-border-radius:50%;
-background:radial-gradient(#bbb,#444);
-border:5px solid #222;
-transition:1s;
-}
-
+/* ekran */
 #screen{
+position:absolute;
+top:60px;
+right:140px;
+width:140px;
 background:black;
 color:#0f0;
-padding:8px;
-font-size:20px;
-margin-bottom:10px;
-border-radius:5px;
-letter-spacing:4px;
+padding:6px;
+font-size:22px;
+letter-spacing:5px;
+border-radius:4px;
 }
 
-#keypad{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:6px;
-}
-
+/* görünmez tuş alanları */
 .key{
-background:#555;
-padding:12px;
-border-radius:5px;
+position:absolute;
+width:45px;
+height:45px;
 cursor:pointer;
 }
 
-.key:hover{background:#0a84ff;}
+/* tuş pozisyonları (gerekirse biraz oynatabilirsin) */
+.k1{top:120px; right:180px;}
+.k2{top:120px; right:130px;}
+.k3{top:120px; right:80px;}
 
-#msg{color:red;margin-top:8px;}
+.k4{top:170px; right:180px;}
+.k5{top:170px; right:130px;}
+.k6{top:170px; right:80px;}
+
+.k7{top:220px; right:180px;}
+.k8{top:220px; right:130px;}
+.k9{top:220px; right:80px;}
+
+.k0{top:270px; right:130px;}
+
+#msg{color:red;margin-top:10px;}
 
 #inside{
 display:none;
-margin-top:25px;
+margin-top:30px;
 }
 
 .folder{
 background:#222;
 padding:15px;
-margin:10px;
-border-radius:8px;
+margin:12px;
+border-radius:10px;
+max-width:500px;
+margin-left:auto;
+margin-right:auto;
 }
 
 img,video{
 width:100%;
-margin-top:8px;
-border-radius:6px;
+margin-top:10px;
+border-radius:8px;
 }
 </style>
 </head>
 
 <body>
 
-<div id="safe">
+<h2>🔐 Dijital Kasa</h2>
 
-<div id="front">
+<div id="safeBox">
 
-<div id="roundLock"></div>
-
-<div style="width:200px">
+<img src="resim.png">
 
 <div id="screen">----</div>
 
-<div id="keypad">
-<div class="key" onclick="press(1)">1</div>
-<div class="key" onclick="press(2)">2</div>
-<div class="key" onclick="press(3)">3</div>
-<div class="key" onclick="press(4)">4</div>
-<div class="key" onclick="press(5)">5</div>
-<div class="key" onclick="press(6)">6</div>
-<div class="key" onclick="press(7)">7</div>
-<div class="key" onclick="press(8)">8</div>
-<div class="key" onclick="press(9)">9</div>
-<div class="key" onclick="clearCode()">C</div>
-<div class="key" onclick="press(0)">0</div>
-<div class="key" onclick="check()">✔</div>
-</div>
+<div class="key k1" onclick="press(1)"></div>
+<div class="key k2" onclick="press(2)"></div>
+<div class="key k3" onclick="press(3)"></div>
 
-</div>
+<div class="key k4" onclick="press(4)"></div>
+<div class="key k5" onclick="press(5)"></div>
+<div class="key k6" onclick="press(6)"></div>
+
+<div class="key k7" onclick="press(7)"></div>
+<div class="key k8" onclick="press(8)"></div>
+<div class="key k9" onclick="press(9)"></div>
+
+<div class="key k0" onclick="press(0)"></div>
+
 </div>
 
 <p id="msg"></p>
 
-</div>
+<!-- KASA İÇİ -->
 
 <div id="inside">
-
-<h2>📦 Kasa İçeriği</h2>
 
 <div class="folder">
 <h3>📷 Fotoğraflar</h3>
@@ -138,7 +131,7 @@ border-radius:6px;
 
 <div class="folder">
 <h3>📝 Notlar</h3>
-<textarea id="note" rows="4"></textarea><br>
+<textarea id="note" rows="4" style="width:90%"></textarea><br>
 <button onclick="saveNote()">Kaydet</button>
 <p id="savedNote"></p>
 </div>
@@ -148,48 +141,32 @@ border-radius:6px;
 <script>
 const PASSWORD="1234";
 let input="";
-let tries=0;
 
+// tuşa basma
 function press(n){
 if(input.length<4){
 input+=n;
-update();
-}
-}
-
-function update(){
 screen.innerText="*".repeat(input.length).padEnd(4,"-");
 }
 
-function clearCode(){
-input="";
-update();
+if(input.length===4) check();
 }
 
+// kontrol
 function check(){
-if(tries>=3){
-msg.innerText="⛔ Kasa kilitlendi!";
-return;
-}
-
 if(input===PASSWORD){
-roundLock.style.transform="rotate(360deg)";
-setTimeout(()=>{
-safe.style.display="none";
+safeBox.style.display="none";
 inside.style.display="block";
 loadAll();
-},700);
 }else{
-tries++;
-msg.innerText="Yanlış şifre "+tries+"/3";
+msg.innerText="❌ Yanlış şifre!";
 }
 input="";
-update();
+screen.innerText="----";
 }
 
-// YÜKLEME
-function upload(input,folder){
-let file=input.files[0];
+// dosya yükleme
+function upload(i,folder){
 let r=new FileReader();
 
 r.onload=()=>{
@@ -199,10 +176,10 @@ localStorage[folder]=JSON.stringify(arr);
 show(folder);
 };
 
-r.readAsDataURL(file);
+r.readAsDataURL(i.files[0]);
 }
 
-// GÖSTER
+// göster
 function show(folder){
 let area=document.getElementById(folder);
 area.innerHTML="";
@@ -210,16 +187,21 @@ area.innerHTML="";
 let arr=JSON.parse(localStorage[folder]||"[]");
 
 arr.forEach(f=>{
-if(folder=="photos") area.innerHTML+=`<img src="${f}">`;
-if(folder=="videos") area.innerHTML+=`<video src="${f}" controls></video>`;
+if(folder==="photos")
+area.innerHTML+=`<img src="${f}">`;
+
+if(folder==="videos")
+area.innerHTML+=`<video src="${f}" controls></video>`;
 });
 }
 
+// not
 function saveNote(){
 localStorage.note=note.value;
 savedNote.innerText=note.value;
 }
 
+// yükle
 function loadAll(){
 show("photos");
 show("videos");
