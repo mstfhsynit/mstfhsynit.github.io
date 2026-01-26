@@ -8,54 +8,42 @@
 body{
 background:#111;
 color:white;
-text-align:center;
 font-family:Arial;
+text-align:center;
 }
 
 #safe{
-position:relative;
 width:600px;
+height:360px;
 margin:auto;
-}
-
-#safe img{
-width:100%;
+background:url("resim.png") no-repeat center;
+background-size:cover;
+position:relative;
 }
 
 #screen{
-color:#0f0;
-font-size:26px;
+margin:20px;
+font-size:28px;
 letter-spacing:6px;
-margin:15px;
+color:#0f0;
 }
 
-/* Şeffaf tuşlar */
-.btn{
+/* TUŞ TAKIMI */
+#keypad{
 position:absolute;
-width:55px;
-height:55px;
+right:45px;
+top:110px;
+display:grid;
+grid-template-columns:repeat(3,60px);
+gap:10px;
+}
+
+.key{
+width:60px;
+height:60px;
+background:rgba(255,255,255,0);
 cursor:pointer;
 }
-
-/* TUŞ YERLERİ (resmine göre ayarlı) */
-
-/* 1. satır */
-.b1{left:390px; top:155px;}
-.b2{left:450px; top:155px;}
-.b3{left:510px; top:155px;}
-
-/* 2. satır */
-.b4{left:390px; top:215px;}
-.b5{left:450px; top:215px;}
-.b6{left:510px; top:215px;}
-
-/* 3. satır */
-.b7{left:390px; top:275px;}
-.b8{left:450px; top:275px;}
-.b9{left:510px; top:275px;}
-
-/* alt */
-.b0{left:450px; top:335px;}
 
 #inside{display:none;margin-top:20px;}
 </style>
@@ -67,21 +55,25 @@ cursor:pointer;
 <div id="screen">----</div>
 
 <div id="safe">
-<img src="resim.png">
 
-<div class="btn b1" onclick="press(1)"></div>
-<div class="btn b2" onclick="press(2)"></div>
-<div class="btn b3" onclick="press(3)"></div>
+<div id="keypad">
+<div class="key" onclick="press(1)"></div>
+<div class="key" onclick="press(2)"></div>
+<div class="key" onclick="press(3)"></div>
 
-<div class="btn b4" onclick="press(4)"></div>
-<div class="btn b5" onclick="press(5)"></div>
-<div class="btn b6" onclick="press(6)"></div>
+<div class="key" onclick="press(4)"></div>
+<div class="key" onclick="press(5)"></div>
+<div class="key" onclick="press(6)"></div>
 
-<div class="btn b7" onclick="press(7)"></div>
-<div class="btn b8" onclick="press(8)"></div>
-<div class="btn b9" onclick="press(9)"></div>
+<div class="key" onclick="press(7)"></div>
+<div class="key" onclick="press(8)"></div>
+<div class="key" onclick="press(9)"></div>
 
-<div class="btn b0" onclick="press(0)"></div>
+<div></div>
+<div class="key" onclick="press(0)"></div>
+<div></div>
+</div>
+
 </div>
 
 <div id="inside">
@@ -122,7 +114,6 @@ files.innerHTML+=`<img src="${r.result}" width="120">`;
 files.innerHTML+=`<video src="${r.result}" width="200" controls></video>`;
 }
 };
-
 r.readAsDataURL(f);
 }
 </script>
