@@ -8,53 +8,59 @@
 body{
 background:#111;
 color:white;
-text-align:center;
 font-family:Arial;
+text-align:center;
 }
 
 #screen{
-margin:15px;
 font-size:26px;
 letter-spacing:8px;
 color:#0f0;
+margin:15px;
 }
 
-#inside{display:none;}
+img{
+max-width:600px;
+}
 
-img{max-width:500px;}
+#inside{display:none;margin-top:20px;}
 </style>
 </head>
 
 <body>
 
-<h2>🔐 Kasa Şifresi</h2>
-
+<h2>🔐 Dijital Kasa</h2>
 <div id="screen">----</div>
 
 <img src="resim.png" usemap="#kasa">
 
 <map name="kasa">
 
-<!-- TUŞ KOORDİNATLARI (örnek, seninkine göre ayarlayabilirsin) -->
+<!-- 1. satır -->
+<area shape="rect" coords="360,170,405,215" onclick="press(1)">
+<area shape="rect" coords="415,170,460,215" onclick="press(2)">
+<area shape="rect" coords="470,170,515,215" onclick="press(3)">
 
-<area shape="rect" coords="300,170,350,220" onclick="press(1)">
-<area shape="rect" coords="360,170,410,220" onclick="press(2)">
-<area shape="rect" coords="420,170,470,220" onclick="press(3)">
+<!-- 2. satır -->
+<area shape="rect" coords="360,220,405,265" onclick="press(4)">
+<area shape="rect" coords="415,220,460,265" onclick="press(5)">
+<area shape="rect" coords="470,220,515,265" onclick="press(6)">
 
-<area shape="rect" coords="300,230,350,280" onclick="press(4)">
-<area shape="rect" coords="360,230,410,280" onclick="press(5)">
-<area shape="rect" coords="420,230,470,280" onclick="press(6)">
+<!-- 3. satır -->
+<area shape="rect" coords="360,270,405,315" onclick="press(7)">
+<area shape="rect" coords="415,270,460,315" onclick="press(8)">
+<area shape="rect" coords="470,270,515,315" onclick="press(9)">
 
-<area shape="rect" coords="300,290,350,340" onclick="press(7)">
-<area shape="rect" coords="360,290,410,340" onclick="press(8)">
-<area shape="rect" coords="420,290,470,340" onclick="press(9)">
-
-<area shape="rect" coords="360,350,410,400" onclick="press(0)">
+<!-- alt -->
+<area shape="rect" coords="360,320,405,365" onclick="press(4)">
+<area shape="rect" coords="415,320,460,365" onclick="press(0)">
+<area shape="rect" coords="470,320,515,365" onclick="press(0)">
 
 </map>
 
 <div id="inside">
 <h3>📂 Kasa Açıldı</h3>
+
 <input type="file" accept="image/*,video/*" onchange="upload(this)">
 <div id="files"></div>
 </div>
@@ -81,16 +87,18 @@ screen.innerText="----";
 }
 
 function upload(i){
-let file=i.files[0];
+let f=i.files[0];
 let r=new FileReader();
+
 r.onload=()=>{
-if(file.type.startsWith("image")){
+if(f.type.startsWith("image")){
 files.innerHTML+=`<img src="${r.result}" width="120">`;
 }else{
 files.innerHTML+=`<video src="${r.result}" width="200" controls></video>`;
 }
 };
-r.readAsDataURL(file);
+
+r.readAsDataURL(f);
 }
 </script>
 
