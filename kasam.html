@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Dijital Kasa Pro</title>
+
+<style>
+:root{
+--bg:#050505;
+--box:#222;
+--text:white;
+--accent:#0a84ff;
+}
+
+.light{
+--bg:#f2f2f2;
+--box:#ddd;
+--text:#000;
+}
+
+body{
+background:var(--bg);
+color:var(--text);
+font-family:Arial;
+text-align:center;
+transition:.3s;
+}
+
+#safe,#inside{
+max-width:380px;
+margin:auto;
+}
+
+#door{
+background:linear-gradient(135deg,#777,#333);
+padding:30px;
+border-radius:15px;
+box-shadow:0 0 20px black;
+}
+
+.folder{
+background:var(--box);
+padding:20px;
+margin:10px;
+border-radius:10px;
+cursor:pointer;
+transition:.3s;
+}
+
+.folder:hover{transform:scale(1.05);}
+
+.hidden{display:none;}
+
+input,textarea,button{
+padding:8px;
+margin:5px;
+border-radius:6px;
+border:none;
+}
+
+button{
+background:var(--accent);
+color:white;
+}
+
+.fileBox img,video{
+width:100%;
+margin-top:10px;
+border-radius:8px;
+}
+</style>
+</head>
+
+<body>
+
+<button onclick="toggleTheme()">🌙 / ☀️</button>
+
+<div id="safe">
+<h2>🔐 Dijital Kasa</h2>
+<input type="password" id="pass" placeholder="Şifre">
+<br>
+<button onclick="unlock()">Aç</button>
+<p id="msg"></p>
+</div>
+
+<div id="inside" class="hidden">
+
+<h2>📁 Klasörler</h2>
+
+<div class="folder" onclick="openFolder('photos')">📷 Fotoğraflar</div>
+<div class="folder" onclick="openFolder('videos')">🎥 Videolar</div>
+<div class="folder" onclick="openFolder('notes')">📝 Notlar</div>
+<div class="folder" onclick="openFolder('settings')">⚙ Ayarlar</div>
+
+<div id="folderArea"></div>
+
+</div>
+
+<script>
+let password = localStorage.pass || "1234";
+let tries = 0;
+
+function unlock(){
+if(tries>=3){
+msg.innerText="⛔ Kasa kilitlendi!";
+return;
+}
+
+if(pass.value===password){
+safe.style.display="none";
+inside.classList.remove("hidden");
+}else{
+tries++;
+msg.innerText="Yanlış şifre ("+tries+"/3)";
+}
+}
+
+// Tema
+function toggleTheme(){
+document.body.classList.toggle("light");
+}
+
+// Klasör aç
+function openFolder(name){
+let html="";
+
+if(name=="photos"){
+html=`<h3>📷 Fotoğraflar</h3>
+<input type="file" accept="image/*" onchange="uploadFile(this,'photos')">
+<div class="fileBox">${loadFiles('photos')}</div>`;
+}
+
+if(name=="videos"){
+html=`<h3>🎥 Videolar</h3>
+<input type="file" accept="video/*" onchange="uploadFile(this,'videos')">
+<div class="fileBox">${loadFiles('videos')}</div>`;
+}
+
+if(name=="notes"){
+html=`<h3>📝 Not Defteri</h3>
+<textarea id="note" rows="4">${localStorage.note||""}</textarea><br>
+<button onclick="saveNote()">Kaydet</button>`;
+}
+
+if(name=="settings"){
+html=`<h3>⚙ Ayarlar</h3>
+<input type="password" id="newPass" placeholder="Yeni şifre">
+<br>
+<button onclick="changePass()">Şifre Değiştir</button>`;
+}
+
+folderArea.innerHTML=html;
+}
+
+// Dosya yükleme
+function uploadFile(input,folder){
+let file=input.files[0];
+let reader=new FileReader();
+
+reader.onload=()=>{
+let arr=JSON.parse(localStorage[folder]||"[]");
+arr.push(reader.result);
+localStorage[folder]=JSON.stringify(arr);
+openFolder(folder);
+}
+
+reader.readAsDataURL(file);
+}
+
+// Dosyaları yükle
+function loadFiles(folder){
+let arr=JSON.parse(localStorage[folder]||"[]");
+return arr.map(f=>{
+if(folder=="photos") return `<img src="${f}">`;
+if(folder=="videos") return `<video src="${f}" controls></video>`;
+}).join("");
+}
+
+// Not
+function saveNote(){
+localStorage.note=note.value;
+alert("Kaydedildi!");
+}
+
+// Şifre değiştir
+function changePass(){
+password=newPass.value;
+localStorage.pass=password;
+alert("Şifre değişti!");
+}
+</script>
+
+</body>
+</html>
