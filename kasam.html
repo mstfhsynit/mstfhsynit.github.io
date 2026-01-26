@@ -8,16 +8,54 @@
 body{
 background:#111;
 color:white;
-font-family:Arial;
 text-align:center;
+font-family:Arial;
+}
+
+#safe{
+position:relative;
+width:600px;
+margin:auto;
+}
+
+#safe img{
+width:100%;
 }
 
 #screen{
-font-size:26px;
-letter-spacing:8px;
 color:#0f0;
+font-size:26px;
+letter-spacing:6px;
 margin:15px;
 }
+
+/* Şeffaf tuşlar */
+.btn{
+position:absolute;
+width:55px;
+height:55px;
+cursor:pointer;
+}
+
+/* TUŞ YERLERİ (resmine göre ayarlı) */
+
+/* 1. satır */
+.b1{left:390px; top:155px;}
+.b2{left:450px; top:155px;}
+.b3{left:510px; top:155px;}
+
+/* 2. satır */
+.b4{left:390px; top:215px;}
+.b5{left:450px; top:215px;}
+.b6{left:510px; top:215px;}
+
+/* 3. satır */
+.b7{left:390px; top:275px;}
+.b8{left:450px; top:275px;}
+.b9{left:510px; top:275px;}
+
+/* alt */
+.b0{left:450px; top:335px;}
 
 #inside{display:none;margin-top:20px;}
 </style>
@@ -28,32 +66,23 @@ margin:15px;
 <h2>🔐 Dijital Kasa</h2>
 <div id="screen">----</div>
 
-<!-- ÖNEMLİ: genişliği sabitledik -->
-<img src="resim.png" width="600" usemap="#kasa">
+<div id="safe">
+<img src="resim.png">
 
-<map name="kasa">
+<div class="btn b1" onclick="press(1)"></div>
+<div class="btn b2" onclick="press(2)"></div>
+<div class="btn b3" onclick="press(3)"></div>
 
-<!-- 1.satır -->
-<area shape="rect" coords="360,170,405,215" onclick="press(1)">
-<area shape="rect" coords="415,170,460,215" onclick="press(2)">
-<area shape="rect" coords="470,170,515,215" onclick="press(3)">
+<div class="btn b4" onclick="press(4)"></div>
+<div class="btn b5" onclick="press(5)"></div>
+<div class="btn b6" onclick="press(6)"></div>
 
-<!-- 2.satır -->
-<area shape="rect" coords="360,220,405,265" onclick="press(4)">
-<area shape="rect" coords="415,220,460,265" onclick="press(5)">
-<area shape="rect" coords="470,220,515,265" onclick="press(6)">
+<div class="btn b7" onclick="press(7)"></div>
+<div class="btn b8" onclick="press(8)"></div>
+<div class="btn b9" onclick="press(9)"></div>
 
-<!-- 3.satır -->
-<area shape="rect" coords="360,270,405,315" onclick="press(7)">
-<area shape="rect" coords="415,270,460,315" onclick="press(8)">
-<area shape="rect" coords="470,270,515,315" onclick="press(9)">
-
-<!-- alt -->
-<area shape="rect" coords="360,320,405,365" onclick="press(4)">
-<area shape="rect" coords="415,320,460,365" onclick="press(0)">
-<area shape="rect" coords="470,320,515,365" onclick="press(0)">
-
-</map>
+<div class="btn b0" onclick="press(0)"></div>
+</div>
 
 <div id="inside">
 <h3>📂 Kasa Açıldı</h3>
@@ -93,6 +122,7 @@ files.innerHTML+=`<img src="${r.result}" width="120">`;
 files.innerHTML+=`<video src="${r.result}" width="200" controls></video>`;
 }
 };
+
 r.readAsDataURL(f);
 }
 </script>
