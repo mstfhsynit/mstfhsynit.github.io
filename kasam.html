@@ -19,10 +19,6 @@ color:#0f0;
 margin:15px;
 }
 
-img{
-max-width:600px;
-}
-
 #inside{display:none;margin-top:20px;}
 </style>
 </head>
@@ -32,21 +28,22 @@ max-width:600px;
 <h2>🔐 Dijital Kasa</h2>
 <div id="screen">----</div>
 
-<img src="resim.png" usemap="#kasa">
+<!-- ÖNEMLİ: genişliği sabitledik -->
+<img src="resim.png" width="600" usemap="#kasa">
 
 <map name="kasa">
 
-<!-- 1. satır -->
+<!-- 1.satır -->
 <area shape="rect" coords="360,170,405,215" onclick="press(1)">
 <area shape="rect" coords="415,170,460,215" onclick="press(2)">
 <area shape="rect" coords="470,170,515,215" onclick="press(3)">
 
-<!-- 2. satır -->
+<!-- 2.satır -->
 <area shape="rect" coords="360,220,405,265" onclick="press(4)">
 <area shape="rect" coords="415,220,460,265" onclick="press(5)">
 <area shape="rect" coords="470,220,515,265" onclick="press(6)">
 
-<!-- 3. satır -->
+<!-- 3.satır -->
 <area shape="rect" coords="360,270,405,315" onclick="press(7)">
 <area shape="rect" coords="415,270,460,315" onclick="press(8)">
 <area shape="rect" coords="470,270,515,315" onclick="press(9)">
@@ -60,7 +57,6 @@ max-width:600px;
 
 <div id="inside">
 <h3>📂 Kasa Açıldı</h3>
-
 <input type="file" accept="image/*,video/*" onchange="upload(this)">
 <div id="files"></div>
 </div>
@@ -97,7 +93,6 @@ files.innerHTML+=`<img src="${r.result}" width="120">`;
 files.innerHTML+=`<video src="${r.result}" width="200" controls></video>`;
 }
 };
-
 r.readAsDataURL(f);
 }
 </script>
