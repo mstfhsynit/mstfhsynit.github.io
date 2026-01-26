@@ -8,135 +8,55 @@
 body{
 background:#111;
 color:white;
-font-family:Arial;
 text-align:center;
+font-family:Arial;
 }
 
-#safeBox{
-position:relative;
-width:500px;
-margin:60px auto;
-}
-
-#safeBox img{
-width:100%;
-border-radius:10px;
-}
-
-/* ekran */
 #screen{
-position:absolute;
-top:60px;
-right:140px;
-width:140px;
-background:black;
+margin:15px;
+font-size:26px;
+letter-spacing:8px;
 color:#0f0;
-padding:6px;
-font-size:22px;
-letter-spacing:5px;
-border-radius:4px;
-z-index:5;
 }
 
-/* TUŞLAR */
-.key{
-position:absolute;
-width:45px;
-height:45px;
-cursor:pointer;
-z-index:10;   /* ÖNEMLİ */
-background:rgba(255,255,255,0); /* görünmez ama tıklanır */
-}
+#inside{display:none;}
 
-/* pozisyonlar */
-.k1{top:120px; right:180px;}
-.k2{top:120px; right:130px;}
-.k3{top:120px; right:80px;}
-
-.k4{top:170px; right:180px;}
-.k5{top:170px; right:130px;}
-.k6{top:170px; right:80px;}
-
-.k7{top:220px; right:180px;}
-.k8{top:220px; right:130px;}
-.k9{top:220px; right:80px;}
-
-.k0{top:270px; right:130px;}
-
-#msg{color:red;margin-top:10px;}
-
-#inside{
-display:none;
-margin-top:30px;
-}
-
-.folder{
-background:#222;
-padding:15px;
-margin:12px;
-border-radius:10px;
-max-width:500px;
-margin-left:auto;
-margin-right:auto;
-}
-
-img,video{
-width:100%;
-margin-top:10px;
-border-radius:8px;
-}
+img{max-width:500px;}
 </style>
 </head>
 
 <body>
 
-<h2>🔐 Dijital Kasa</h2>
-
-<div id="safeBox">
-
-<img src="resim.png">
+<h2>🔐 Kasa Şifresi</h2>
 
 <div id="screen">----</div>
 
-<div class="key k1" onclick="press(1)"></div>
-<div class="key k2" onclick="press(2)"></div>
-<div class="key k3" onclick="press(3)"></div>
+<img src="resim.png" usemap="#kasa">
 
-<div class="key k4" onclick="press(4)"></div>
-<div class="key k5" onclick="press(5)"></div>
-<div class="key k6" onclick="press(6)"></div>
+<map name="kasa">
 
-<div class="key k7" onclick="press(7)"></div>
-<div class="key k8" onclick="press(8)"></div>
-<div class="key k9" onclick="press(9)"></div>
+<!-- TUŞ KOORDİNATLARI (örnek, seninkine göre ayarlayabilirsin) -->
 
-<div class="key k0" onclick="press(0)"></div>
+<area shape="rect" coords="300,170,350,220" onclick="press(1)">
+<area shape="rect" coords="360,170,410,220" onclick="press(2)">
+<area shape="rect" coords="420,170,470,220" onclick="press(3)">
 
-</div>
+<area shape="rect" coords="300,230,350,280" onclick="press(4)">
+<area shape="rect" coords="360,230,410,280" onclick="press(5)">
+<area shape="rect" coords="420,230,470,280" onclick="press(6)">
 
-<p id="msg"></p>
+<area shape="rect" coords="300,290,350,340" onclick="press(7)">
+<area shape="rect" coords="360,290,410,340" onclick="press(8)">
+<area shape="rect" coords="420,290,470,340" onclick="press(9)">
+
+<area shape="rect" coords="360,350,410,400" onclick="press(0)">
+
+</map>
 
 <div id="inside">
-
-<div class="folder">
-<h3>📷 Fotoğraflar</h3>
-<input type="file" accept="image/*" onchange="upload(this,'photos')">
-<div id="photos"></div>
-</div>
-
-<div class="folder">
-<h3>🎥 Videolar</h3>
-<input type="file" accept="video/*" onchange="upload(this,'videos')">
-<div id="videos"></div>
-</div>
-
-<div class="folder">
-<h3>📝 Notlar</h3>
-<textarea id="note" rows="4" style="width:90%"></textarea><br>
-<button onclick="saveNote()">Kaydet</button>
-<p id="savedNote"></p>
-</div>
-
+<h3>📂 Kasa Açıldı</h3>
+<input type="file" accept="image/*,video/*" onchange="upload(this)">
+<div id="files"></div>
 </div>
 
 <script>
@@ -149,52 +69,28 @@ input+=n;
 screen.innerText="*".repeat(input.length).padEnd(4,"-");
 }
 
-if(input.length===4) check();
-}
-
-function check(){
+if(input.length===4){
 if(input===PASSWORD){
-safeBox.style.display="none";
 inside.style.display="block";
-loadAll();
 }else{
-msg.innerText="❌ Yanlış şifre!";
+alert("Yanlış şifre!");
 }
 input="";
 screen.innerText="----";
 }
+}
 
-function upload(i,folder){
+function upload(i){
+let file=i.files[0];
 let r=new FileReader();
 r.onload=()=>{
-let arr=JSON.parse(localStorage[folder]||"[]");
-arr.push(r.result);
-localStorage[folder]=JSON.stringify(arr);
-show(folder);
+if(file.type.startsWith("image")){
+files.innerHTML+=`<img src="${r.result}" width="120">`;
+}else{
+files.innerHTML+=`<video src="${r.result}" width="200" controls></video>`;
+}
 };
-r.readAsDataURL(i.files[0]);
-}
-
-function show(folder){
-let area=document.getElementById(folder);
-area.innerHTML="";
-let arr=JSON.parse(localStorage[folder]||"[]");
-
-arr.forEach(f=>{
-if(folder==="photos") area.innerHTML+=`<img src="${f}">`;
-if(folder==="videos") area.innerHTML+=`<video src="${f}" controls></video>`;
-});
-}
-
-function saveNote(){
-localStorage.note=note.value;
-savedNote.innerText=note.value;
-}
-
-function loadAll(){
-show("photos");
-show("videos");
-if(localStorage.note) savedNote.innerText=localStorage.note;
+r.readAsDataURL(file);
 }
 </script>
 
