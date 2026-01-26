@@ -26,9 +26,11 @@ margin:20px;
 font-size:28px;
 letter-spacing:6px;
 color:#0f0;
+border:2px solid #0f0;
+display:inline-block;
+padding:6px 20px;
 }
 
-/* TUŞ TAKIMI */
 #keypad{
 position:absolute;
 right:45px;
@@ -41,7 +43,17 @@ gap:10px;
 .key{
 width:60px;
 height:60px;
-background:rgba(255,255,255,0);
+cursor:pointer;
+}
+
+.key:hover{
+outline:2px solid #0f0;
+}
+
+#loginBtn{
+margin-top:15px;
+padding:10px 30px;
+font-size:18px;
 cursor:pointer;
 }
 
@@ -52,29 +64,32 @@ cursor:pointer;
 <body>
 
 <h2>🔐 Dijital Kasa</h2>
+
 <div id="screen">----</div>
 
 <div id="safe">
 
 <div id="keypad">
-<div class="key" onclick="press(1)"></div>
-<div class="key" onclick="press(2)"></div>
-<div class="key" onclick="press(3)"></div>
+<div class="key" onclick="add(1)"></div>
+<div class="key" onclick="add(2)"></div>
+<div class="key" onclick="add(3)"></div>
 
-<div class="key" onclick="press(4)"></div>
-<div class="key" onclick="press(5)"></div>
-<div class="key" onclick="press(6)"></div>
+<div class="key" onclick="add(4)"></div>
+<div class="key" onclick="add(5)"></div>
+<div class="key" onclick="add(6)"></div>
 
-<div class="key" onclick="press(7)"></div>
-<div class="key" onclick="press(8)"></div>
-<div class="key" onclick="press(9)"></div>
+<div class="key" onclick="add(7)"></div>
+<div class="key" onclick="add(8)"></div>
+<div class="key" onclick="add(9)"></div>
 
 <div></div>
-<div class="key" onclick="press(0)"></div>
+<div class="key" onclick="add(0)"></div>
 <div></div>
 </div>
 
 </div>
+
+<button id="loginBtn" onclick="login()">Giriş Yap</button>
 
 <div id="inside">
 <h3>📂 Kasa Açıldı</h3>
@@ -86,21 +101,21 @@ cursor:pointer;
 const PASSWORD="1234";
 let input="";
 
-function press(n){
-if(input.length<4){
+function add(n){
+if(input.length<6){
 input+=n;
-screen.innerText="*".repeat(input.length).padEnd(4,"-");
+screen.innerText=input;
+}
 }
 
-if(input.length===4){
+function login(){
 if(input===PASSWORD){
 inside.style.display="block";
 }else{
-alert("Yanlış şifre!");
+alert("❌ Şifre yanlış!");
 }
 input="";
 screen.innerText="----";
-}
 }
 
 function upload(i){
@@ -114,6 +129,7 @@ files.innerHTML+=`<img src="${r.result}" width="120">`;
 files.innerHTML+=`<video src="${r.result}" width="200" controls></video>`;
 }
 };
+
 r.readAsDataURL(f);
 }
 </script>
