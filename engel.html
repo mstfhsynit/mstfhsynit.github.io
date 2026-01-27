@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Stickman Runner Ultimate</title>
+<style>
+body{
+margin:0;
+overflow:hidden;
+font-family:Arial;
+background:linear-gradient(270deg,#6a11cb,#2575fc,#12d8fa);
+background-size:600% 600%;
+animation:bg 12s ease infinite;
+}
+
+@keyframes bg{
+0%{background-position:0% 50%}
+50%{background-position:100% 50%}
+100%{background-position:0% 50%}
+}
+
+#menu{
+position:absolute;
+width:100%;
+height:100%;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+color:white;
+background:rgba(0,0,0,.4);
+}
+
+.btn{
+padding:12px 25px;
+margin:10px;
+background:#ff4757;
+border:none;
+color:white;
+font-size:18px;
+border-radius:10px;
+cursor:pointer;
+}
+
+canvas{display:block;margin:auto;}
+
+#ui{
+position:fixed;
+top:10px;
+left:15px;
+color:white;
+font-size:20px;
+}
+
+#joystick{
+position:fixed;
+bottom:20px;
+left:20px;
+width:80px;
+height:80px;
+border-radius:50%;
+background:rgba(255,255,255,.3);
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:40px;
+color:white;
+}
+</style>
+</head>
+<body>
+
+<div id="menu">
+<h1>🏃 Stickman Runner</h1>
+<p>Karakter Seç:</p>
+<div>
+<button class="btn" onclick="setColor('#000')">⚫ Siyah</button>
+<button class="btn" onclick="setColor('#ff4757')">🔴 Kırmızı</button>
+<button class="btn" onclick="setColor('#1e90ff')">🔵 Mavi</button>
+</div>
+<button class="btn" onclick="startGame()">OYNA</button>
+</div>
+
+<div id="ui">Skor: <span id="score">0</span><br>Rekor: <span id="best">0</span></div>
+
+<canvas id="game" width="900" height="420"></canvas>
+
+<div id="joystick" onclick="jump()">⬆</div>
+
+<audio id="music" loop>
+<source src="https://cdn.pixabay.com/audio/2022/03/15/audio_5c1c7c69a1.mp3">
+</audio>
+
+<script>
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+const music=document.getElementById("music");
+
+let running=false;
+let score=0;
+let speed=6;
+let obstacles=[];
+let color="#000";
+
+let best=localStorage.getItem("bestRun")||0;
+document.getElementById("best").innerText=best;
+
+const player={
+x:80,y:300,dy:0,ground:300,leg:0
+};
+
+let clouds=[
+{x:100,y:60},{x:400,y:90},{x:700,y:50}
+];
+
+function setColor(c){ color=c }
+
+function startGame(){
+document.getElementById("menu").style.display="none";
+running=true;
+music.volume=0.4;
+music.play();
+spawnLoop();
+update();
+}
+
+function spawnLoop(){
+setInterval(()=>{
+if(running){
+let h=Math.random()*40+30;
+obstacles.push({x:900,y:340-h,w:30,h:h});
+}
+},1400);
+}
+
+function drawClouds(){
+ctx.fillStyle="rgba(255,255,255,.8)";
+clouds.forEach(c=>{
+ctx.beginPath();
+ctx.arc(c.x,c.y,20,0,Math.PI*2);
+ctx.arc(c.x+25,c.y+10,25,0,Math.PI*2);
+ctx.arc(c.x+50,c.y,20,0,Math.PI*2);
+ctx.fill();
+c.x-=1;
+if(c.x<-60) c.x=900;
+});
+}
+
+function drawStickman(){
+ctx.strokeStyle=color;
+ctx.lineWidth=3;
+
+let s=Math.sin(player.leg)*10;
+
+ctx.beginPath();
+ctx.arc(player.x+10,player.y-12,10,0,Math.PI*2);
+ctx.stroke();
+
+ctx.beginPath();
+ctx.moveTo(player.x+10,player.y);
+ctx.lineTo(player.x+10,player.y+25);
+ctx.stroke();
+
+ctx.beginPath();
+ctx.moveTo(player.x-5,player.y+10);
+ctx.lineTo(player.x+25,player.y+10);
+ctx.stroke();
+
+ctx.beginPath();
+ctx.moveTo(player.x+10,player.y+25);
+ctx.lineTo(player.x-5,player.y+45+s);
+ctx.moveTo(player.x+10,player.y+25);
+ctx.lineTo(player.x+25,player.y+45-s);
+ctx.stroke();
+}
+
+function drawGround(){
+ctx.fillStyle="#2ecc71";
+ctx.fillRect(0,360,900,60);
+}
+
+function drawObstacles(){
+ctx.fillStyle="#ff9f1a";
+obstacles.forEach(o=>{
+ctx.fillRect(o.x,o.y,o.w,o.h);
+});
+}
+
+function update(){
+if(!running) return;
+
+ctx.clearRect(0,0,900,420);
+
+drawClouds();
+drawGround();
+drawStickman();
+drawObstacles();
+
+player.leg+=0.3;
+player.y+=player.dy;
+player.dy+=1;
+
+if(player.y>player.ground){
+player.y=player.ground;
+player.dy=0;
+}
+
+obstacles.forEach(o=>o.x-=speed);
+obstacles=obstacles.filter(o=>o.x>-40);
+
+obstacles.forEach(o=>{
+if(player.x<o.x+o.w && player.x+20>o.x && player.y+50>o.y){
+endGame();
+}
+});
+
+score++;
+speed+=0.001;
+
+document.getElementById("score").innerText=Math.floor(score/10);
+
+requestAnimationFrame(update);
+}
+
+function jump(){
+if(player.y===player.ground){
+player.dy=-16;
+}
+}
+
+function endGame(){
+running=false;
+let final=Math.floor(score/10);
+
+if(final>best){
+best=final;
+localStorage.setItem("bestRun",best);
+}
+
+setTimeout(()=>{
+alert("Oyun Bitti!\nSkor: "+final);
+location.reload();
+},150);
+}
+
+document.addEventListener("keydown",e=>{
+if(e.code==="Space") jump();
+});
+</script>
+</body>
+</html>
