@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kur'an Okuyucu</title>
+
+<style>
+body{
+ margin:0;
+ background:#0f0f0f;
+ color:white;
+ font-family:Arial;
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+}
+
+.top{
+ width:100%;
+ padding:10px;
+ display:flex;
+ flex-wrap:wrap;
+ gap:8px;
+ justify-content:center;
+ background:#1b1b1b;
+}
+
+select,input,button{
+ padding:8px;
+ border-radius:6px;
+ border:none;
+ font-size:14px;
+}
+
+.viewer{
+ position:relative;
+ width:95%;
+ max-width:750px;
+ margin:10px;
+ overflow:hidden;
+}
+
+#page{
+ width:100%;
+ transition:.2s;
+ border-radius:12px;
+}
+
+.nav{
+ position:absolute;
+ top:50%;
+ transform:translateY(-50%);
+ background:rgba(0,0,0,.6);
+ font-size:30px;
+ color:white;
+ border:none;
+ padding:10px;
+ border-radius:50%;
+ cursor:pointer;
+}
+
+#prev{left:0}
+#next{right:0}
+
+.controls{
+ margin:10px;
+ display:flex;
+ gap:10px;
+}
+
+.dark{
+ background:#f5f5f5;
+ color:black;
+}
+.dark .top{background:#ddd}
+
+</style>
+</head>
+<body>
+
+<div class="top">
+
+<select id="surah"></select>
+
+<input type="number" id="jump" placeholder="Sayfa">
+
+<button onclick="goPage()">Git</button>
+<button onclick="zoomIn()">+</button>
+<button onclick="zoomOut()">-</button>
+<button onclick="toggle()">🌙</button>
+<button onclick="play()">🔊</button>
+
+</div>
+
+<div class="viewer">
+<button class="nav" id="prev">⬅</button>
+<img id="page">
+<button class="nav" id="next">➡</button>
+</div>
+
+<div>Sayfa: <span id="num">1</span></div>
+
+<script>
+let page=1;
+let zoom=1;
+let dark=false;
+let audio=null;
+const max=604;
+
+const img=document.getElementById("page");
+const num=document.getElementById("num");
+const surahSel=document.getElementById("surah");
+
+function load(){
+ img.src=`https://cdn.quran.com/images/pages/${page}.png`;
+ num.innerText=page;
+ if(audio) audio.pause();
+}
+
+document.getElementById("next").onclick=()=>page<max&&(page++,load());
+document.getElementById("prev").onclick=()=>page>1&&(page--,load());
+
+function zoomIn(){zoom+=.1;img.style.transform=`scale(${zoom})`}
+function zoomOut(){zoom=Math.max(.5,zoom-.1);img.style.transform=`scale(${zoom})`}
+
+function toggle(){
+ dark=!dark;
+ document.body.classList.toggle("dark");
+}
+
+function goPage(){
+ let p=document.getElementById("jump").value;
+ if(p>=1 && p<=max){page=parseInt(p);load();}
+}
+
+fetch("https://api.alquran.cloud/v1/surah")
+.then(r=>r.json())
+.then(d=>{
+ d.data.forEach(s=>{
+   let o=document.createElement("option");
+   o.value=s.number;
+   o.text=`${s.number}. ${s.englishName}`;
+   surahSel.appendChild(o);
+ });
+});
+
+surahSel.onchange=()=>{
+ fetch(`https://api.alquran.cloud/v1/surah/${surahSel.value}`)
+ .then(r=>r.json())
+ .then(d=>{
+   page=d.data.ayahs[0].page;
+   load();
+ });
+}
+
+function play(){
+ if(audio){audio.pause();}
+ audio=new Audio(`https://cdn.islamic.network/quran/audio/128/ar.alafasy/${page}.mp3`);
+ audio.play();
+}
+
+// swipe
+let x=0;
+img.addEventListener("touchstart",e=>x=e.touches[0].clientX);
+img.addEventListener("touchend",e=>{
+ let y=e.changedTouches[0].clientX;
+ if(x-y>50) page<max&&(page++,load());
+ if(y-x>50) page>1&&(page--,load());
+});
+
+load();
+</script>
+
+</body>
+</html>
