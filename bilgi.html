@@ -2,888 +2,292 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Ağ İşletmenliği Bilgi Platformu</title>
+<title>Ağ İşletmenliği Bilgi Sistemi</title>
 
 <style>
-body{
-font-family:Arial, sans-serif;
-background:#0f172a;
-color:#e5e7eb;
-margin:0;
-}
-
-.container{
-max-width:900px;
-margin:auto;
-padding:20px;
-}
-
-h1{
-text-align:center;
-}
-
-.panel{
-background:#1e293b;
-padding:15px;
-border-radius:14px;
-margin:15px 0;
-}
-
-select,button{
-padding:8px 12px;
-border-radius:10px;
-border:none;
-margin:5px;
-cursor:pointer;
-}
-
-#infoBox{
-margin-top:15px;
-line-height:1.7;
-}
+body{font-family:Arial;background:#f4f4f4;color:#222;text-align:center;margin:0}
+.dark{background:#111;color:#eee}
+header{padding:15px;font-size:24px;font-weight:bold}
+select,button{padding:8px;margin:5px;border-radius:6px}
+#box{margin:20px auto;width:80%;max-width:800px;background:#fff;padding:15px;border-radius:10px}
+.dark #box{background:#222}
+audio{margin-top:10px}
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<header>🌐 Ağ İşletmenliği Platformu</header>
 
-<h1>🌐 Ağ İşletmenliği Bilgi Sistemi</h1>
+<button onclick="toggleTheme()">🌙 Tema</button>
 
-<div class="panel">
-<b>Kategori seç:</b><br>
-<select id="category"></select><br><br>
+<br>
 
-<button onclick="showInfo(3)">3 Bilgi</button>
-<button onclick="showInfo(5)">5 Bilgi</button>
-<button onclick="showInfo(10)">10 Bilgi</button>
+<select id="category"></select>
 
-<div id="infoBox"></div>
-</div>
+<select id="count">
+<option value="1">1 Bilgi</option>
+<option value="3">3 Bilgi</option>
+<option value="5">5 Bilgi</option>
+<option value="10">10 Bilgi</option>
+</select>
 
-</div>
+<button onclick="showInfo()">Bilgi Ver</button>
+<button onclick="quiz()">🎯 Mini Sınav</button>
+
+<div id="box"></div>
+
+<p>İlerleme: <span id="prog">0</span></p>
+
+<audio controls loop>
+<source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">
+</audio>
 
 <script>
 
-const categories = {
+let progress=0;
 
-// ===== PAKET 1 – TEMEL AĞ =====
-
-"IP Adresleme":[
-"IP cihazların ağdaki kimliğidir",
-"IPv4 32 bittir",
-"IPv6 128 bittir",
-"Statik IP manuel verilir",
-"Dinamik IP DHCP ile alınır",
-"Private IP yerel ağ içindir",
-"Public IP internet erişimi sağlar",
-"Subnet mask ağ bölümünü belirler",
-"CIDR gösterimi /24 şeklindedir",
-"127.0.0.1 loopback adresidir"
-],
-
-"Subnetting":[
-"Ağı küçük parçalara böler",
-"Broadcast adresi son IP’dir",
-"Network adresi ilk IP’dir",
-"2^n formülü host bulur",
-"CIDR subnet büyüklüğünü gösterir",
-"VLSM esnek subnet sağlar",
-"Trafiği azaltır",
-"Güvenliği artırır",
-"Performans sağlar",
-"Büyük ağlarda kullanılır"
-],
+const categories={
 
 "OSI Modeli":[
-"7 katmandan oluşur",
-"Fiziksel katman kabloları kapsar",
-"Data Link MAC adresi kullanır",
-"Network IP ile yönlendirir",
-"Transport TCP ve UDP içerir",
-"Session oturum kurar",
-"Presentation veri formatlar",
-"Application kullanıcıya en yakındır",
+"Standart ağ modelidir",
 "Hata tespiti için kullanılır",
-"Standart ağ modelidir"
+"Network IP ile yönlendirir"
 ],
-
-"TCP/IP":[
-"İnternetin temel modelidir",
-"4 katmandan oluşur",
-"TCP güvenilir veri iletir",
-"UDP hızlı ama kontrolsüzdür",
-"IP paket yönlendirir",
-"Protokol grubudur",
-"Modern ağların temelidir",
-"Veri paketlere bölünür",
-"Adresleme sağlar",
-"Bağlantı kurar"
-],
-
-"DNS":[
-"Alan adlarını IP’ye çevirir",
-"53 portunu kullanır",
-"Cache mekanizması vardır",
-"Root sunucular bulunur",
-"Hiyerarşik yapıdadır",
-"Primary ve secondary sunucu vardır",
-"Web siteleri için kritiktir",
-"UDP ağırlıklıdır",
-"Hızlı çözümleme yapar",
-"İsim sistemi sağlar"
-],
-
-"DHCP":[
-"Otomatik IP dağıtır",
-"Gateway atar",
-"DNS bilgisi verir",
-"Discover mesajı gönderir",
-"Offer ile teklif gelir",
-"Request ile istenir",
-"Ack ile onaylanır",
-"Kiralama süresi vardır",
-"Yönetimi kolaylaştırır",
-"Hataları azaltır"
-],
-
-"Router Temelleri":[
-"Ağlar arası yönlendirir",
-"Routing table kullanır",
-"Statik yönlendirme yapılabilir",
-"Dinamik protokoller kullanır",
-"NAT işlemi yapabilir",
-"Gateway görevi görür",
-"IP paketlerini iletir",
-"Internet bağlantısı sağlar",
-"Güvenlik özellikleri olabilir",
-"Merkezi ağ cihazıdır"
-],
-
-"Switch Temelleri":[
-"MAC adresi ile çalışır",
-"Layer 2 cihazıdır",
-"Collision azaltır",
-"Full duplex çalışır",
-"Yüksek hızlıdır",
-"VLAN destekler",
-"Akıllı veri iletir",
-"Hub’dan gelişmiştir",
-"Ağ performansını artırır",
-"Yerel ağ temelidir"
-],
-
-"Ağ Topolojileri":[
-"Yıldız topoloji yaygındır",
-"Halka topoloji eskidir",
-"Veriyolu topoloji kullanılmıştır",
-"Mesh topoloji güvenlidir",
-"Hibrit karışık yapıdadır",
-"Fiziksel düzeni gösterir",
-"Mantıksal bağlantıyı gösterir",
-"Maliyet etkiler",
-"Performansı etkiler",
-"Yönetimi etkiler"
-],
-
-"Temel Güvenlik":[
-"Firewall trafik kontrol eder",
-"Antivirüs zararlıları engeller",
-"Şifreleme veriyi korur",
-"Güncelleme önemlidir",
-"Güçlü parola kullanılır",
-"Yetkilendirme yapılır",
-"Log tutulur",
-"Saldırılar izlenir",
-"VPN güvenlik sağlar",
-"Ağ korunur"
-]
-
-};
-
-// dropdown doldur
-const select = document.getElementById("category");
-
-function refreshCategories(){
-select.innerHTML="";
-for(let cat in categories){
-let opt=document.createElement("option");
-opt.value=cat;
-opt.textContent=cat;
-select.appendChild(opt);
-}
-}
-
-function showInfo(n){
-let list = categories[select.value];
-let box = document.getElementById("infoBox");
-box.innerHTML="";
-if(!list) return;
-
-for(let i=0;i<n;i++){
-let r = list[Math.floor(Math.random()*list.length)];
-box.innerHTML += "• " + r + "<br>";
-}
-}
-
-refreshCategories();
-
-</script>
-
-</body>
-</html>
-// ===== PAKET 2 – ORTA SEVİYE AĞ =====
 
 "Portlar":[
-"HTTP 80 portunu kullanır",
-"HTTPS 443 portunu kullanır",
-"FTP 21 portunu kullanır",
-"SSH 22 portunu kullanır",
-"SMTP 25 portunu kullanır",
-"DNS 53 portunu kullanır",
-"DHCP 67-68 portlarını kullanır",
-"POP3 110 portunu kullanır",
-"IMAP 143 portunu kullanır",
-"RDP 3389 portunu kullanır"
+"HTTP 80 kullanır",
+"HTTPS 443 kullanır",
+"FTP 21 kullanır",
+"SSH 22 kullanır",
+"SMTP 25 kullanır",
+"DNS 53 kullanır",
+"DHCP 67-68 kullanır",
+"POP3 110 kullanır",
+"IMAP 143 kullanır",
+"RDP 3389 kullanır"
 ],
 
 "NAT":[
-"Private IP’yi public IP’ye çevirir",
+"Private IP public IP olur",
 "Internet çıkışı sağlar",
 "Statik NAT sabittir",
 "Dinamik NAT havuz kullanır",
 "PAT port çevirir",
+"IPv4 tasarrufu sağlar",
 "Gizlilik sağlar",
-"IPv4 tasarrufu yapar",
 "Router üzerinde çalışır",
 "Güvenliği artırır",
-"Yaygın kullanılır"
+"Yaygındır"
 ],
 
 "Routing Protokolleri":[
 "RIP mesafe vektörüdür",
-"OSPF link-state protokolüdür",
-"BGP internet yönlendirmesidir",
+"OSPF link state’dir",
+"BGP internet protokolüdür",
 "EIGRP Cisco’ya özeldir",
-"Dinamik yönlendirme sağlar",
 "Otomatik tablo günceller",
-"Performansı artırır",
-"Büyük ağlar için uygundur",
+"Performans sağlar",
+"Büyük ağlara uygundur",
+"Yedek yollar oluşturur",
 "Hata toleransı sağlar",
-"Yedek yollar oluşturur"
+"Dinamik çalışır"
 ],
 
 "Kablosuz Güvenlik":[
 "WEP güvensizdir",
-"WPA daha güvenlidir",
+"WPA güvenlidir",
 "WPA2 yaygındır",
-"WPA3 en güvenlisidir",
-"Şifreleme kullanılır",
-"MAC filtreleme yapılabilir",
-"SSID gizlenebilir",
+"WPA3 en güvenlidir",
+"Şifreleme kullanır",
+"MAC filtreleme yapılır",
+"SSID gizlenir",
 "Yetkisiz erişim engellenir",
 "Access Point korunur",
-"Ağ güvenliği artar"
+"Güvenlik artar"
 ],
 
 "QoS":[
 "Hizmet kalitesi sağlar",
-"Önceliklendirme yapar",
+"Öncelik verir",
 "Ses trafiğini korur",
 "Video için önemlidir",
 "Bant genişliği yönetir",
 "Gecikmeyi azaltır",
 "Paket kaybını düşürür",
-"Ağ performansı artırır",
-"Kurumsal ağlarda kullanılır",
-"Trafik sınıflandırır"
+"Ağ performansı artar",
+"Trafik sınıflandırır",
+"Kurumsalda kullanılır"
 ],
 
-"Ağ Kabloları":[
-"Cat5 eski standarttır",
-"Cat6 yaygındır",
-"Cat7 yüksek hız sağlar",
-"Fiber optik hızlıdır",
-"Bakır kablo ucuzdur",
-"RJ45 konnektör kullanılır",
-"UTP yaygındır",
-"STP korumalıdır",
-"Mesafe performansı etkiler",
-"Gürültüden etkilenebilir"
-],
-
-"MAC Adresleme":[
+"MAC Adresi":[
 "Fiziksel adresdir",
 "48 bittir",
 "Her cihaza özeldir",
+"Layer 2’de çalışır",
 "Switch kullanır",
-"OSI Layer 2’de çalışır",
-"Değiştirilebilir",
+"ARP ile eşleşir",
 "Üretici bilgisi içerir",
-"Ağ tanımlaması sağlar",
-"ARP ile IP’ye bağlanır",
-"Yerel ağda kullanılır"
+"Yerel ağda kullanılır",
+"Değiştirilebilir",
+"Ağ tanımlar"
 ],
 
 "ARP":[
 "IP’den MAC bulur",
-"Broadcast mesaj gönderir",
+"Broadcast gönderir",
 "ARP cache tutar",
 "Yerel ağda çalışır",
-"Hızlı eşleme sağlar",
-"TCP/IP parçasıdır",
+"Hızlı eşleme yapar",
 "Ağ iletişimini sağlar",
-"Adres çözümleme yapar",
-"Güvenlik açıkları olabilir",
-"Spoofing saldırısı vardır"
+"Güvenlik açığı olabilir",
+"Spoofing riski vardır",
+"Adres çözer",
+"TCP/IP parçasıdır"
 ],
-
-"Broadcast & Multicast":[
-"Broadcast herkese gider",
-"Multicast gruba gider",
-"Unicast tek cihaza gider",
-"Trafik türleridir",
-"Ağ yükünü etkiler",
-"Switch davranışı etkiler",
-"Router broadcast geçirmez",
-"Multicast verimlidir",
-"Video yayında kullanılır",
-"Ağ yönetiminde önemlidir"
-],
-
-"Performans Yönetimi":[
-"Bant genişliği ölçülür",
-"Gecikme izlenir",
-"Paket kaybı kontrol edilir",
-"Trafik analiz edilir",
-"Ağ darboğazları bulunur",
-"Optimizasyon yapılır",
-"QoS uygulanır",
-"Monitoring araçları kullanılır",
-"Performans raporlanır",
-"Süreklilik sağlanır"
-],
-// ===== PAKET 3 – İLERİ SEVİYE AĞ =====
-
-"BGP (Border Gateway Protocol)":[
-"Internet omurgasında kullanılır",
-"Otonom sistemler arası yönlendirme yapar",
-"Path vector protokolüdür",
-"Büyük ağlar için tasarlanmıştır",
-"Politika tabanlı yönlendirme yapar",
-"Yüksek ölçeklenebilirlik sağlar",
-"ISP’ler arasında kullanılır",
-"TCP port 179 kullanır",
-"Kararlı bağlantı sağlar",
-"Global internet trafiğini yönetir"
-],
-
-"IPv6 İleri Seviye":[
-"128 bit adresleme kullanır",
-"Adres sıkıntısını çözer",
-"Otomatik yapılandırma destekler",
-"Broadcast yerine multicast kullanır",
-"Daha güvenlidir",
-"IPSec entegredir",
-"Basitleştirilmiş header yapısı vardır",
-"Daha hızlı yönlendirme sağlar",
-"Modern ağ standardıdır",
-"Geleceğin protokolüdür"
-],
-
-"Load Balancing":[
-"Yükü dağıtır",
-"Sunucular arası paylaşım yapar",
-"Performansı artırır",
-"Kesintiyi azaltır",
-"Yedeklilik sağlar",
-"Round robin yöntemi kullanılır",
-"Health check yapılır",
-"Trafik dengelenir",
-"Büyük sistemlerde kullanılır",
-"Kullanıcı deneyimini iyileştirir"
-],
-
-"Virtual Network":[
-"Sanal ağ ortamı oluşturur",
-"Bulut sistemlerinde yaygındır",
-"Esneklik sağlar",
-"Kaynak tasarrufu sağlar",
-"Güvenli segmentasyon sağlar",
-"Sanal switch kullanılır",
-"Sanal router olabilir",
-"Test ortamı için uygundur",
-"Hızlı kurulum sağlar",
-"Modern altyapıdır"
-],
-
-"Network Redundancy":[
-"Yedek bağlantılar oluşturur",
-"Kesintiyi önler",
-"Failover mekanizması vardır",
-"Yüksek erişilebilirlik sağlar",
-"Donanım arızasına dayanıklıdır",
-"Ağ sürekliliğini korur",
-"Yedekli router kullanılır",
-"Yedekli switch kullanılır",
-"Kurumsal ağlarda şarttır",
-"Riskleri azaltır"
-],
-
-"Advanced Subnetting":[
-"VLSM kullanılır",
-"Farklı büyüklükte ağlar oluşturulur",
-"IP israfı azalır",
-"Esnek yapı sağlar",
-"Performansı artırır",
-"Büyük ağlar için uygundur",
-"CIDR detaylı kullanılır",
-"Adres yönetimi kolaylaşır",
-"Planlama önemlidir",
-"Profesyonel ağlarda gereklidir"
-],
-
-"Traffic Shaping":[
-"Trafik hızını düzenler",
-"Yoğunluğu kontrol eder",
-"Bant genişliği yönetir",
-"Önceliklendirme sağlar",
-"Gecikmeyi azaltır",
-"QoS ile birlikte kullanılır",
-"Ağ tıkanıklığını önler",
-"Kritik uygulamaları korur",
-"Performansı dengeler",
-"Kurumsal ağlarda yaygındır"
-],
-
-"High Availability":[
-"Sürekli hizmet sağlar",
-"Yedek sistemler kullanılır",
-"Downtime azaltılır",
-"Cluster yapıları kurulur",
-"Otomatik geçiş yapılır",
-"Kritik sistemler korunur",
-"Büyük veri merkezlerinde kullanılır",
-"Güvenilirlik artırılır",
-"Hizmet kalitesi yükselir",
-"Felaket senaryolarına hazırlık sağlar"
-],
-
-"Cloud Networking":[
-"Bulut altyapısında ağ kurulur",
-"Sanal IP kullanılır",
-"Esnek ölçeklenir",
-"Güvenli bağlantılar sağlanır",
-"VPN ile entegre olur",
-"Global erişim sağlar",
-"Kaynaklar paylaşılır",
-"Otomatik yapılandırma olur",
-"Modern işletmelerde kullanılır",
-"Maliyet düşürür"
-],
-
-"SDN (Software Defined Network)":[
-"Ağ yazılımla yönetilir",
-"Merkezi kontrol sağlar",
-"Esnek yapı sunar",
-"Otomasyon destekler",
-"Hızlı yapılandırma yapılır",
-"Donanımdan bağımsızdır",
-"Büyük ağlarda kullanılır",
-"Yönetim kolaylaşır",
-"Performans artar",
-"Geleceğin ağ teknolojisidir"
-],
-// ===== PAKET 4 – SERVER SİSTEMLERİ =====
 
 "Windows Server":[
-"Kurumsal sunucu işletim sistemidir",
+"Kurumsal sistemdir",
 "Active Directory içerir",
-"Kullanıcı yönetimi sağlar",
-"Dosya paylaşımı yapılır",
-"DNS servisi sunar",
-"DHCP servisi sunar",
-"Grup politikaları uygulanır",
-"Güvenlik yönetimi sağlar",
-"Yedekleme yapılabilir",
-"Kurumsal ağlarda yaygındır"
+"Kullanıcı yönetir",
+"DNS verir",
+"DHCP verir",
+"Dosya paylaşır",
+"Güvenlik sağlar",
+"Yedekleme yapar",
+"Grup politikası uygular",
+"Kurumsalda yaygındır"
 ],
 
 "Linux Server":[
 "Açık kaynaklıdır",
-"Yüksek performans sunar",
+"Hızlıdır",
 "Güvenlidir",
-"Web sunucu olarak kullanılır",
-"Veritabanı barındırır",
+"Web sunucu olur",
 "SSH ile yönetilir",
-"Servisler komut satırıyla kontrol edilir",
 "Düşük maliyetlidir",
-"Bulut sistemlerde yaygındır",
-"Stabil çalışır"
+"Stabildir",
+"Bulutta yaygındır",
+"Komut satırı kullanır",
+"Performanslıdır"
 ],
 
-"Active Directory":[
-"Merkezi kullanıcı yönetimi sağlar",
-"Domain yapısı oluşturur",
-"Yetkilendirme yapar",
-"Bilgisayarları domain’e alır",
-"Grup politikası uygular",
-"Kaynak erişimini kontrol eder",
-"Güvenliği artırır",
-"Kurum düzeni sağlar",
-"Oturum açmayı kolaylaştırır",
-"Sunucu kalbidir"
-],
-
-"Web Server":[
-"Web sitelerini yayınlar",
-"HTTP/HTTPS kullanır",
-"Apache yaygındır",
-"Nginx hızlıdır",
-"IIS Windows içindir",
-"Statik ve dinamik içerik sunar",
-"Port 80 ve 443 kullanır",
-"Yük dengeleme destekler",
-"Güvenlik yapılandırılır",
-"İnternet hizmeti sağlar"
-],
-
-"File Server":[
-"Dosya depolar",
-"Kullanıcı paylaşımı sağlar",
-"Yetkilendirme yapılır",
-"Merkezi arşiv sunar",
-"Yedekleme yapılabilir",
-"Erişim kontrolü sağlar",
-"Kurumsal veri saklar",
-"Ağ üzerinden erişilir",
-"Performans önemlidir",
-"Güvenli yapı gerekir"
-],
-
-"Mail Server":[
-"E-posta hizmeti sağlar",
-"SMTP gönderir",
-"POP3 alır",
-"IMAP senkronize eder",
-"Spam filtreleme yapar",
+"Firewall":[
+"Paket filtreler",
+"Trafik kontrol eder",
 "Güvenlik sağlar",
-"Kullanıcı hesapları yönetilir",
-"Kurumsal iletişim sağlar",
-"Sunucu yükü yönetilir",
-"Kesintisiz çalışmalıdır"
-],
-
-"Database Server":[
-"Veri saklar",
-"MySQL kullanılır",
-"PostgreSQL kullanılır",
-"MSSQL yaygındır",
-"Yüksek performans gerekir",
-"Yedekleme yapılır",
-"Veri güvenliği önemlidir",
-"Uygulamalara hizmet verir",
-"Büyük veri yönetir",
-"Sürekli çalışır"
-],
-
-"Virtual Server":[
-"Sanal makineler çalıştırır",
-"Kaynakları paylaşır",
-"VMware kullanılır",
-"Hyper-V kullanılır",
-"Esnek yapı sağlar",
-"Maliyet düşürür",
-"Hızlı kurulum yapılır",
-"Test ortamı oluşturur",
-"Yedeklilik sağlar",
-"Bulut altyapısına uygundur"
-],
-
-"Backup Server":[
-"Verileri yedekler",
-"Felaket kurtarma sağlar",
-"Otomatik planlama yapılır",
-"Bulut yedekleme olabilir",
-"Versiyonlama yapılır",
-"Veri kaybını önler",
-"Güvenlik sağlar",
-"Kurumsal sistemleri korur",
-"Hızlı geri yükleme sağlar",
-"Süreklilik sağlar"
-],
-
-"Monitoring Server":[
-"Sistemleri izler",
-"Performans ölçer",
-"Hata bildirir",
-"Grafikler oluşturur",
-"Log toplar",
-"Uyarı sistemi vardır",
-"Ağ sorunlarını erken bulur",
-"Kesintiyi azaltır",
-"Yönetimi kolaylaştırır",
-"Kurumsal gereklidir"
-],
-// ===== PAKET 5 – AĞ GÜVENLİĞİ =====
-
-"Firewall İleri Seviye":[
-"Paket filtreleme yapar",
-"Durum bilgili kontrol yapar",
-"Uygulama katmanı filtreler",
-"Kurallarla trafik yönetir",
-"Gelen saldırıları engeller",
+"Saldırı engeller",
+"Kural sistemi vardır",
+"Log tutar",
+"VPN destekler",
+"Kurumsalda kullanılır",
 "Yetkisiz erişimi önler",
-"Loglama yapar",
-"VPN ile entegre olabilir",
-"Kurumsal ağları korur",
-"Performans ayarı gerekir"
+"Ağı korur"
 ],
 
-"IDS (Saldırı Tespit Sistemi)":[
-"Ağı izler",
-"Şüpheli hareketleri tespit eder",
-"Uyarı üretir",
-"Trafik analizi yapar",
-"İmza tabanlı çalışır",
-"Anomali tabanlı çalışır",
-"Saldırı raporlar",
-"Güvenlik ekibine bilgi verir",
-"Önleyici değildir",
-"Erken uyarı sağlar"
+"Siber Saldırılar":[
+"DoS saldırısı",
+"DDoS saldırısı",
+"Phishing",
+"Malware",
+"Ransomware",
+"MITM",
+"Bruteforce",
+"SQL Injection",
+"XSS",
+"Trojan"
 ],
 
-"IPS (Saldırı Önleme Sistemi)":[
-"Saldırıları anında engeller",
-"Trafiği keser",
-"IDS’den farklıdır",
-"Otomatik müdahale yapar",
-"Gerçek zamanlı korur",
-"Gelişmiş güvenlik sağlar",
-"Sistemleri korur",
-"Saldırıları bloklar",
-"Kurumsal ağlarda kullanılır",
-"Firewall ile birlikte çalışır"
+"Ağ İzleme":[
+"Trafik izlenir",
+"Performans ölçülür",
+"Uyarı oluşturulur",
+"Grafik çizilir",
+"Kesinti erken bulunur",
+"SNMP kullanılır",
+"Sistem sağlığı izlenir",
+"Kaynaklar ölçülür",
+"Süreklilik sağlanır",
+"Sorunlar önlenir"
 ],
 
-"Siber Saldırı Türleri":[
-"DoS saldırısı hizmeti durdurur",
-"DDoS dağıtık saldırıdır",
-"Phishing kullanıcı kandırır",
-"Malware zararlı yazılımdır",
-"Ransomware dosyaları kilitler",
-"Man in the Middle araya girer",
-"Brute force parola dener",
-"SQL injection veri çalar",
-"XSS web saldırısıdır",
-"Trojan gizli zararlıdır"
-],
-
-"Şifreleme":[
-"Veriyi gizler",
-"AES güçlü şifrelemedir",
-"RSA anahtar kullanır",
-"Simetrik hızlıdır",
-"Asimetrik güvenlidir",
-"VPN’de kullanılır",
-"SSL/TLS koruma sağlar",
-"Veri güvenliği sağlar",
-"Yetkisiz erişimi önler",
-"Gizlilik sunar"
-],
-
-"Güvenlik Politikaları":[
-"Kurum kurallarını belirler",
-"Erişim yetkileri düzenler",
-"Şifre kuralları koyar",
-"Güvenlik standartları sağlar",
-"Kullanıcı eğitimi içerir",
-"Riskleri azaltır",
-"Denetim yapılır",
-"Uyumluluk sağlar",
-"Sorumlulukları belirler",
-"Güvenliği yönetir"
-],
-
-"Penetrasyon Testi":[
-"Güvenlik açıklarını bulur",
-"Sistemleri test eder",
-"Etik hacking yapılır",
-"Zayıflıklar raporlanır",
-"Saldırı simülasyonu yapılır",
-"Güvenliği güçlendirir",
-"Önleyici rol oynar",
-"Kurumlar için önemlidir",
-"Düzenli yapılmalıdır",
-"Riskleri azaltır"
-],
-
-"Antivirüs Sistemleri":[
-"Zararlı yazılım tarar",
-"Gerçek zamanlı korur",
-"Virüsleri siler",
-"Güncelleme alır",
-"Tehditleri karantinaya alır",
-"Kullanıcıyı uyarır",
-"Sistem performansını etkileyebilir",
-"Güvenlik katmanı sağlar",
-"Kurumsal çözümler vardır",
-"Temel koruma sunar"
-],
-
-"Yetkilendirme & Kimlik Doğrulama":[
-"Kullanıcı doğrular",
-"Parola kullanılır",
-"Çok faktörlü doğrulama vardır",
-"Yetkiler belirlenir",
-"Rol bazlı erişim uygulanır",
-"Güvenliği artırır",
-"Yetkisiz erişimi engeller",
-"Sistem kaynaklarını korur",
-"Merkezi yönetim yapılır",
-"Kurumlarda zorunludur"
-],
-
-"Loglama & Denetim":[
-"Tüm hareketler kaydedilir",
-"Güvenlik olayları izlenir",
-"Şüpheli durumlar bulunur",
-"Adli analiz yapılır",
-"Uyarılar oluşturulur",
-"Uyumluluk sağlar",
-"Güvenliği güçlendirir",
-"Merkezi log sunucusu olabilir",
-"Saldırılar tespit edilir",
-"Şeffaflık sağlar"
-],
-// ===== PAKET 6 – İZLEME & SORUN GİDERME =====
-
-"Ağ İzleme (Monitoring)":[
-"Ağ trafiği izlenir",
-"Cihaz performansı ölçülür",
-"Uyarılar oluşturulur",
-"Grafikler hazırlanır",
-"Kesintiler erken tespit edilir",
-"SNMP protokolü kullanılır",
-"Monitoring yazılımları kurulur",
-"Ağ sağlığı takip edilir",
-"Kaynak kullanımı ölçülür",
-"Süreklilik sağlanır"
-],
-
-"Sorun Giderme Adımları":[
+"Sorun Giderme":[
 "Sorun tanımlanır",
 "Bilgi toplanır",
-"Olası nedenler belirlenir",
-"Test yapılır",
+"Neden bulunur",
+"Test edilir",
 "Çözüm uygulanır",
 "Sonuç kontrol edilir",
 "Dokümantasyon yapılır",
-"Tekrar önlem alınır",
+"Önlem alınır",
 "Sistem izlenir",
 "Süreç iyileştirilir"
 ],
 
-"Ping & Traceroute":[
-"Ping bağlantı test eder",
+"Ping":[
+"Bağlantıyı test eder",
 "Gecikme ölçer",
-"Paket kaybını gösterir",
-"Traceroute yol izler",
-"Ara routerları gösterir",
-"Ağ hatası bulunur",
-"Temel araçtır",
+"Paket kaybı gösterir",
 "Hızlı teşhis sağlar",
 "Her sistemde vardır",
-"Sorun tespiti için kullanılır"
-],
+"Ağ hatası bulur",
+"Temel araçtır",
+"ICMP kullanır",
+"Ulaşılabilirlik test eder",
+"Sorun tespit eder"
+]
 
-"Log Analizi":[
-"Sistem kayıtları incelenir",
-"Hatalar tespit edilir",
-"Güvenlik olayları görülür",
-"Performans sorunları bulunur",
-"Zaman damgaları kullanılır",
-"Merkezi log sunucuları olur",
-"Raporlama yapılır",
-"Olay korelasyonu yapılır",
-"Erken uyarı sağlar",
-"Sorun çözmeyi hızlandırır"
-],
+};
 
-"Ağ Kesintisi Senaryoları":[
-"Router arızası olur",
-"Switch bağlantısı kopar",
-"DNS çalışmaz",
-"DHCP IP vermez",
-"Internet kesilir",
-"Firewall trafiği bloklar",
-"Kablo kopması olur",
-"Sunucu yanıt vermez",
-"Yük artışı olur",
-"Yedek sistem devreye girer"
-],
+const catSel=document.getElementById("category");
 
-"Performans Sorunları":[
-"Yavaş bağlantılar görülür",
-"Yüksek gecikme oluşur",
-"Paket kaybı artar",
-"Bant genişliği dolar",
-"Trafik analiz edilir",
-"QoS ayarlanır",
-"Donanım kontrol edilir",
-"Yük dağıtımı yapılır",
-"Optimizasyon uygulanır",
-"Sorun çözülür"
-],
+for(let c in categories){
+let o=document.createElement("option");
+o.value=c;
+o.textContent=c;
+catSel.appendChild(o);
+}
 
-"Ağ Test Araçları":[
-"Wireshark paket yakalar",
-"Netstat bağlantıları gösterir",
-"IPconfig yapılandırma gösterir",
-"Ifconfig Linux’ta kullanılır",
-"Nmap tarama yapar",
-"Speedtest hız ölçer",
-"Traceroute yol izler",
-"SNMP araçları kullanılır",
-"Monitoring yazılımları vardır",
-"Analiz kolaylaşır"
-],
+function showInfo(){
+let cat=catSel.value;
+let n=parseInt(document.getElementById("count").value);
+let arr=[...categories[cat]].sort(()=>0.5-Math.random());
+let out="";
+for(let i=0;i<n && i<arr.length;i++){
+out+="• "+arr[i]+"<br>";
+progress++;
+}
+document.getElementById("box").innerHTML=out;
+document.getElementById("prog").textContent=progress;
+}
 
-"Donanım Arızaları":[
-"Güç kaynağı bozulur",
-"Disk arızası olur",
-"Fan çalışmaz",
-"Kablo hasar görür",
-"Port yanar",
-"Switch bozulur",
-"Router resetlenir",
-"Sunucu kapanır",
-"Isınma sorunları olur",
-"Yedek donanım kullanılır"
-],
+function quiz(){
+let cat=catSel.value;
+let arr=categories[cat];
+let q=arr[Math.floor(Math.random()*arr.length)];
+let ans=prompt("Bu bilgi hangi kategoriye ait?\n\n"+q);
+if(ans && ans.toLowerCase()==cat.toLowerCase()){
+alert("Doğru!");
+}else{
+alert("Yanlış! Cevap: "+cat);
+}
+}
 
-"Yedekleme & Kurtarma":[
-"Veriler düzenli yedeklenir",
-"Felaket planı hazırlanır",
-"Geri yükleme test edilir",
-"Otomatik sistem kurulur",
-"Bulut yedekleme yapılır",
-"Versiyonlama tutulur",
-"Kritik veriler korunur",
-"Süreklilik sağlanır",
-"Kayıp önlenir",
-"Güvenlik artırılır"
-],
+function toggleTheme(){
+document.body.classList.toggle("dark");
+}
 
-"Dokümantasyon":[
-"Ağ yapısı çizilir",
-"IP planı tutulur",
-"Cihaz bilgileri yazılır",
-"Şifre politikaları kayıt altına alınır",
-"Değişiklikler kaydedilir",
-"Sorun çözümleri yazılır",
-"Bakım planları yapılır",
-"Yetkililer belirtilir",
-"Ağ yönetimi kolaylaşır",
-"Profesyonellik sağlar"
-],
+if(Notification.permission!=="granted"){
+Notification.requestPermission();
+}
+
+setInterval(()=>{
+if(Notification.permission==="granted"){
+new Notification("📚 Günlük ağ bilgisi öğren!");
+}
+},86400000);
+
+</script>
+
+</body>
+</html>
