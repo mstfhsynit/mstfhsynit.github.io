@@ -3,82 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Canlı Ruh Hali Sitesi</title>
+<title>Canlı Ruh Hali Ultimate Sync</title>
 
 <style>
 body{
 margin:0;
 overflow:hidden;
 font-family:Segoe UI,Arial;
-transition:background 1s;
-background:#111;
+background:linear-gradient(120deg,#222,#000);
 color:white;
+transition:0.6s;
 }
 
-canvas{
+canvas{position:fixed;top:0;left:0;}
+
+#ui{
 position:fixed;
-top:0;
-left:0;
+top:10px;
+left:10px;
+background:rgba(0,0,0,.6);
+padding:14px;
+border-radius:14px;
+width:210px;
 }
 
-#centerText{
+button,input{
+width:100%;
+margin:5px 0;
+padding:8px;
+border:none;
+border-radius:10px;
+font-weight:bold;
+cursor:pointer;
+}
+
+#songName{
+text-align:center;
+font-size:14px;
+margin:6px 0;
+}
+
+#text{
 position:absolute;
 top:50%;
 left:50%;
 transform:translate(-50%,-50%);
-font-size:2.2em;
+font-size:2.3em;
 text-align:center;
-text-shadow:0 0 15px #fff;
-padding:10px;
+text-shadow:0 0 20px white;
 }
 
-#panel{
+#stats{
 position:fixed;
-top:15px;
-left:15px;
+bottom:10px;
+right:10px;
 background:rgba(0,0,0,.6);
 padding:12px;
 border-radius:12px;
-backdrop-filter:blur(6px);
-}
-
-button{
-margin:4px 0;
-width:150px;
-padding:8px;
-border:none;
-border-radius:8px;
-cursor:pointer;
-font-weight:bold;
-}
-
-#counter{
-position:fixed;
-bottom:15px;
-right:15px;
-font-size:18px;
-background:rgba(0,0,0,.5);
-padding:10px 14px;
-border-radius:12px;
-}
-
-#quoteInput{
-width:140px;
-margin-top:5px;
-border-radius:6px;
-border:none;
-padding:5px;
-}
-
-.light{
-background:#eee;
-color:#111;
-}
-
-.light #panel,
-.light #counter{
-background:rgba(255,255,255,.6);
-color:#111;
 }
 </style>
 </head>
@@ -86,23 +67,23 @@ color:#111;
 
 <canvas id="canvas"></canvas>
 
-<div id="panel">
-<button onclick="toggleMusic()">🎵 Müzik Aç / Kapat</button><br>
-<button onclick="toggleMode()">🌙 Gece / Gündüz</button><br>
+<div id="ui">
+<button onclick="toggleMusic()">▶️ Oynat / Duraklat</button>
 
-<input id="quoteInput" placeholder="Söz ekle">
-<button onclick="addQuote()">➕ Ekle</button>
+<div id="songName">🎼 Yükleniyor...</div>
+
+<button onclick="prevSong()">⏮ Önceki</button>
+<button onclick="nextSong()">⏭ Sonraki</button>
+
+<label>🔊 Ses Seviyesi</label>
+<input id="volume" type="range" min="0" max="1" step="0.01">
 </div>
 
-<div id="centerText">Tıkla ve enerjini değiştir ✨</div>
+<div id="text">Müziği başlat 🎶</div>
 
-<div id="counter">Tıklama: 0</div>
+<div id="stats">Tıklama: <span id="count">0</span></div>
 
-<audio id="music" loop>
-<source src="https://cdn.pixabay.com/audio/2022/03/09/audio_8e0e62bb79.mp3">
-</audio>
-
-<audio id="clickSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_0f20b1db64.mp3"></audio>
+<audio id="music" preload="auto"></audio>
 
 <script>
 const canvas = document.getElementById("canvas");
@@ -117,92 +98,76 @@ window.onresize = resize;
 
 let waves = [];
 let clicks = 0;
-let musicOn = false;
-let dark = true;
 
-let quotes = [
-"Hayallerinin peşinden git!",
-"Bugün harika bir gün!",
-"Sen güçlüsün 💪",
-"Başaracaksın!",
-"Her şey mümkün!",
-"Pes etme!",
-"Kendine inan!",
-"Her adım seni ileri götürür!",
-"Zorluklar seni güçlendirir!",
-"Bugün değişimin başlangıcı!",
-"Asla vazgeçme!",
-"Sen değerlisin!",
-"Yapabilirsin!",
-"Küçük adımlar büyük sonuçlar doğurur!",
-"Başarı sabır ister!",
-"İmkansız diye bir şey yok!",
-"Gülümse 😊",
-"Bugün fırsatlarla dolu!",
-"Odaklan ve ilerle!",
-"En iyisi yolda!",
-"Şimdi başla!",
-"Cesur ol!",
-"Korkularını aş!",
-"Hayat senin elinde!",
-"Her gün yeni bir şans!",
-"Güç sende!",
-"Kalbinin sesini dinle!",
-"Bugün kendin için bir şey yap!",
-"Mutlu olmayı seç!",
-"Zaman seninle!",
-"İlerliyorsun!",
-"Başarı yakında!",
-"Umudunu kaybetme!",
-"Her şey düzelir!",
-"Şimdi tam zamanı!",
-"Harikasın!",
-"Sen özelsin!",
-"Yüksel!",
-"Kendin ol!",
-"Pozitif düşün!",
-"Güzel şeyler geliyor!",
-"Hayat kısa, değerlendir!",
-"Başarının tadını çıkar!",
-"Bugün senin günün!",
-"Yeni başlangıçlara açık ol!",
-"Ruhunu besle!",
-"İyiye odaklan!",
-"Her şey yolunda!",
-"Kazanacaksın!",
-"Şükret 🙏"
+// 🎼 MÜZİK LİSTESİ
+const playlist = [
+{ name:"Rahatlatıcı Melodi", src:"https://cdn.pixabay.com/audio/2022/03/09/audio_8e0e62bb79.mp3" },
+{ name:"Huzurlu Piyano", src:"https://cdn.pixabay.com/audio/2021/08/08/audio_884ee96b6c.mp3" },
+{ name:"Enerjik Beat", src:"https://cdn.pixabay.com/audio/2022/11/22/audio_3e5f3f28a3.mp3" }
 ];
+
+let current = 0;
+
+const music = document.getElementById("music");
+const songName = document.getElementById("songName");
+const volume = document.getElementById("volume");
+
+volume.value = 0.6;
+music.volume = 0.6;
+
+function loadSong(){
+music.src = playlist[current].src;
+songName.innerText = "🎼 " + playlist[current].name;
+}
+loadSong();
+
+function toggleMusic(){
+if(music.paused){
+music.play();
+}else{
+music.pause();
+}
+}
+
+function nextSong(){
+current = (current + 1) % playlist.length;
+loadSong();
+music.play();
+}
+
+function prevSong(){
+current--;
+if(current < 0) current = playlist.length - 1;
+loadSong();
+music.play();
+}
+
+volume.oninput = () => music.volume = volume.value;
+
+// 🎨 RENK + DALGA
 
 function randomColor(){
 return `hsl(${Math.random()*360},80%,60%)`;
 }
 
 function addWave(x,y){
-waves.push({
-x:x,
-y:y,
-r:0,
-color:randomColor()
-});
+waves.push({x,y,r:0,color:randomColor()});
 }
+
+// 🌊 ANİMASYON
 
 function draw(){
 ctx.clearRect(0,0,canvas.width,canvas.height);
 
-for(let i=0;i<waves.length;i++){
-let w = waves[i];
+waves.forEach((w,i)=>{
 ctx.beginPath();
 ctx.arc(w.x,w.y,w.r,0,Math.PI*2);
 ctx.strokeStyle = w.color;
 ctx.lineWidth = 4;
 ctx.stroke();
-w.r += 7;
-
-if(w.r > 800){
-waves.splice(i,1);
-i--;
-}
-}
+w.r += 5;
+if(w.r > 900) waves.splice(i,1);
+});
 
 requestAnimationFrame(draw);
 }
@@ -210,38 +175,69 @@ draw();
 
 document.body.addEventListener("click", e => {
 
-document.body.style.background = randomColor();
+document.body.style.background =
+`linear-gradient(120deg,${randomColor()},${randomColor()})`;
 
 addWave(e.clientX, e.clientY);
 
 clicks++;
-document.getElementById("counter").innerText = "Tıklama: " + clicks;
+count.innerText = clicks;
 
-document.getElementById("clickSound").play();
-
-let q = quotes[Math.floor(Math.random()*quotes.length)];
-document.getElementById("centerText").innerText = q;
+text.innerText = "Keyfini çıkar 🎨";
 
 });
 
-function toggleMusic(){
-const m = document.getElementById("music");
-musicOn = !musicOn;
-musicOn ? m.play() : m.pause();
-}
+// ==========================
+// 🎵 MÜZİKLE SENKRON EFEKT
+// ==========================
 
-function toggleMode(){
-dark = !dark;
-document.body.classList.toggle("light");
-}
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+const audioCtx = new AudioContext();
 
-function addQuote(){
-const input = document.getElementById("quoteInput");
-if(input.value.trim() !== ""){
-quotes.push(input.value);
-input.value = "";
+const source = audioCtx.createMediaElementSource(music);
+const analyser = audioCtx.createAnalyser();
+
+source.connect(analyser);
+analyser.connect(audioCtx.destination);
+
+analyser.fftSize = 256;
+
+const bufferLength = analyser.frequencyBinCount;
+const dataArray = new Uint8Array(bufferLength);
+
+music.onplay = () => {
+ if(audioCtx.state === "suspended"){
+   audioCtx.resume();
+ }
+};
+
+function musicReactive(){
+
+ analyser.getByteFrequencyData(dataArray);
+
+ let avg = 0;
+ for(let i=0;i<bufferLength;i++){
+   avg += dataArray[i];
+ }
+ avg /= bufferLength;
+
+ let intensity = avg / 255;
+
+ // Dalga hızını müziğe göre artır
+ waves.forEach(w=>{
+   w.r += intensity * 15;
+ });
+
+ // Beat olunca renk patlaması
+ if(intensity > 0.25){
+   document.body.style.background =
+   `linear-gradient(120deg,${randomColor()},${randomColor()})`;
+ }
+
+ requestAnimationFrame(musicReactive);
 }
-}
+musicReactive();
+
 </script>
 
 </body>
