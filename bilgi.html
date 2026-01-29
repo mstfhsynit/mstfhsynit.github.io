@@ -2,58 +2,72 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Ağ İşletmenliği Öğrenme Platformu</title>
+<title>Ağ Öğren</title>
 
 <style>
 body{
-font-family:Arial;
+font-family:Segoe UI,Arial;
+margin:0;
 transition:0.3s;
-text-align:center;
+}
+
+.dark{
+background:#0f172a;
+color:#e5e7eb;
+}
+
+.light{
+background:#f9fafb;
+color:#111827;
 }
 
 .container{
-width:80%;
+max-width:700px;
 margin:auto;
 padding:20px;
 }
 
-.dark{
-background:#0f2027;
-color:white;
+h1{
+text-align:center;
+font-weight:500;
 }
 
-.light{
-background:#f5f5f5;
-color:black;
-}
-
-.daily,#infoBox{
+.section{
+margin:20px 0;
 padding:15px;
-border-radius:15px;
-margin:15px;
-background:rgba(0,0,0,0.4);
+border-radius:12px;
+background:rgba(0,0,0,0.15);
 }
 
-.light .daily,
-.light #infoBox{
-background:#ddd;
+.light .section{
+background:#e5e7eb;
 }
 
 button,select{
-padding:10px 15px;
-margin:5px;
+padding:8px 12px;
+border-radius:10px;
 border:none;
-border-radius:12px;
+margin:5px;
 cursor:pointer;
-font-size:15px;
+font-size:14px;
 }
 
 button:hover{
-background:#00ffcc;
+background:#38bdf8;
+color:black;
 }
 
-.quiz-buttons button{
-width:120px;
+#infoBox{
+line-height:1.6;
+}
+
+.progress{
+font-size:14px;
+}
+
+.top{
+text-align:center;
+margin-bottom:15px;
 }
 </style>
 </head>
@@ -62,18 +76,21 @@ width:120px;
 
 <div class="container">
 
-<h1>🌐 Ağ İşletmenliği Öğrenme Platformu</h1>
+<h1>🌐 Ağ Öğren</h1>
 
-<button onclick="toggleTheme()">🌙 / ☀ Tema</button>
-<button onclick="toggleMusic()">🎵 Müzik</button>
-<button onclick="enableNotification()">🔔 Bildirim</button>
+<div class="top">
+<button onclick="toggleTheme()">Tema</button>
+<button onclick="toggleMusic()">Müzik</button>
+<button onclick="enableNotification()">Bildirim</button>
+</div>
 
-<div class="daily">
-<h2>📌 Günün Bilgisi</h2>
+<div class="section">
+<b>📌 Günün Bilgisi</b>
 <p id="dailyInfo"></p>
 </div>
 
-<h3>📚 Kategori</h3>
+<div class="section">
+<b>📚 Kategori</b><br>
 <select id="category">
 <option value="all">Tümü</option>
 <option value="ip">IP & Ağ</option>
@@ -81,31 +98,29 @@ width:120px;
 <option value="security">Güvenlik</option>
 </select>
 
-<div>
-<button onclick="showInfo(1)">1 Bilgi</button>
-<button onclick="showInfo(3)">3 Bilgi</button>
-<button onclick="showInfo(5)">5 Bilgi</button>
-<button onclick="showInfo(6)">6 Bilgi</button>
-</div>
+<br><br>
+
+<button onclick="showInfo(1)">1</button>
+<button onclick="showInfo(3)">3</button>
+<button onclick="showInfo(5)">5</button>
+<button onclick="showInfo(7)">7</button>
 
 <div id="infoBox"></div>
-
-<hr>
-
-<h2>🎯 Mini Sınav</h2>
-
-<p id="question"></p>
-
-<div class="quiz-buttons">
-<button onclick="answer(true)">✔ Doğru</button>
-<button onclick="answer(false)">❌ Yanlış</button>
 </div>
 
-<h3>📊 İlerleme</h3>
+<div class="section">
+<b>🎯 Mini Sınav</b>
+<p id="question"></p>
 
-<p>Doğru: <span id="correct">0</span></p>
-<p>Toplam: <span id="total">0</span></p>
-<p>Başarı: <span id="percent">0</span>%</p>
+<button onclick="answer(true)">Doğru</button>
+<button onclick="answer(false)">Yanlış</button>
+
+<div class="progress">
+Doğru: <span id="correct">0</span> |
+Toplam: <span id="total">0</span> |
+Başarı: <span id="percent">0</span>%
+</div>
+</div>
 
 </div>
 
@@ -116,84 +131,95 @@ width:120px;
 <script>
 const data = {
 ip:[
-"IP adresi cihazların ağ kimliğidir",
-"Subnet ağı parçalara böler",
-"DNS alan adını IP'ye çevirir",
-"Gateway çıkış kapısıdır"
+"IP adresi ağdaki cihazın kimliğidir",
+"IPv4 32 bittir",
+"IPv6 128 bittir",
+"Subnet ağı küçültür",
+"Gateway çıkış kapısıdır",
+"DNS alan adını IP’ye çevirir",
+"Ping bağlantıyı test eder",
+"LAN yerel ağdır",
+"WAN geniş ağdır",
+"MAC adresi donanıma özeldir"
 ],
 devices:[
-"Router ağlar arasında yönlendirir",
-"Switch cihazları birbirine bağlar",
+"Router ağlar arasında veri yollar",
+"Switch cihazları bağlar",
+"Hub veriyi herkese gönderir",
 "Server hizmet sunar",
-"Modem internet sağlar"
+"Modem internet sağlar",
+"Access Point kablosuz ağ oluşturur",
+"Firewall donanımsal olabilir",
+"Load Balancer yük dağıtır"
 ],
 security:[
-"Firewall ağı korur",
-"VPN güvenli bağlantıdır",
-"Antivirüs zararlıları engeller",
-"Şifreleme veriyi gizler"
+"Firewall zararlı trafiği engeller",
+"VPN şifreli bağlantıdır",
+"Antivirüs zararlı yazılımları siler",
+"Şifreleme veriyi gizler",
+"HTTPS güvenlidir",
+"IDS saldırıyı tespit eder",
+"IPS saldırıyı engeller",
+"Strong password güvenliği artırır"
 ]
 };
 
-let allInfos = [...data.ip, ...data.devices, ...data.security];
+let allInfos = [...data.ip,...data.devices,...data.security];
 
-// Günün bilgisi
-let today = new Date().getDate();
+// Günlük bilgi
+let day = new Date().getDate();
 document.getElementById("dailyInfo").innerText =
-allInfos[today % allInfos.length];
+allInfos[day % allInfos.length];
 
 // Bilgi göster
-function showInfo(count){
+function showInfo(n){
 let cat = document.getElementById("category").value;
 let list = cat=="all" ? allInfos : data[cat];
-
 let box = document.getElementById("infoBox");
 box.innerHTML="";
 
-for(let i=0;i<count;i++){
+for(let i=0;i<n;i++){
 let r = list[Math.floor(Math.random()*list.length)];
-box.innerHTML += "👉 " + r + "<br><br>";
+box.innerHTML += "• "+r+"<br>";
 }
-}
-
-// Müzik
-function toggleMusic(){
-let music = document.getElementById("bgMusic");
-music.paused ? music.play() : music.pause();
 }
 
 // Tema
 function toggleTheme(){
-let body = document.body;
-body.className = body.className=="dark" ? "light" : "dark";
+document.body.className =
+document.body.className=="dark" ? "light" : "dark";
+}
+
+// Müzik
+function toggleMusic(){
+let m = document.getElementById("bgMusic");
+m.paused ? m.play() : m.pause();
 }
 
 // Bildirim
 function enableNotification(){
 Notification.requestPermission().then(p=>{
-if(p==="granted"){
+if(p=="granted"){
 setInterval(()=>{
 let info = allInfos[Math.floor(Math.random()*allInfos.length)];
-new Notification("📡 Ağ Bilgisi",{body:info});
+new Notification("Ağ Bilgisi",{body:info});
 },86400000);
-alert("Bildirimler aktif!");
+alert("Bildirim açık!");
 }
 });
 }
 
 // Quiz
 const questions = [
-{q:"Router ağlar arasında veri iletir",a:true},
-{q:"DNS IP adresini isme çevirir",a:false},
-{q:"Firewall güvenliği sağlar",a:true},
-{q:"Switch internet verir",a:false},
+{q:"IP adresi ağdaki cihazı tanımlar",a:true},
+{q:"DNS interneti kapatır",a:false},
+{q:"Router ağlar arasında çalışır",a:true},
+{q:"Switch WAN oluşturur",a:false},
 {q:"VPN güvenli bağlantıdır",a:true},
-{q:"Antivirüs ağı böler",a:false}
+{q:"Firewall hızlandırır",a:false}
 ];
 
-let current=0;
-let correct=0;
-let total=0;
+let current=0, correct=0, total=0;
 
 function loadQuestion(){
 document.getElementById("question").innerText =
@@ -201,19 +227,16 @@ questions[current].q;
 }
 loadQuestion();
 
-function answer(val){
+function answer(v){
 total++;
-
-if(val===questions[current].a){
-correct++;
-}
+if(v==questions[current].a) correct++;
 
 document.getElementById("correct").innerText=correct;
 document.getElementById("total").innerText=total;
 document.getElementById("percent").innerText=
 Math.round((correct/total)*100);
 
-current = (current+1) % questions.length;
+current=(current+1)%questions.length;
 loadQuestion();
 }
 </script>
