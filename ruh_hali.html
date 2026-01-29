@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canlı Ruh Hali Sitesi</title>
+
+<style>
+body{
+margin:0;
+overflow:hidden;
+font-family:Segoe UI,Arial;
+transition:background 1s;
+background:#111;
+color:white;
+}
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+}
+
+#centerText{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+font-size:2.2em;
+text-align:center;
+text-shadow:0 0 15px #fff;
+padding:10px;
+}
+
+#panel{
+position:fixed;
+top:15px;
+left:15px;
+background:rgba(0,0,0,.6);
+padding:12px;
+border-radius:12px;
+backdrop-filter:blur(6px);
+}
+
+button{
+margin:4px 0;
+width:150px;
+padding:8px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+}
+
+#counter{
+position:fixed;
+bottom:15px;
+right:15px;
+font-size:18px;
+background:rgba(0,0,0,.5);
+padding:10px 14px;
+border-radius:12px;
+}
+
+#quoteInput{
+width:140px;
+margin-top:5px;
+border-radius:6px;
+border:none;
+padding:5px;
+}
+
+.light{
+background:#eee;
+color:#111;
+}
+
+.light #panel,
+.light #counter{
+background:rgba(255,255,255,.6);
+color:#111;
+}
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<div id="panel">
+<button onclick="toggleMusic()">🎵 Müzik Aç / Kapat</button><br>
+<button onclick="toggleMode()">🌙 Gece / Gündüz</button><br>
+
+<input id="quoteInput" placeholder="Söz ekle">
+<button onclick="addQuote()">➕ Ekle</button>
+</div>
+
+<div id="centerText">Tıkla ve enerjini değiştir ✨</div>
+
+<div id="counter">Tıklama: 0</div>
+
+<audio id="music" loop>
+<source src="https://cdn.pixabay.com/audio/2022/03/09/audio_8e0e62bb79.mp3">
+</audio>
+
+<audio id="clickSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_0f20b1db64.mp3"></audio>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+function resize(){
+canvas.width = innerWidth;
+canvas.height = innerHeight;
+}
+resize();
+window.onresize = resize;
+
+let waves = [];
+let clicks = 0;
+let musicOn = false;
+let dark = true;
+
+let quotes = [
+"Hayallerinin peşinden git!",
+"Bugün harika bir gün!",
+"Sen güçlüsün 💪",
+"Başaracaksın!",
+"Her şey mümkün!",
+"Pes etme!",
+"Kendine inan!",
+"Her adım seni ileri götürür!",
+"Zorluklar seni güçlendirir!",
+"Bugün değişimin başlangıcı!",
+"Asla vazgeçme!",
+"Sen değerlisin!",
+"Yapabilirsin!",
+"Küçük adımlar büyük sonuçlar doğurur!",
+"Başarı sabır ister!",
+"İmkansız diye bir şey yok!",
+"Gülümse 😊",
+"Bugün fırsatlarla dolu!",
+"Odaklan ve ilerle!",
+"En iyisi yolda!",
+"Şimdi başla!",
+"Cesur ol!",
+"Korkularını aş!",
+"Hayat senin elinde!",
+"Her gün yeni bir şans!",
+"Güç sende!",
+"Kalbinin sesini dinle!",
+"Bugün kendin için bir şey yap!",
+"Mutlu olmayı seç!",
+"Zaman seninle!",
+"İlerliyorsun!",
+"Başarı yakında!",
+"Umudunu kaybetme!",
+"Her şey düzelir!",
+"Şimdi tam zamanı!",
+"Harikasın!",
+"Sen özelsin!",
+"Yüksel!",
+"Kendin ol!",
+"Pozitif düşün!",
+"Güzel şeyler geliyor!",
+"Hayat kısa, değerlendir!",
+"Başarının tadını çıkar!",
+"Bugün senin günün!",
+"Yeni başlangıçlara açık ol!",
+"Ruhunu besle!",
+"İyiye odaklan!",
+"Her şey yolunda!",
+"Kazanacaksın!",
+"Şükret 🙏"
+];
+
+function randomColor(){
+return `hsl(${Math.random()*360},80%,60%)`;
+}
+
+function addWave(x,y){
+waves.push({
+x:x,
+y:y,
+r:0,
+color:randomColor()
+});
+}
+
+function draw(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+for(let i=0;i<waves.length;i++){
+let w = waves[i];
+ctx.beginPath();
+ctx.arc(w.x,w.y,w.r,0,Math.PI*2);
+ctx.strokeStyle = w.color;
+ctx.lineWidth = 4;
+ctx.stroke();
+w.r += 7;
+
+if(w.r > 800){
+waves.splice(i,1);
+i--;
+}
+}
+
+requestAnimationFrame(draw);
+}
+draw();
+
+document.body.addEventListener("click", e => {
+
+document.body.style.background = randomColor();
+
+addWave(e.clientX, e.clientY);
+
+clicks++;
+document.getElementById("counter").innerText = "Tıklama: " + clicks;
+
+document.getElementById("clickSound").play();
+
+let q = quotes[Math.floor(Math.random()*quotes.length)];
+document.getElementById("centerText").innerText = q;
+
+});
+
+function toggleMusic(){
+const m = document.getElementById("music");
+musicOn = !musicOn;
+musicOn ? m.play() : m.pause();
+}
+
+function toggleMode(){
+dark = !dark;
+document.body.classList.toggle("light");
+}
+
+function addQuote(){
+const input = document.getElementById("quoteInput");
+if(input.value.trim() !== ""){
+quotes.push(input.value);
+input.value = "";
+}
+}
+</script>
+
+</body>
+</html>
