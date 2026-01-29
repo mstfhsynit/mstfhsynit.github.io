@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Ağ İşletmenliği Öğrenme Platformu</title>
+
+<style>
+body{
+font-family:Arial;
+transition:0.3s;
+text-align:center;
+}
+
+.container{
+width:80%;
+margin:auto;
+padding:20px;
+}
+
+.dark{
+background:#0f2027;
+color:white;
+}
+
+.light{
+background:#f5f5f5;
+color:black;
+}
+
+.daily,#infoBox{
+padding:15px;
+border-radius:15px;
+margin:15px;
+background:rgba(0,0,0,0.4);
+}
+
+.light .daily,
+.light #infoBox{
+background:#ddd;
+}
+
+button,select{
+padding:10px 15px;
+margin:5px;
+border:none;
+border-radius:12px;
+cursor:pointer;
+font-size:15px;
+}
+
+button:hover{
+background:#00ffcc;
+}
+
+.quiz-buttons button{
+width:120px;
+}
+</style>
+</head>
+
+<body class="dark">
+
+<div class="container">
+
+<h1>🌐 Ağ İşletmenliği Öğrenme Platformu</h1>
+
+<button onclick="toggleTheme()">🌙 / ☀ Tema</button>
+<button onclick="toggleMusic()">🎵 Müzik</button>
+<button onclick="enableNotification()">🔔 Bildirim</button>
+
+<div class="daily">
+<h2>📌 Günün Bilgisi</h2>
+<p id="dailyInfo"></p>
+</div>
+
+<h3>📚 Kategori</h3>
+<select id="category">
+<option value="all">Tümü</option>
+<option value="ip">IP & Ağ</option>
+<option value="devices">Cihazlar</option>
+<option value="security">Güvenlik</option>
+</select>
+
+<div>
+<button onclick="showInfo(1)">1 Bilgi</button>
+<button onclick="showInfo(3)">3 Bilgi</button>
+<button onclick="showInfo(5)">5 Bilgi</button>
+<button onclick="showInfo(6)">6 Bilgi</button>
+</div>
+
+<div id="infoBox"></div>
+
+<hr>
+
+<h2>🎯 Mini Sınav</h2>
+
+<p id="question"></p>
+
+<div class="quiz-buttons">
+<button onclick="answer(true)">✔ Doğru</button>
+<button onclick="answer(false)">❌ Yanlış</button>
+</div>
+
+<h3>📊 İlerleme</h3>
+
+<p>Doğru: <span id="correct">0</span></p>
+<p>Toplam: <span id="total">0</span></p>
+<p>Başarı: <span id="percent">0</span>%</p>
+
+</div>
+
+<audio id="bgMusic" loop>
+<source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const data = {
+ip:[
+"IP adresi cihazların ağ kimliğidir",
+"Subnet ağı parçalara böler",
+"DNS alan adını IP'ye çevirir",
+"Gateway çıkış kapısıdır"
+],
+devices:[
+"Router ağlar arasında yönlendirir",
+"Switch cihazları birbirine bağlar",
+"Server hizmet sunar",
+"Modem internet sağlar"
+],
+security:[
+"Firewall ağı korur",
+"VPN güvenli bağlantıdır",
+"Antivirüs zararlıları engeller",
+"Şifreleme veriyi gizler"
+]
+};
+
+let allInfos = [...data.ip, ...data.devices, ...data.security];
+
+// Günün bilgisi
+let today = new Date().getDate();
+document.getElementById("dailyInfo").innerText =
+allInfos[today % allInfos.length];
+
+// Bilgi göster
+function showInfo(count){
+let cat = document.getElementById("category").value;
+let list = cat=="all" ? allInfos : data[cat];
+
+let box = document.getElementById("infoBox");
+box.innerHTML="";
+
+for(let i=0;i<count;i++){
+let r = list[Math.floor(Math.random()*list.length)];
+box.innerHTML += "👉 " + r + "<br><br>";
+}
+}
+
+// Müzik
+function toggleMusic(){
+let music = document.getElementById("bgMusic");
+music.paused ? music.play() : music.pause();
+}
+
+// Tema
+function toggleTheme(){
+let body = document.body;
+body.className = body.className=="dark" ? "light" : "dark";
+}
+
+// Bildirim
+function enableNotification(){
+Notification.requestPermission().then(p=>{
+if(p==="granted"){
+setInterval(()=>{
+let info = allInfos[Math.floor(Math.random()*allInfos.length)];
+new Notification("📡 Ağ Bilgisi",{body:info});
+},86400000);
+alert("Bildirimler aktif!");
+}
+});
+}
+
+// Quiz
+const questions = [
+{q:"Router ağlar arasında veri iletir",a:true},
+{q:"DNS IP adresini isme çevirir",a:false},
+{q:"Firewall güvenliği sağlar",a:true},
+{q:"Switch internet verir",a:false},
+{q:"VPN güvenli bağlantıdır",a:true},
+{q:"Antivirüs ağı böler",a:false}
+];
+
+let current=0;
+let correct=0;
+let total=0;
+
+function loadQuestion(){
+document.getElementById("question").innerText =
+questions[current].q;
+}
+loadQuestion();
+
+function answer(val){
+total++;
+
+if(val===questions[current].a){
+correct++;
+}
+
+document.getElementById("correct").innerText=correct;
+document.getElementById("total").innerText=total;
+document.getElementById("percent").innerText=
+Math.round((correct/total)*100);
+
+current = (current+1) % questions.length;
+loadQuestion();
+}
+</script>
+
+</body>
+</html>
