@@ -11,6 +11,7 @@ const overlay = document.getElementById("overlay");
 const overlayTitle = document.getElementById("overlayTitle");
 const overlayText = document.getElementById("overlayText");
 const overlayBtn = document.getElementById("overlayBtn");
+const controlButtons = document.querySelectorAll(".control-btn");
 
 const state = {
   cols: 18,
@@ -276,6 +277,28 @@ function bindControls() {
     if (["ArrowDown", "s", "S"].includes(event.key)) movePlayer(0, 1);
     if (["ArrowLeft", "a", "A"].includes(event.key)) movePlayer(-1, 0);
   });
+
+  for (const btn of controlButtons) {
+    btn.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      if (overlay.classList.contains("visible")) return;
+      const dir = btn.dataset.dir;
+      if (dir === "up") movePlayer(0, -1);
+      if (dir === "right") movePlayer(1, 0);
+      if (dir === "down") movePlayer(0, 1);
+      if (dir === "left") movePlayer(-1, 0);
+    });
+
+    btn.addEventListener("click", (event) => {
+      event.preventDefault();
+      if (overlay.classList.contains("visible")) return;
+      const dir = btn.dataset.dir;
+      if (dir === "up") movePlayer(0, -1);
+      if (dir === "right") movePlayer(1, 0);
+      if (dir === "down") movePlayer(0, 1);
+      if (dir === "left") movePlayer(-1, 0);
+    });
+  }
 }
 
 function setLevel(size) {

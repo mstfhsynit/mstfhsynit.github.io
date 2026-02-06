@@ -25,6 +25,14 @@
     <section class="game">
       <div class="board">
         <canvas id="mazeCanvas" width="720" height="720" aria-label="Labirent alanı" role="img"></canvas>
+        <div class="mobile-controls" aria-label="Hareket kontrolleri">
+          <button class="control-btn up" data-dir="up" aria-label="Yukarı">↑</button>
+          <div class="control-row">
+            <button class="control-btn left" data-dir="left" aria-label="Sol">←</button>
+            <button class="control-btn down" data-dir="down" aria-label="Aşağı">↓</button>
+            <button class="control-btn right" data-dir="right" aria-label="Sağ">→</button>
+          </div>
+        </div>
         <div class="hud">
           <div class="hud-left">
             <div class="stat">
