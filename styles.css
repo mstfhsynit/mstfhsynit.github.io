@@ -14,8 +14,15 @@
   --display: "Bebas Neue", "Impact", system-ui, sans-serif;
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
 }
 
 body {
@@ -26,16 +33,18 @@ body {
     radial-gradient(circle at 80% 10%, rgba(255, 139, 61, 0.28), transparent 50%),
     linear-gradient(160deg, #05060b 0%, #0b1022 50%, #090d19 100%);
   color: var(--ink);
-  min-height: 100vh;
   overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  touch-action: manipulation;
 }
 
 .page {
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 14px 3.5vw 16px;
+  gap: 12px;
+  padding: calc(12px + env(safe-area-inset-top)) calc(3vw + env(safe-area-inset-left))
+    calc(14px + env(safe-area-inset-bottom)) calc(3vw + env(safe-area-inset-right));
 }
 
 .hero {
@@ -43,7 +52,7 @@ body {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
+  gap: 12px;
 }
 
 .brand {
@@ -95,8 +104,8 @@ body {
 
 .game {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
-  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) 270px;
+  gap: 16px;
   align-items: stretch;
   flex: 1;
   min-height: 0;
@@ -104,7 +113,7 @@ body {
 
 .board {
   position: relative;
-  padding: 16px;
+  padding: 14px;
   border-radius: var(--radius);
   background: linear-gradient(145deg, rgba(15, 20, 35, 0.95), rgba(8, 10, 20, 0.98));
   border: 1px solid var(--stroke);
@@ -127,7 +136,7 @@ body {
 #mazeCanvas {
   width: 100%;
   height: 100%;
-  max-height: 62vh;
+  max-height: 64vh;
   aspect-ratio: 1 / 1;
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -165,6 +174,7 @@ body {
   font-weight: 700;
   box-shadow: 0 12px 24px rgba(4, 8, 20, 0.45);
   transition: transform 0.15s ease, background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .control-btn:active {
@@ -332,9 +342,10 @@ body {
   }
 
   .page {
-    height: 100vh;
+    height: 100%;
     overflow: hidden;
-    padding: 12px 4vw 14px;
+    padding: calc(10px + env(safe-area-inset-top)) calc(4vw + env(safe-area-inset-left))
+      calc(12px + env(safe-area-inset-bottom)) calc(4vw + env(safe-area-inset-right));
     gap: 8px;
   }
 
@@ -352,7 +363,7 @@ body {
   }
 
   #mazeCanvas {
-    max-height: 42vh;
+    max-height: 46vh;
   }
 
   .hud {

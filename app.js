@@ -15,6 +15,15 @@ const controlButtons = document.querySelectorAll(".control-btn");
 
 if ("ontouchstart" in window || navigator.maxTouchPoints > 0) {
   document.documentElement.classList.add("touch");
+  document.addEventListener(
+    "touchmove",
+    (event) => {
+      if (event.target.closest(".mobile-controls") || event.target.closest("#mazeCanvas")) {
+        event.preventDefault();
+      }
+    },
+    { passive: false }
+  );
 } else {
   document.documentElement.classList.add("no-touch");
 }
