@@ -95,7 +95,7 @@ body {
 
 .game {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
+  grid-template-columns: minmax(0, 1fr) 280px;
   gap: 18px;
   align-items: stretch;
   flex: 1;
@@ -361,11 +361,32 @@ body {
   }
 
   .panel {
+    display: flex;
+    gap: 8px;
+  }
+
+  .panel-howto,
+  .panel-goal,
+  .footer {
     display: none;
   }
 
-  .footer {
-    display: none;
+  .panel-levels {
+    padding: 10px 12px;
+  }
+
+  .panel-levels h2 {
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+
+  .levels {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .panel-levels .btn {
+    padding: 8px 10px;
+    font-size: 12px;
   }
 }
 
