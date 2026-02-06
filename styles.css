@@ -27,14 +27,15 @@ body {
     linear-gradient(160deg, #05060b 0%, #0b1022 50%, #090d19 100%);
   color: var(--ink);
   min-height: 100vh;
+  overflow: hidden;
 }
 
 .page {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 24px 4vw 32px;
+  gap: 14px;
+  padding: 14px 3.5vw 16px;
 }
 
 .hero {
@@ -94,14 +95,16 @@ body {
 
 .game {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 26px;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 18px;
   align-items: stretch;
+  flex: 1;
+  min-height: 0;
 }
 
 .board {
   position: relative;
-  padding: 20px;
+  padding: 16px;
   border-radius: var(--radius);
   background: linear-gradient(145deg, rgba(15, 20, 35, 0.95), rgba(8, 10, 20, 0.98));
   border: 1px solid var(--stroke);
@@ -109,7 +112,8 @@ body {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+  min-height: 0;
 }
 
 .board::before {
@@ -122,7 +126,9 @@ body {
 
 #mazeCanvas {
   width: 100%;
-  height: auto;
+  height: 100%;
+  max-height: 62vh;
+  aspect-ratio: 1 / 1;
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: radial-gradient(circle at top, rgba(255, 229, 128, 0.12), transparent 55%),
@@ -135,7 +141,7 @@ body {
   gap: 10px;
   align-items: center;
   justify-content: center;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 .mobile-controls .control-row {
@@ -151,8 +157,8 @@ body {
   border: 1px solid var(--stroke);
   background: rgba(12, 18, 30, 0.85);
   color: var(--ink);
-  width: 64px;
-  height: 64px;
+  width: 72px;
+  height: 72px;
   border-radius: 16px;
   font-size: 22px;
   font-weight: 700;
@@ -182,8 +188,7 @@ body {
 }
 
 .hud {
-  position: absolute;
-  inset: auto 20px 20px 20px;
+  position: static;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -246,11 +251,12 @@ body {
 .panel {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
+  overflow: hidden;
 }
 
 .panel-card {
-  padding: 18px;
+  padding: 14px;
   background: rgba(14, 19, 34, 0.9);
   border-radius: 18px;
   border: 1px solid var(--stroke);
@@ -265,13 +271,13 @@ body {
 }
 
 .panel-card ul {
-  margin: 12px 0 0;
+  margin: 8px 0 0;
   padding-left: 18px;
   color: var(--muted);
 }
 
 .panel-card li {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .panel-card.subtle {
@@ -323,6 +329,22 @@ body {
     grid-template-columns: 1fr;
   }
 
+  .page {
+    height: 100vh;
+    overflow: hidden;
+    padding: 12px 4vw 14px;
+    gap: 8px;
+  }
+
+  .board {
+    flex: 1;
+    padding: 12px;
+  }
+
+  #mazeCanvas {
+    max-height: 48vh;
+  }
+
   .hud {
     flex-direction: column;
     align-items: stretch;
@@ -332,11 +354,42 @@ body {
     display: flex;
     gap: 12px;
   }
+
+  .mobile-controls {
+    display: grid;
+  }
+
+  .panel {
+    display: none;
+  }
+
+  .footer {
+    display: none;
+  }
 }
 
 @media (hover: none) and (pointer: coarse) {
   .mobile-controls {
     display: grid;
+  }
+}
+
+@media (max-height: 820px) {
+  .hero {
+    gap: 10px;
+  }
+
+  .hero h1 {
+    font-size: clamp(24px, 3.2vw, 42px);
+  }
+
+  .chip {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+
+  .panel-card {
+    padding: 14px;
   }
 }
 
