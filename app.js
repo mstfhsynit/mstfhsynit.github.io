@@ -13,6 +13,12 @@ const overlayText = document.getElementById("overlayText");
 const overlayBtn = document.getElementById("overlayBtn");
 const controlButtons = document.querySelectorAll(".control-btn");
 
+if ("ontouchstart" in window || navigator.maxTouchPoints > 0) {
+  document.documentElement.classList.add("touch");
+} else {
+  document.documentElement.classList.add("no-touch");
+}
+
 const state = {
   cols: 18,
   rows: 18,

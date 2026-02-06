@@ -141,7 +141,8 @@ body {
   gap: 10px;
   align-items: center;
   justify-content: center;
-  margin-top: 6px;
+  margin-top: 8px;
+  z-index: 3;
 }
 
 .mobile-controls .control-row {
@@ -366,6 +367,14 @@ body {
   .footer {
     display: none;
   }
+}
+
+html.touch .mobile-controls {
+  display: grid;
+}
+
+html.no-touch .mobile-controls {
+  display: none;
 }
 
 @media (hover: none) and (pointer: coarse) {
